@@ -27,10 +27,11 @@ workspace "FuuGBemu"
             pchheader "headers/Fuupch.h"
             files
             {
-                "%{prj.name}/**.h",
-                "%{prj.name}/**.cpp",
-                "%{prj.name}/**.m",
-                "%{prj.name}/**.mm",
+                "%{prj.name}/headers/**.h",
+                "%{prj.name}/source/**.cpp",
+                "%{prj.name}/source/**.m",
+                "%{prj.name}/source/**.mm",
+                "%{prj.name}/external/spdlog/include/**.h"
             }
 
             defines
