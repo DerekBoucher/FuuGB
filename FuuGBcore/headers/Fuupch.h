@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <memory>
 
 #ifdef FUUGB_SYSTEM_WINDOWS
     #include <Windows.h>

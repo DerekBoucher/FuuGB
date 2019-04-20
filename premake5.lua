@@ -42,6 +42,7 @@ workspace "FuuGBemu"
         
         filter "system:windows"
             systemversion "latest"
+			staticruntime "On"
             pchheader "Fuupch.h"
             pchsource "FuuGBcore/source/Fuupch.cpp"
             files
@@ -73,7 +74,8 @@ workspace "FuuGBemu"
 
         includedirs
         {
-            "FuuGBcore"
+            "FuuGBcore",
+			"FuuGBcore/external/spdlog/include"
         }
 
         links
