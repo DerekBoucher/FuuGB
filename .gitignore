@@ -1,3 +1,9 @@
 *.xcworkspace
 *.xcodeproj
 bin/
+.vs/
+*.vcxproj
+*.filters
+*.user
+*.sln
+bin-int/

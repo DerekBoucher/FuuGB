@@ -9,6 +9,5 @@
 #define FuuGB_h
 
 #include "headers/Application.h"
-#include "headers/Core.h"
 
 #endif /* FuuGB_h */

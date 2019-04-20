@@ -12,12 +12,17 @@ workspace "FuuGBemu"
         cppdialect "C++17"
         targetdir ("bin/" .. outputdir .. "/%{prj.name}")
         objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-        pchheader "headers/Fuupch.h"
-        pchsource "source/Fuupch.cpp"
+        pchheader "Fuupch.h"
+        pchsource "FuuGBcore/source/Fuupch.cpp"
 
         libdirs {}
 
         links {}
+
+		includedirs
+		{
+			"FuuGBcore/headers"
+		}
 
         filter "system:macosx"
             files
@@ -34,12 +39,18 @@ workspace "FuuGBemu"
             }
         
         filter "system:windows"
+			systemversion "latest"
             files
             {
                 "%{prj.name}/**.h",
                 "%{prj.name}/**.cpp"
             }
-    
+			defines
+            {
+                "FUUGB_SYSTEM_WINDOWS",
+				"FUUGB_BUILD_DLL"
+            }
+
     project "FuuSandbox"
         location "FuuSandBox"
         kind "ConsoleApp"
@@ -69,3 +80,14 @@ workspace "FuuGBemu"
             {
                 "FUUGB_SYSTEM_MACOS"
             }
+
+		filter "system:windows"
+			systemversion "latest"
+			defines
+            {
+                "FUUGB_SYSTEM_WINDOWS"
+            }
+			postbuildcommands
+			{
+				("copy ..\\bin\\" .. outputdir .. "\\FuuGBcore\\FuuGBcore.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\FuuGBcore.dll")
+			}
