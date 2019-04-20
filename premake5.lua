@@ -31,7 +31,8 @@ workspace "FuuGBemu"
                 "%{prj.name}/source/**.cpp",
                 "%{prj.name}/source/**.m",
                 "%{prj.name}/source/**.mm",
-                "%{prj.name}/external/spdlog/include/**.h"
+                "%{prj.name}/external/spdlog/include/**.h",
+				"%{prj.name}/*.h"
             }
 
             defines
@@ -47,7 +48,8 @@ workspace "FuuGBemu"
             {
                 "%{prj.name}/headers/**.h",
                 "%{prj.name}/source/**.cpp",
-				"%{prj.name}/external/spdlog/include/**.h"
+				"%{prj.name}/external/spdlog/include/**.h",
+				"%{prj.name}/*.h"
             }
 			defines
             {
