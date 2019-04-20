@@ -12,8 +12,6 @@ workspace "FuuGBemu"
         cppdialect "C++17"
         targetdir ("bin/" .. outputdir .. "/%{prj.name}")
         objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-        pchheader "Fuupch.h"
-        pchsource "FuuGBcore/source/Fuupch.cpp"
 
         libdirs {}
 
@@ -25,6 +23,7 @@ workspace "FuuGBemu"
 		}
 
         filter "system:macosx"
+            pchheader "headers/Fuupch.h"
             files
             {
                 "%{prj.name}/**.h",
@@ -39,7 +38,9 @@ workspace "FuuGBemu"
             }
         
         filter "system:windows"
-			systemversion "latest"
+            systemversion "latest"
+            pchheader "Fuupch.h"
+            pchsource "FuuGBcore/source/Fuupch.cpp"
             files
             {
                 "%{prj.name}/**.h",
