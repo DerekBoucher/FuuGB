@@ -7,7 +7,7 @@
 
 #ifndef Application_h
 #define Application_h
-#include "Core.h"
+#include "Logger.h"
 
 namespace FuuGB
 {

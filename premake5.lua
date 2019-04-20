@@ -21,36 +21,32 @@ workspace "FuuGBemu"
 		{
 			"FuuGBcore/headers",
 			"FuuGBcore/external/spdlog/include"
-		}
+        }
+        
+        files
+        {
+            "%{prj.name}/headers/**.h",
+            "%{prj.name}/source/**.cpp",
+            "%{prj.name}/*.h"
+        }
 
         filter "system:macosx"
             pchheader "headers/Fuupch.h"
             files
             {
-                "%{prj.name}/headers/**.h",
-                "%{prj.name}/source/**.cpp",
                 "%{prj.name}/source/**.m",
                 "%{prj.name}/source/**.mm",
-                "%{prj.name}/external/spdlog/include/**.h",
-				"%{prj.name}/*.h"
             }
-
             defines
             {
                 "FUUGB_SYSTEM_MACOS"
             }
-        
+
         filter "system:windows"
             systemversion "latest"
+			staticruntime "On"
             pchheader "Fuupch.h"
             pchsource "FuuGBcore/source/Fuupch.cpp"
-            files
-            {
-                "%{prj.name}/headers/**.h",
-                "%{prj.name}/source/**.cpp",
-				"%{prj.name}/external/spdlog/include/**.h",
-				"%{prj.name}/*.h"
-            }
 			defines
             {
                 "FUUGB_SYSTEM_WINDOWS",
@@ -73,7 +69,8 @@ workspace "FuuGBemu"
 
         includedirs
         {
-            "FuuGBcore"
+            "FuuGBcore",
+			"FuuGBcore/external/spdlog/include"
         }
 
         links
@@ -86,6 +83,16 @@ workspace "FuuGBemu"
             {
                 "FUUGB_SYSTEM_MACOS"
             }
+            filter "configurations:Debug"
+                postbuildcommands
+                {
+                    "{COPY} bin/Debug-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
+                }
+                filter "configurations:Release"
+                postbuildcommands
+                {
+                    "{COPY} bin/Release-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
+                }
 
 		filter "system:windows"
 			systemversion "latest"

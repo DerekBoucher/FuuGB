@@ -22,7 +22,11 @@ namespace FuuGB
     
     void Application::run()
     {
-        std::cout<<"Hello\n";
+		Logger::init();
+		FUUGB_CPU_LOG("Initialized Log!");
+		FUUGB_MEM_LOG("Mem Log!");
+		FUUGB_PPU_LOG("PPU Log!");
+		FUUGB_SUBSYSTEM_LOG("Subsystem Log!");
         while(true);
     }
 }
