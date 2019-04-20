@@ -9,7 +9,6 @@
 #define Fuupch_h
 
 #include <iostream>
-#include <stdio.h>
 #include <string>
 #include <vector>
 #include <memory>

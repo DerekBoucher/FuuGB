@@ -35,4 +35,4 @@ namespace FuuGB
 #define FUUGB_PPU_LOG(...) FuuGB::Logger::GetPpuLogger()->error(__VA_ARGS__)
 #define FUUGB_SUBSYSTEM_LOG(...) FuuGB::Logger::GetSubsystemLogger()->trace(__VA_ARGS__)
 
-#endif Logger_h
+#endif /* Logger_h */
