@@ -1,0 +1,3 @@
+[submodule "FuuGBcore\\external\\spdlog"]
+	path = FuuGBcore\\external\\spdlog
+	url = https://github.com/gabime/spdlog.git

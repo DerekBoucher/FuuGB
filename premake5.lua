@@ -19,7 +19,8 @@ workspace "FuuGBemu"
 
 		includedirs
 		{
-			"FuuGBcore/headers"
+			"FuuGBcore/headers",
+			"FuuGBcore/external/spdlog/include"
 		}
 
         filter "system:macosx"
@@ -43,8 +44,9 @@ workspace "FuuGBemu"
             pchsource "FuuGBcore/source/Fuupch.cpp"
             files
             {
-                "%{prj.name}/**.h",
-                "%{prj.name}/**.cpp"
+                "%{prj.name}/headers/**.h",
+                "%{prj.name}/source/**.cpp",
+				"%{prj.name}/external/spdlog/include/**.h"
             }
 			defines
             {
