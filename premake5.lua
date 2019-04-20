@@ -37,12 +37,11 @@ workspace "FuuGBemu"
                 "%{prj.name}/source/**.m",
                 "%{prj.name}/source/**.mm",
             }
-
             defines
             {
                 "FUUGB_SYSTEM_MACOS"
             }
-        
+
         filter "system:windows"
             systemversion "latest"
 			staticruntime "On"
@@ -84,6 +83,16 @@ workspace "FuuGBemu"
             {
                 "FUUGB_SYSTEM_MACOS"
             }
+            filter "configurations:Debug"
+                postbuildcommands
+                {
+                    "{COPY} bin/Debug-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
+                }
+                filter "configurations:Release"
+                postbuildcommands
+                {
+                    "{COPY} bin/Release-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
+                }
 
 		filter "system:windows"
 			systemversion "latest"
