@@ -7,4 +7,3 @@ bin/
 *.user
 *.sln
 bin-int/
-external
