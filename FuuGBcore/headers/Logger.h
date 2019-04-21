@@ -12,6 +12,13 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "Core.h"
 
+/*
+ *  Class Logger
+ *
+ *  Synopsis:   The Logger class provides logging functionalities to all core components
+ *              of the library/emulation unit. This logger references the spdlog github project
+ *              which can be found at https://github.com/gabime/spdlog.git
+ */
 namespace FuuGB
 {
 	class FUUGB_API Logger

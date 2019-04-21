@@ -13,13 +13,8 @@ workspace "FuuGBemu"
         targetdir ("bin/" .. outputdir .. "/%{prj.name}")
         objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-        libdirs {}
-
-        links {}
-
 		includedirs
 		{
-			"FuuGBcore/headers",
 			"FuuGBcore/external/spdlog/include"
         }
         
@@ -32,14 +27,21 @@ workspace "FuuGBemu"
 
         filter "system:macosx"
             pchheader "headers/Fuupch.h"
-            files
-            {
-                "%{prj.name}/source/**.m",
-                "%{prj.name}/source/**.mm",
-            }
             defines
             {
                 "FUUGB_SYSTEM_MACOS"
+            }
+            links
+            {
+                "SDL2.framework"
+            }
+            buildoptions 
+            {
+                "-F %{prj.location}/external/SDL2/MacOS"
+            }
+            linkoptions 
+            {
+                "-F %{prj.location}/external/SDL2/MacOS"
             }
 
         filter "system:windows"

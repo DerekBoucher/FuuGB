@@ -5,6 +5,12 @@
 //  Created by Derek Boucher on 2019-04-19.
 //
 
+/*
+ *  Header Core
+ *
+ *  Synposis:   Header containing various system core defines and macros.
+ *              Referenced by almost all components of this library.
+ */
 #ifndef Core_h
 #define Core_h
 
@@ -20,7 +26,19 @@
     #define FUUGB_API
 #endif
 
-namespace FuuGB {
+typedef unsigned char uBYTE;
+typedef unsigned short uWORD;
+typedef char sBYTE;
+typedef short sWORD;
+
+namespace FuuGB
+{
+    struct Shared
+    {
+        static const int ScaleFactor = 3;
+        static bool RUNNING;
+        static SDL_Event _event;
+    };
 }
 
 #endif /* Core_h */
