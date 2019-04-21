@@ -17,7 +17,7 @@
 
 namespace FuuGB
 {
-    class PPU
+    class FUUGB_API PPU
     {
     public:
         PPU(SDL_Window* windowPtr);

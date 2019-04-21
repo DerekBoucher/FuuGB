@@ -12,7 +12,7 @@
 #include "Core.h"
 namespace FuuGB
 {
-    class Cartridge
+    class FUUGB_API Cartridge
     {
     public:
         Cartridge(FILE* input);

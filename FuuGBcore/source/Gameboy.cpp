@@ -8,19 +8,22 @@
 
 #include "Gameboy.h"
 
-Gameboy::Gameboy(SDL_Window* windowPtr, Cartridge* cart)
+namespace FuuGB
 {
-    this->ppu               = new PPU(windowPtr);
-    this->memory            = new Memory(cart);
-    this->cpu               = new CPU(this->memory);
-}
+	Gameboy::Gameboy(SDL_Window* windowPtr, Cartridge* cart)
+	{
+		this->ppu = new PPU(windowPtr);
+		this->memory = new Memory(cart);
+		this->cpu = new CPU(this->memory);
+	}
 
-Gameboy::~Gameboy()
-{
-    ppu->stop();
-    memory->stop();
-    cpu->stop();
-    delete ppu;
-    delete memory;
-    delete cpu;
+	Gameboy::~Gameboy()
+	{
+		ppu->stop();
+		memory->stop();
+		cpu->stop();
+		delete ppu;
+		delete memory;
+		delete cpu;
+	}
 }

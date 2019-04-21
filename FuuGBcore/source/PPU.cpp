@@ -8,60 +8,63 @@
 
 #include "PPU.h"
 
-PPU::PPU(SDL_Window* windowRef)
+namespace FuuGB
 {
-    _ppuRunning         = true;
-    renderer            = SDL_GetRenderer(windowRef);
-    if(renderer == NULL)
-        renderer        = SDL_CreateRenderer(windowRef, -1, SDL_RENDERER_ACCELERATED);
+	PPU::PPU(SDL_Window* windowRef)
+	{
+		_ppuRunning = true;
+		renderer = SDL_GetRenderer(windowRef);
+		if (renderer == NULL)
+			renderer = SDL_CreateRenderer(windowRef, -1, SDL_RENDERER_ACCELERATED);
 
-    for(int i = 0;i < NATIVE_SIZE_X; ++i)
-    {
-        for(int j = 0; j < NATIVE_SIZE_Y; ++j)
-        {
-            pixels[i][j].h = Shared::ScaleFactor;
-            pixels[i][j].w = Shared::ScaleFactor;
-            pixels[i][j].x = i*Shared::ScaleFactor;
-            pixels[i][j].y = j*Shared::ScaleFactor;
-        }
-    }
-    
-    _ppuTHR = new std::thread(&PPU::clock, this);
-    renderScreen();
-}
+		for (int i = 0;i < NATIVE_SIZE_X; ++i)
+		{
+			for (int j = 0; j < NATIVE_SIZE_Y; ++j)
+			{
+				pixels[i][j].h = Shared::ScaleFactor;
+				pixels[i][j].w = Shared::ScaleFactor;
+				pixels[i][j].x = i * Shared::ScaleFactor;
+				pixels[i][j].y = j * Shared::ScaleFactor;
+			}
+		}
 
-PPU::~PPU()
-{
-    _ppuTHR->join();
-    ppuCond.notify_all();
-    delete _ppuTHR;
-    SDL_DestroyRenderer(this->renderer);
-}
+		_ppuTHR = new std::thread(&PPU::clock, this);
+		renderScreen();
+	}
 
-void PPU::stop()
-{
-    _ppuRunning = false;
-}
+	PPU::~PPU()
+	{
+		_ppuTHR->join();
+		ppuCond.notify_all();
+		delete _ppuTHR;
+		SDL_DestroyRenderer(this->renderer);
+	}
 
-void PPU::clock()
-{
-    while (_ppuRunning)
-    {
-        std::this_thread::sleep_for(std::chrono::nanoseconds(PPU_CLOCK_PERIOD_NS));
-        ppuCond.notify_all();
-    }
-}
+	void PPU::stop()
+	{
+		_ppuRunning = false;
+	}
 
-void PPU::renderScreen()
-{
-    srand(time(NULL));
-    SDL_SetRenderDrawColor(renderer, rand()%255, rand()%255, rand()%255, 255);
-    for(int i = 0;i < NATIVE_SIZE_X; ++i)
-    {
-        for(int j = 0; j < NATIVE_SIZE_Y; ++j)
-        {
-            SDL_RenderDrawRect(renderer, &pixels[i][j]);
-        }
-    }
-    SDL_RenderPresent(renderer);
+	void PPU::clock()
+	{
+		while (_ppuRunning)
+		{
+			std::this_thread::sleep_for(std::chrono::nanoseconds(PPU_CLOCK_PERIOD_NS));
+			ppuCond.notify_all();
+		}
+	}
+
+	void PPU::renderScreen()
+	{
+		srand(time(NULL));
+		SDL_SetRenderDrawColor(renderer, rand() % 255, rand() % 255, rand() % 255, 255);
+		for (int i = 0;i < NATIVE_SIZE_X; ++i)
+		{
+			for (int j = 0; j < NATIVE_SIZE_Y; ++j)
+			{
+				SDL_RenderDrawRect(renderer, &pixels[i][j]);
+			}
+		}
+		SDL_RenderPresent(renderer);
+	}
 }

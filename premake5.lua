@@ -15,18 +15,22 @@ workspace "FuuGBemu"
 
 		includedirs
 		{
-			"FuuGBcore/external/spdlog/include"
+			"FuuGBcore/headers",
+			"FuuGBcore/external/spdlog/include",
+			"FuuGBcore/external/pch"
         }
         
         files
         {
             "%{prj.name}/headers/**.h",
             "%{prj.name}/source/**.cpp",
-            "%{prj.name}/*.h"
+            "%{prj.name}/*.h",
+			"%{prj.name}/external/pch/*.h",
+			"%{prj.name}/external/pch/*.cpp"
         }
 
         filter "system:macosx"
-            pchheader "headers/Fuupch.h"
+            pchheader "external/pch/Fuupch.h"
             defines
             {
                 "FUUGB_SYSTEM_MACOS"
@@ -48,7 +52,7 @@ workspace "FuuGBemu"
             systemversion "latest"
 			staticruntime "On"
             pchheader "Fuupch.h"
-            pchsource "FuuGBcore/source/Fuupch.cpp"
+            pchsource "FuuGBcore/external/pch/Fuupch.cpp"
 			defines
             {
                 "FUUGB_SYSTEM_WINDOWS",

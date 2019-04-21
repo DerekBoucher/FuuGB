@@ -14,6 +14,8 @@
 #ifndef Core_h
 #define Core_h
 
+#include "Fuupch.h"
+
 #ifdef FUUGB_SYSTEM_WINDOWS
     #ifdef FUUGB_BUILD_DLL
         #define FUUGB_API __declspec(dllexport)

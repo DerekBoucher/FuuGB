@@ -16,7 +16,7 @@
 
 namespace FuuGB
 {
-    class Gameboy
+    class FUUGB_API Gameboy
     {
     public:
         Gameboy(SDL_Window*, Cartridge*);

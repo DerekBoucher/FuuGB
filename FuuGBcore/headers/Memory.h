@@ -15,7 +15,7 @@
 
 namespace FuuGB
 {
-    class Memory
+    class FUUGB_API Memory
     {
     public:
         Memory(Cartridge*);
