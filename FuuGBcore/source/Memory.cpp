@@ -15,9 +15,9 @@ namespace FuuGB
 		cart = gameCart;
 		M_MEM = new uBYTE[0x10000];
 		memset(this->M_MEM, 0x0, 0x10000);
-		bootROM = fopen("../../../../../../../../Desktop/Xcode Projects/GBemu/Common/DMG_ROM.bin", "rb");
-		fread(M_MEM, sizeof(uBYTE), 0x100, bootROM);
-		fclose(bootROM);
+		//bootROM = fopen("boot/DMG_ROM.bin", "rb");
+		//fread(M_MEM, sizeof(uBYTE), 0x100, bootROM);
+		//fclose(bootROM);
 		for (int i = 0x100;i < 0x4000; ++i)
 			M_MEM[i] = cart->ROM[i - 0x100];
 		_memoryRunning = true;

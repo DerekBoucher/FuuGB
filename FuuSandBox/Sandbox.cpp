@@ -7,7 +7,7 @@
 
 #include "FuuGB.h"
 
-class Sandbox : public FuuGB::Application
+class Sandbox : public FUUGB_APP
 {
 public:
     Sandbox()

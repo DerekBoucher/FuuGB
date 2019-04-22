@@ -39,8 +39,9 @@ namespace FuuGB
     {
         static const int ScaleFactor = 3;
         static bool RUNNING;
-        static SDL_Event _event;
     };
 }
 
+#define FUUGB_RUNNING Shared::RUNNING
+#define SCALE_FACTOR FuuGB::Shared::ScaleFactor
 #endif /* Core_h */

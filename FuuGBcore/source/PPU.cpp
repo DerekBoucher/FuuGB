@@ -21,10 +21,10 @@ namespace FuuGB
 		{
 			for (int j = 0; j < NATIVE_SIZE_Y; ++j)
 			{
-				pixels[i][j].h = Shared::ScaleFactor;
-				pixels[i][j].w = Shared::ScaleFactor;
-				pixels[i][j].x = i * Shared::ScaleFactor;
-				pixels[i][j].y = j * Shared::ScaleFactor;
+				pixels[i][j].h = SCALE_FACTOR;
+				pixels[i][j].w = SCALE_FACTOR;
+				pixels[i][j].x = i * SCALE_FACTOR;
+				pixels[i][j].y = j * SCALE_FACTOR;
 			}
 		}
 

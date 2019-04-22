@@ -17,16 +17,14 @@
 #ifndef Application_h
 #define Application_h
 #include "Logger.h"
+#include "FuuEvent.h"
 
 namespace FuuGB
 {
     class FUUGB_API Application
     {
     public:
-        Application();
-        virtual ~Application();
-        
-        void run();
+        virtual void run() = 0;
     };
 }
 

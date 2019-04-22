@@ -33,7 +33,14 @@ namespace FuuGB
 
 		fuu_SubsystemLogger->set_pattern("%^[%T] %n: %v%$");
 		fuu_SubsystemLogger->set_level(spdlog::level::trace);
+        
+        FUUGB_SUBSYSTEM_LOG("Log Subsystem Initialized!");
 	}
+    
+    void Logger::quit()
+    {
+        
+    }
 
 	std::shared_ptr<spdlog::logger>& Logger::GetCpuLogger()
 	{

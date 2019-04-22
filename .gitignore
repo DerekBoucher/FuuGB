@@ -7,3 +7,5 @@ bin/
 *.user
 *.sln
 bin-int/
+*.pdf
+testROMS

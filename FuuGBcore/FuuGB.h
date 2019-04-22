@@ -13,6 +13,11 @@
 #ifndef FuuGB_h
 #define FuuGB_h
 
-#include "headers/Application.h"
+#ifdef FUUGB_SYSTEM_MACOS
+    #include "MacApplication.mm"
+    #define FUUGB_APP FuuGB::MacApplication
+#else
+    #include "headers/Application.h"
+#endif
 
 #endif /* FuuGB_h */

@@ -7,7 +7,6 @@
 
 #ifndef FuuEvent_h
 #define FuuEvent_h
-#include "Fuupch.h"
 #include "Core.h"
 #include "Logger.h"
 
@@ -16,17 +15,12 @@ namespace FuuGB
     class FUUGB_API FuuEvent
     {
     public:
-        static int init();
-        
-    protected:
-        static SDL_Event event;
-        
-    private:
         static void poll_Event();
-        static std::unique_ptr<std::thread> _eventListener;
+        static SDL_Event event;
     };
 }
 
-#define FUU_INIT_EVENT_SYSTEM(...) FuuGB::FuuEvent::init()
+#define FUUGB_EVENT FuuGB::FuuEvent::event
+#define FUUGB_POLL_EVENT() FuuGB::FuuEvent::poll_Event()
 
 #endif /* FuuEvent_h */

@@ -14,20 +14,28 @@
 #ifndef Fuupch_h
 #define Fuupch_h
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <memory>
+#ifndef FUUGB_SYSTEM_MACOS
+    #include <iostream>
+    #include <string>
+    #include <vector>
+    #include <memory>
+    #include <cstring>
+    #include <mutex>
+    #include <chrono>
+    #include <cassert>
+#endif
+
+#ifdef FUUGB_SYSTEM_MACOS
+    #include <Cocoa/Cocoa.h>
+#endif
+
+#include <thread>
 #include <stdlib.h>
 #include <stdio.h>
-#include <cstring>
-#include <thread>
-#include <mutex>
-#include <chrono>
 #include <time.h>
-#include <cassert>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 #ifdef FUUGB_SYSTEM_WINDOWS
     #include <Windows.h>

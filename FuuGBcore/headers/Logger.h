@@ -29,6 +29,7 @@ namespace FuuGB
 		static std::shared_ptr<spdlog::logger>& GetMemLogger();
 		static std::shared_ptr<spdlog::logger>& GetPpuLogger();
 		static std::shared_ptr<spdlog::logger>& GetSubsystemLogger();
+        static void quit();
 	private:
 		static std::shared_ptr<spdlog::logger> fuu_CpuLogger;
 		static std::shared_ptr<spdlog::logger> fuu_MemLogger;
@@ -37,6 +38,7 @@ namespace FuuGB
 	};
 }
 
+#define FUUGB_INIT_LOGGER() FuuGB::Logger::init()
 #define FUUGB_CPU_LOG(...) FuuGB::Logger::GetCpuLogger()->warn(__VA_ARGS__)
 #define FUUGB_MEM_LOG(...) FuuGB::Logger::GetMemLogger()->info(__VA_ARGS__)
 #define FUUGB_PPU_LOG(...) FuuGB::Logger::GetPpuLogger()->error(__VA_ARGS__)

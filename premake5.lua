@@ -30,14 +30,27 @@ workspace "FuuGBemu"
         }
 
         filter "system:macosx"
+            xcodebuildsettings { ["GCC_INPUT_FILETYPE"] = "sourcecode.cpp.objcpp" }
             pchheader "external/pch/Fuupch.h"
             defines
             {
                 "FUUGB_SYSTEM_MACOS"
             }
+            includedirs
+            {
+                "%{prj.name}/MacOS"
+            }
+            files
+            {
+                "%{prj.name}/MacOS/*.h",
+                "%{prj.name}/MacOS/*.m" 
+            }
             links
             {
-                "SDL2.framework"
+                "SDL2.framework",
+                "Cocoa.framework",
+                "Foundation.framework",
+                "Appkit.framework"
             }
             buildoptions 
             {
@@ -58,6 +71,24 @@ workspace "FuuGBemu"
                 "FUUGB_SYSTEM_WINDOWS",
 				"FUUGB_BUILD_DLL"
             }
+            links
+			{
+				"SDL2",
+				"SDL2main",
+				"SDL2_image"
+			}
+			libdirs
+			{
+				"%{prj.location}/FuuGBcore/external/Windows/SDL2-2.0.8/lib/x86",
+				"%{prj.location}/FuuGBcore/external/Windows/SDL2_image-2.0.3/lib/x86"
+            }
+            postbuildcommands
+			{
+				"copy FuuGBcore\\external\\Windows\\SDL2-2.0.8\\lib\\x86\\SDL2.dll bin\\%{cfg.buildcfg}\\SDL2.dll",
+				"copy FuuGBcore\\external\\Windows\\SDL2_image-2.0.3\\lib\\x86\\SDL2_image.dll bin\\%{cfg.buildcfg}\\SDL2_image.dll",
+				"copy FuuGBcore\\external\\Windows\\SDL2_image-2.0.3\\lib\\x86\\libpng16-16.dll bin\\%{cfg.buildcfg}\\libpng16-16.dll",
+				"copy FuuGBcore\\external\\Windows\\SDL2_image-2.0.3\\lib\\x86\\zlib1.dll bin\\%{cfg.buildcfg}\\zlib1.dll"
+			}
 
     project "FuuSandbox"
         location "FuuSandBox"
@@ -76,20 +107,38 @@ workspace "FuuGBemu"
         includedirs
         {
             "FuuGBcore",
-			"FuuGBcore/external/spdlog/include"
+            "FuuGBcore/headers",
+            "FuuGBcore/external/spdlog/include",
+            "FuuGBcore/external/pch",
         }
-
         links
         {
             "FuuGBcore"
         }
 
         filter "system:macosx"
+            xcodebuildsettings { ["GCC_INPUT_FILETYPE"] = "sourcecode.cpp.objcpp" }
             defines
             {
                 "FUUGB_SYSTEM_MACOS"
             }
+            includedirs
+            {
+                "FuuGBcore/MacOS"
+            }
             filter "configurations:Debug"
+                buildoptions 
+                {
+                   "-F ../FuuGBcore/external/SDL2/MacOS"
+                }
+                linkoptions 
+                {
+                    "-F ../FuuGBcore/external/SDL2/MacOS"
+                }
+                links
+                {
+                    "SDL2.framework"
+                }
                 postbuildcommands
                 {
                     "{COPY} bin/Debug-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
@@ -104,7 +153,8 @@ workspace "FuuGBemu"
 			systemversion "latest"
 			defines
             {
-                "FUUGB_SYSTEM_WINDOWS"
+                "FUUGB_SYSTEM_WINDOWS",
+                "SDL_MAIN_HANDLED"
             }
 			postbuildcommands
 			{
