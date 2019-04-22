@@ -71,24 +71,24 @@ workspace "FuuGBemu"
                 "FUUGB_SYSTEM_WINDOWS",
 				"FUUGB_BUILD_DLL"
             }
+			files
+			{
+				"FuuGBcore/Windows/*.h",
+				"FuuGBcore/Windows/*.cpp"
+			}
+			includedirs
+			{
+				"FuuGBcore/external/SDL2/Windows/SDL2-2.0.8/include"
+			}
             links
 			{
 				"SDL2",
-				"SDL2main",
-				"SDL2_image"
+				"SDL2main"
 			}
 			libdirs
 			{
-				"%{prj.location}/FuuGBcore/external/Windows/SDL2-2.0.8/lib/x86",
-				"%{prj.location}/FuuGBcore/external/Windows/SDL2_image-2.0.3/lib/x86"
+				"FuuGBcore/external/SDL2/Windows/SDL2-2.0.8/lib/x86"
             }
-            postbuildcommands
-			{
-				"copy FuuGBcore\\external\\Windows\\SDL2-2.0.8\\lib\\x86\\SDL2.dll bin\\%{cfg.buildcfg}\\SDL2.dll",
-				"copy FuuGBcore\\external\\Windows\\SDL2_image-2.0.3\\lib\\x86\\SDL2_image.dll bin\\%{cfg.buildcfg}\\SDL2_image.dll",
-				"copy FuuGBcore\\external\\Windows\\SDL2_image-2.0.3\\lib\\x86\\libpng16-16.dll bin\\%{cfg.buildcfg}\\libpng16-16.dll",
-				"copy FuuGBcore\\external\\Windows\\SDL2_image-2.0.3\\lib\\x86\\zlib1.dll bin\\%{cfg.buildcfg}\\zlib1.dll"
-			}
 
     project "FuuSandbox"
         location "FuuSandBox"
@@ -116,7 +116,7 @@ workspace "FuuGBemu"
             "FuuGBcore"
         }
 
-        filter "system:macosx"
+        filter { "system:macosx" , "configurations:Debug" }
             xcodebuildsettings { ["GCC_INPUT_FILETYPE"] = "sourcecode.cpp.objcpp" }
             defines
             {
@@ -126,28 +126,48 @@ workspace "FuuGBemu"
             {
                 "FuuGBcore/MacOS"
             }
-            filter "configurations:Debug"
-                buildoptions 
-                {
-                   "-F ../FuuGBcore/external/SDL2/MacOS"
-                }
-                linkoptions 
-                {
-                    "-F ../FuuGBcore/external/SDL2/MacOS"
-                }
-                links
-                {
-                    "SDL2.framework"
-                }
-                postbuildcommands
-                {
-                    "{COPY} bin/Debug-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
-                }
-                filter "configurations:Release"
-                postbuildcommands
-                {
-                    "{COPY} bin/Release-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
-                }
+            buildoptions 
+            {
+				"-F ../FuuGBcore/external/SDL2/MacOS"
+            }
+            linkoptions 
+            {
+                "-F ../FuuGBcore/external/SDL2/MacOS"
+            }
+            links
+            {
+                "SDL2.framework"
+            }
+            postbuildcommands
+            {
+                "{COPY} bin/Debug-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
+            }
+        filter { "system:macosx" , "configurations:Release" }
+			xcodebuildsettings { ["GCC_INPUT_FILETYPE"] = "sourcecode.cpp.objcpp" }
+            defines
+            {
+                "FUUGB_SYSTEM_MACOS"
+            }
+            includedirs
+            {
+                "FuuGBcore/MacOS"
+            }
+            buildoptions 
+            {
+				"-F ../FuuGBcore/external/SDL2/MacOS"
+            }
+            linkoptions 
+            {
+                "-F ../FuuGBcore/external/SDL2/MacOS"
+            }
+            links
+            {
+                "SDL2.framework"
+            }
+            postbuildcommands
+            {
+                "{COPY} bin/Release-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
+            }
 
 		filter "system:windows"
 			systemversion "latest"
@@ -158,5 +178,15 @@ workspace "FuuGBemu"
             }
 			postbuildcommands
 			{
-				("copy ..\\bin\\" .. outputdir .. "\\FuuGBcore\\FuuGBcore.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\FuuGBcore.dll")
+				("copy ..\\bin\\" .. outputdir .. "\\FuuGBcore\\FuuGBcore.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\FuuGBcore.dll"),
+				("copy ..\\FuuGBcore\\external\\SDL2\\Windows\\SDL2-2.0.8\\lib\\x86\\SDL2.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\SDL2.dll")
+			}
+			includedirs
+			{
+				"FuuGBcore/external/SDL2/Windows/SDL2-2.0.8/include",
+				"FuuGBcore/Windows"
+			}
+			cleanextensions
+			{
+				".dll"
 			}

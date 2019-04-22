@@ -1,6 +1,6 @@
 //
 //  Utilities.h
-//  GBemu
+//  FuuGBemu
 //
 //  Created by Derek Boucher on 2019-02-04.
 //  Copyright © 2019 Derek Boucher. All rights reserved.
@@ -8,10 +8,10 @@
 
 #ifndef Utilities_h
 #define Utilities_h
-#include <Windows.h>
+#include "Fuupch.h"
 
 //Various application utilities
-namespace Utilities
+namespace FuuGB
 {
     //Namespace variables/Defines
 #define ID_LOADROM 1

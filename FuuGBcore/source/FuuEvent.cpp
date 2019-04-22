@@ -5,6 +5,7 @@
 //  Created by Derek Boucher on 2019-04-20.
 //
 
+#include "Fuupch.h"
 #include "FuuEvent.h"
 
 namespace FuuGB

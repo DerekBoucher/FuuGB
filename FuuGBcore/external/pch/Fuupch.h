@@ -27,6 +27,8 @@
 
 #ifdef FUUGB_SYSTEM_MACOS
     #include <Cocoa/Cocoa.h>
+	#include <SDL2/SDL.h>
+	#include <SDL2/SDL_syswm.h>
 #endif
 
 #include <thread>
@@ -34,11 +36,11 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
 
 #ifdef FUUGB_SYSTEM_WINDOWS
     #include <Windows.h>
+	#include <SDL.h>
+	#include <SDL_syswm.h>
 #endif
 
 #endif /* Fuupch_h */

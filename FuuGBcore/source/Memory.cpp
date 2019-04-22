@@ -6,6 +6,7 @@
 //  Copyright © 2019 Derek Boucher. All rights reserved.
 //
 
+#include "Fuupch.h"
 #include "Memory.h"
 
 namespace FuuGB

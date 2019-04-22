@@ -17,7 +17,8 @@
     #include "MacApplication.mm"
     #define FUUGB_APP FuuGB::MacApplication
 #else
-    #include "headers/Application.h"
+    #include "WinApplication.h"
+	#define FUUGB_APP FuuGB::WinApplication
 #endif
 
 #endif /* FuuGB_h */

@@ -6,6 +6,7 @@
  *		ID:40015459
  */
 
+#include "Fuupch.h"
 #include "Gameboy.h"
 
 namespace FuuGB
