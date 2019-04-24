@@ -9,3 +9,4 @@ bin/
 bin-int/
 *.pdf
 testROMS
+*.DS_Store

@@ -140,8 +140,10 @@ workspace "FuuGBemu"
             }
             postbuildcommands
             {
-                "{COPY} bin/Debug-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
+                "{COPY} ../bin/Debug-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib",
+                "{COPY} ../FuuGBcore/external/SDL2/MacOS/SDL2.framework ../bin/Debug-macosx-x86/FuuSandbox/SDL2.framework"
             }
+
         filter { "system:macosx" , "configurations:Release" }
 			xcodebuildsettings { ["GCC_INPUT_FILETYPE"] = "sourcecode.cpp.objcpp" }
             defines
@@ -167,6 +169,11 @@ workspace "FuuGBemu"
             postbuildcommands
             {
                 "{COPY} bin/Release-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
+            }
+            postbuildcommands
+            {
+                "{COPY} bin/Debug-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib",
+                "{COPY} FuuGBcore/external/SDL2/MacOS/SDL2.framework bin/Release-macos-x86/FuuSandbox/SDL2.framework"
             }
 
 		filter "system:windows"
