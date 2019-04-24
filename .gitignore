@@ -7,5 +7,4 @@ bin/
 *.user
 *.sln
 bin-int/
-*.pdf
 *.DS_Store
