@@ -11,7 +11,7 @@
 #include "Core.h"
 #include "Cartridge.h"
 
-#define MEMORY_CLOCK_PERIOD_NS 952
+#define RAM_CLOCK_PERIOD_NS 952
 
 namespace FuuGB
 {
@@ -23,25 +23,20 @@ namespace FuuGB
         void stop();
         void writeMemory(uWORD, uBYTE);
         uBYTE& readMemory(uWORD);
-        uBYTE& operator [](const uWORD address)
-        {
-            std::unique_lock<decltype(key)> lock(key);
-            memCond.wait(lock);
-            lock.unlock();
-            return M_MEM[address];
-        }
     
     private:
         uBYTE*                  M_MEM;
         Cartridge*              cart;
         FILE*                   bootROM;
-        std::thread*            _memTHR;
-        std::mutex              key;
-        std::condition_variable memCond;
+        std::thread*            _ramTHR;
+        std::mutex              ramKey;
+        std::mutex              vramKey;
+        std::condition_variable ramCond;
+        std::condition_variable vramCond;
         bool                    CycleDone;
         bool                    _memoryRunning;
     
-        void clock();
+        void ramClock();
     };
 }
 #endif /* Memory_h */

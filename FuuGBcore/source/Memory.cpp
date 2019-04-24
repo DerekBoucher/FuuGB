@@ -16,30 +16,30 @@ namespace FuuGB
 		cart = gameCart;
 		M_MEM = new uBYTE[0x10000];
 		memset(this->M_MEM, 0x0, 0x10000);
-		//bootROM = fopen("boot/DMG_ROM.bin", "rb");
-		//fread(M_MEM, sizeof(uBYTE), 0x100, bootROM);
-		//fclose(bootROM);
+		bootROM = fopen("DMG_ROM.bin", "rb");
+		fread(M_MEM, sizeof(uBYTE), 0x100, bootROM);
+		fclose(bootROM);
 		for (int i = 0x100;i < 0x4000; ++i)
-			M_MEM[i] = cart->ROM[i - 0x100];
+			M_MEM[i] = cart->ROM[i];
 		_memoryRunning = true;
-		_memTHR = new std::thread(&Memory::clock, this);
+		_ramTHR = new std::thread(&Memory::ramClock, this);
 	}
 
 	Memory::~Memory()
 	{
-		_memTHR->join();
-		memCond.notify_all();
-		delete _memTHR;
+		_ramTHR->join();
+		ramCond.notify_all();
+		delete _ramTHR;
 		delete[] M_MEM;
 		delete cart;
 	}
 
-	void Memory::clock()
+	void Memory::ramClock()
 	{
 		while (_memoryRunning)
 		{
-			std::this_thread::sleep_for(std::chrono::nanoseconds(MEMORY_CLOCK_PERIOD_NS));
-			memCond.notify_all();
+			std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS));
+			ramCond.notify_all();
 		}
 	}
 
@@ -50,16 +50,16 @@ namespace FuuGB
 
 	void Memory::writeMemory(uWORD addr, uBYTE data)
 	{
-		std::unique_lock<decltype(key)> lock(key);
-		memCond.wait(lock);
+		std::unique_lock<decltype(ramKey)> lock(ramKey);
+		ramCond.wait(lock);
 		M_MEM[addr] = data;
 		lock.unlock();
 	}
 
 	uBYTE& Memory::readMemory(uWORD addr)
 	{
-		std::unique_lock<decltype(key)> lock(key);
-		memCond.wait(lock);
+		std::unique_lock<decltype(ramKey)> lock(ramKey);
+		ramCond.wait(lock);
 		lock.unlock();
 		return M_MEM[addr];
 	}

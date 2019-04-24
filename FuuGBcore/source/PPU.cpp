@@ -58,11 +58,11 @@ namespace FuuGB
 	void PPU::renderScreen()
 	{
 		srand(time(NULL));
-		SDL_SetRenderDrawColor(renderer, rand() % 255, rand() % 255, rand() % 255, 255);
 		for (int i = 0;i < NATIVE_SIZE_X; ++i)
 		{
 			for (int j = 0; j < NATIVE_SIZE_Y; ++j)
 			{
+                SDL_RenderFillRect(renderer, &pixels[i][j]);
 				SDL_RenderDrawRect(renderer, &pixels[i][j]);
 			}
 		}
