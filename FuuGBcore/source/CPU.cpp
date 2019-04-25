@@ -157,7 +157,7 @@ namespace FuuGB
 		case RRC_A:
 			//4 CPU Cycles
 			CPU_FLAG_BIT_SET(C_FLAG, ALU_BIT_TEST(0));
-			AF.hi >> 1;
+			AF.hi = AF.hi >> 1;
 			if (AF.hi == 0x0)
 				CPU_FLAG_BIT_SET(Z_FLAG);
 			break;
@@ -213,7 +213,7 @@ namespace FuuGB
 			//4 Clock Cycles
 			oldCarry = CPU_FLAG_BIT_TEST(C_FLAG);
 			CPU_FLAG_BIT_SET(C_FLAG, ALU_BIT_TEST(7));
-			AF.hi << 1;
+			AF.hi = AF.hi << 1;
 			ALU_BIT_SET(0, oldCarry);
 			break;
 
@@ -268,7 +268,7 @@ namespace FuuGB
 			//4 clock cycles
 			oldCarry = CPU_FLAG_BIT_TEST(C_FLAG);
 			CPU_FLAG_BIT_SET(C_FLAG, ALU_BIT_TEST(0));
-			AF.hi >> 1;
+			AF.hi = AF.hi >> 1;
 			ALU_BIT_SET(7, oldCarry);
 			break;
 
