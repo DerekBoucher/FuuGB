@@ -27,7 +27,7 @@ namespace FuuGB
 
 		Gameboy* gameBoy = nullptr;
 
-		//Configure Windows window TO-DO
+		FUUGB_WINDOW_CONFIG(_SDLwindow);
 
 		while (FUUGB_RUNNING)
 		{
@@ -39,6 +39,24 @@ namespace FuuGB
 				FUUGB_RUNNING = false;
 				break;
 			case SDL_SYSWMEVENT:
+				if (FUUGB_EVENT.syswm.msg->msg.win.msg == WM_COMMAND)
+				{
+					switch (FUUGB_WIN_EVENT)
+					{
+					case ID_LOADROM:
+						FILE* romFile;
+						char filepath[255];
+						sprintf(filepath, "%ws", open_file(_SDLwindow));
+						romFile = fopen(filepath, "r");
+						if (gameBoy != nullptr) { delete gameBoy; }
+						gameBoy = new Gameboy(_SDLwindow, new Cartridge(romFile));
+						fclose(romFile);
+						break;
+					case ID_EXIT:
+						FUUGB_RUNNING = false;
+						break;
+					}
+				}
 				break;
 			default:
 				break;
@@ -51,5 +69,25 @@ namespace FuuGB
 		delete gameBoy;
 		SDL_DestroyWindow(_SDLwindow);
 		FUUGB_QUIT();
+	}
+	wchar_t* WinApplication::open_file(SDL_Window* win)
+	{
+		OPENFILENAME ofn;
+
+		wchar_t file_path[255];
+		ZeroMemory(&ofn, sizeof(OPENFILENAME));
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = FUUGB_WIN_HANDLE(win);
+		ofn.lpstrFile = file_path;
+		ofn.lpstrFile[0] = '\0';
+		ofn.nMaxFile = 255;
+		ofn.lpstrFilter = L"Gameboy Roms (*.gb)\0*.gb\0";
+		ofn.nFilterIndex = 1;
+		ofn.Flags = OFN_NOCHANGEDIR;
+
+		GetOpenFileName(&ofn);
+		FUUGB_SUBSYSTEM_LOG("Test");
+
+		return ofn.lpstrFile;
 	}
 }

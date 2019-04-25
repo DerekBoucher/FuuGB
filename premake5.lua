@@ -91,6 +91,10 @@ workspace "FuuGBemu"
 			{
 				"FuuGBcore/external/SDL2/Windows/SDL2-2.0.8/lib/x64"
             }
+			cleanextensions
+			{
+				"*.dll"
+            }
         filter "system:linux"
             pchheader "Fuupch.h"
             prebuildcommands
@@ -206,7 +210,8 @@ workspace "FuuGBemu"
 			postbuildcommands
 			{
 				("copy ..\\bin\\" .. outputdir .. "\\FuuGBcore\\FuuGBcore.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\FuuGBcore.dll"),
-				("copy ..\\FuuGBcore\\external\\SDL2\\Windows\\SDL2-2.0.8\\lib\\x64\\SDL2.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\SDL2.dll")
+				("copy ..\\FuuGBcore\\external\\SDL2\\Windows\\SDL2-2.0.8\\lib\\x64\\SDL2.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\SDL2.dll"),
+				("copy ..\\FuuGBcore\\external\\boot\\DMG_ROM.bin ..\\bin\\" .. outputdir .. "\\FuuSandbox\\DMG_ROM.bin")
 			}
 			includedirs
 			{
@@ -215,8 +220,18 @@ workspace "FuuGBemu"
 			}
 			cleanextensions
 			{
-				".dll"
+				"*.dll"
             }
+			links
+			{
+				"SDL2",
+				"SDL2main"
+			}
+			libdirs
+			{
+				"FuuGBcore/external/SDL2/Windows/SDL2-2.0.8/lib/x64"
+            }
+			debugdir "bin\\$(Configuration)-windows-x86_64\\FuuSandbox"
 
         filter "system:linux"
             defines

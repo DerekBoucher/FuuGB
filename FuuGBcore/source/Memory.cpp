@@ -23,6 +23,7 @@ namespace FuuGB
 			M_MEM[i] = cart->ROM[i];
 		_memoryRunning = true;
 		_ramTHR = new std::thread(&Memory::ramClock, this);
+		FUUGB_MEM_LOG("RAM Initialized.");
 	}
 
 	Memory::~Memory()
@@ -32,6 +33,7 @@ namespace FuuGB
 		delete _ramTHR;
 		delete[] M_MEM;
 		delete cart;
+		FUUGB_MEM_LOG("RAM Destroyed.");
 	}
 
 	void Memory::ramClock()

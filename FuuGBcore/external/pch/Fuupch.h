@@ -35,6 +35,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <bitset>
+#include <limits.h>
 
 #ifdef FUUGB_SYSTEM_LINUX
     #include <condition_variable>

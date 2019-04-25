@@ -31,6 +31,7 @@ namespace FuuGB
 
 		_ppuTHR = new std::thread(&PPU::clock, this);
 		renderScreen();
+		FUUGB_PPU_LOG("PPU Initialized.");
 	}
 
 	PPU::~PPU()
@@ -39,6 +40,7 @@ namespace FuuGB
 		ppuCond.notify_all();
 		delete _ppuTHR;
 		SDL_DestroyRenderer(this->renderer);
+		FUUGB_PPU_LOG("PPU Destroyed.");
 	}
 
 	void PPU::stop()
@@ -62,6 +64,8 @@ namespace FuuGB
 		{
 			for (int j = 0; j < NATIVE_SIZE_Y; ++j)
 			{
+				SDL_SetRenderDrawColor(renderer, rand() % 255, rand() % 255, rand() % 255, SDL_ALPHA_OPAQUE);
+				SDL_RenderFillRect(renderer, &pixels[i][j]);
                 SDL_RenderFillRect(renderer, &pixels[i][j]);
 				SDL_RenderDrawRect(renderer, &pixels[i][j]);
 			}

@@ -25,6 +25,7 @@ namespace FuuGB
             FUUGB_SUBSYSTEM_LOG("Audio Subsystem Initialized!");
             FUUGB_SUBSYSTEM_LOG("Video Subsystem Initialized!");
             FUUGB_SUBSYSTEM_LOG("Joystick Subsystem Initialized!");
+			SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
         }
         
         static inline void closeSystems()

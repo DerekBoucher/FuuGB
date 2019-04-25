@@ -11,9 +11,21 @@
 
 #include "Core.h"
 #include "Memory.h"
+#include "Logger.h"
 
 #define CPU_CLOCK_PERIOD_NS 239
 #define CLOCK_FREQUENCY 4190
+#define CPU_FLAG_BIT_SET(...) FuuGB::CPU::FlagBits->set(__VA_ARGS__)
+#define CPU_FLAG_BIT_TEST(...) FuuGB::CPU::FlagBits->test(__VA_ARGS__)
+#define CPU_FLAG_BIT_RESET(...) FuuGB::CPU::FlagBits->reset(__VA_ARGS__)
+#define ALU_BIT_SET(...) FuuGB::CPU::AluBits->set(__VA_ARGS__)
+#define ALU_BIT_TEST(...) FuuGB::CPU::AluBits->test(__VA_ARGS__)
+#define ALU_BIT_RESET(...) FuuGB::CPU::AluBits->reset(__VA_ARGS__)
+
+#define Z_FLAG 7
+#define N_FLAG 6
+#define H_FLAG 5
+#define C_FLAG 4
 
 namespace FuuGB
 {
@@ -38,7 +50,7 @@ namespace FuuGB
 			}
 		};
 
-		Register    AF;
+		Register    AF; //Z N H C X X X X ---- Flag Register
 		Register    BC;
 		Register    DE;
 		Register    HL;
@@ -50,6 +62,8 @@ namespace FuuGB
 		Cartridge*      gameCart;
 		std::thread*    _cpuTHR;
 		bool            _cpuRunning;
+		std::bitset<sizeof(uBYTE)*8>* FlagBits;
+		std::bitset<sizeof(uBYTE)*8>* AluBits;
 
 		enum opCode
 		{
@@ -313,9 +327,13 @@ namespace FuuGB
 
 		void clock();
 		void executeNextOpCode();
-		void increment16BitRegister(opCode);
-		void increment8BitRegister(opCode);
-		void decrement8BitRegister(opCode);
+		void increment16BitRegister(uWORD);
+		void increment8BitRegister(uBYTE);
+		void decrement8BitRegister(uBYTE);
+		void decrement16BitRegister(uWORD);
+		void add16BitRegister(uWORD, uWORD);
+		bool TestBitInByte(uBYTE byte, int pos);
+		bool TestBitInWord(uWORD word, int pos);
 	};
 }
 

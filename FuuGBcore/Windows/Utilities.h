@@ -23,7 +23,6 @@ namespace FuuGB
     static HMENU hFile;
     static HMENU hMenuBar;
     
-    
     //Function which retrieves the address/Handle of an SDL window
     //Also retrieves the specific subsystem used by SDL to create that window which is platform specific (Windows, MAC OS x, IOS, etc...)
     HWND getSDLWinHandle(SDL_Window* win)
@@ -55,17 +54,17 @@ namespace FuuGB
         hFile = CreateMenu();
         hEdit = CreateMenu();
         hHelp = CreateMenu();
+
+        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hFile, L"File");
+        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hEdit, L"Edit");
+        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hHelp, L"Help");
         
-        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hFile, "File");
-        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hEdit, "Edit");
-        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hHelp, "Help");
+        AppendMenu(hFile, MF_STRING, ID_LOADROM, L"Load ROM");
+        AppendMenu(hFile, MF_STRING, ID_EXIT, L"Exit");
         
-        AppendMenu(hFile, MF_STRING, ID_LOADROM, "Load ROM");
-        AppendMenu(hFile, MF_STRING, ID_EXIT, "Exit");
+        AppendMenu(hEdit, MF_STRING, ID_CONTROLS, L"Configure Controls");
         
-        AppendMenu(hEdit, MF_STRING, ID_CONTROLS, "Configure Controls");
-        
-        AppendMenu(hHelp, MF_STRING, ID_ABOUT, "About");
+        AppendMenu(hHelp, MF_STRING, ID_ABOUT, L"About");
         
         SetMenu(windowRef, hMenuBar);
     }
