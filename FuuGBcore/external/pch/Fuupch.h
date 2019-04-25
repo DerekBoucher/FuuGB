@@ -36,6 +36,12 @@
 #include <stdio.h>
 #include <time.h>
 
+#ifdef FUUGB_SYSTEM_LINUX
+    #include <condition_variable>
+    #include <SDL2/SDL.h>
+	#include <SDL2/SDL_syswm.h>
+#endif
+
 
 #ifdef FUUGB_SYSTEM_WINDOWS
     #include <Windows.h>

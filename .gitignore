@@ -8,3 +8,5 @@ bin/
 *.sln
 bin-int/
 *.DS_Store
+.vscode/
+*Makefile

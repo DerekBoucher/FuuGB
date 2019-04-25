@@ -2,7 +2,7 @@
 
 workspace "FuuGBemu"
     configurations { "Debug", "Release" }
-    architecture "x86"
+    architecture "x64"
     outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
     project "FuuGBcore"
@@ -89,8 +89,25 @@ workspace "FuuGBemu"
 			}
 			libdirs
 			{
-				"FuuGBcore/external/SDL2/Windows/SDL2-2.0.8/lib/x86"
+				"FuuGBcore/external/SDL2/Windows/SDL2-2.0.8/lib/x64"
             }
+        filter "system:linux"
+            pchheader "Fuupch.h"
+            prebuildcommands
+            {
+                "sudo apt-get install lib32z1",
+                "sudo apt-get install libsdl2-2.0",
+                "sudo apt-get install libsdl2-dev",
+                "sudo apt-get install libsdl2-2.0:i386"
+            }
+            defines
+            {
+                "FUUGB_SYSTEM_LINUX"
+            }
+            links
+			{
+				"SDL2"
+			}
 
     project "FuuSandbox"
         location "FuuSandBox"
@@ -102,8 +119,8 @@ workspace "FuuGBemu"
 
         files
         {
-            "%{prj.name}/**.h",
-            "%{prj.name}/**.cpp"
+            "FuuSandBox/*.h",
+            "FuuSandBox/*.cpp"
         }
 
         includedirs
@@ -171,12 +188,12 @@ workspace "FuuGBemu"
             }
             postbuildcommands
             {
-                "{COPY} bin/Release-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
+                "{COPY} bin/Release-macosx-x64/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
             }
             postbuildcommands
             {
-                "{COPY} bin/Debug-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib",
-                "{COPY} FuuGBcore/external/SDL2/MacOS/SDL2.framework bin/Release-macos-x86/FuuSandbox/SDL2.framework"
+                "{COPY} bin/Debug-macosx-x64/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib",
+                "{COPY} FuuGBcore/external/SDL2/MacOS/SDL2.framework bin/Release-macos-x64/FuuSandbox/SDL2.framework"
             }
 
 		filter "system:windows"
@@ -189,7 +206,7 @@ workspace "FuuGBemu"
 			postbuildcommands
 			{
 				("copy ..\\bin\\" .. outputdir .. "\\FuuGBcore\\FuuGBcore.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\FuuGBcore.dll"),
-				("copy ..\\FuuGBcore\\external\\SDL2\\Windows\\SDL2-2.0.8\\lib\\x86\\SDL2.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\SDL2.dll")
+				("copy ..\\FuuGBcore\\external\\SDL2\\Windows\\SDL2-2.0.8\\lib\\x64\\SDL2.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\SDL2.dll")
 			}
 			includedirs
 			{
@@ -199,4 +216,23 @@ workspace "FuuGBemu"
 			cleanextensions
 			{
 				".dll"
+            }
+
+        filter "system:linux"
+            defines
+            {
+                "FUUGB_SYSTEM_LINUX"
+            }
+            includedirs
+            {
+                "FuuGBcore/Linux"
+            }
+            files
+            {
+                "FuuGBcore/Linux/*.h",
+                "FuuGBcore/Linux/*.cpp"
+            }
+            links
+			{
+				"SDL2"
 			}

@@ -5,22 +5,10 @@
 //  Created by Derek Boucher on 2019-04-19.
 //
 
-#include "FuuGB.h"
+#include "Fuupch.h"
+#include "Sandbox.h"
 
-class Sandbox : public FUUGB_APP
-{
-public:
-    Sandbox()
-    {
-        
-    }
-    ~Sandbox()
-    {
-        
-    }
-};
-
-int main()
+int main(int argc, char** argv)
 {
     Sandbox* sandbox = new Sandbox();
     sandbox->run();

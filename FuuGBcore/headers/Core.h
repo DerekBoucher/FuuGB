@@ -28,6 +28,10 @@
     #define FUUGB_API
 #endif
 
+#ifdef FUUGB_SYSTEM_LINUX
+    #define FUUGB_API
+#endif
+
 typedef unsigned char uBYTE;
 typedef unsigned short uWORD;
 typedef char sBYTE;

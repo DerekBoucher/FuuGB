@@ -16,9 +16,16 @@
 #ifdef FUUGB_SYSTEM_MACOS
     #include "MacApplication.mm"
     #define FUUGB_APP FuuGB::MacApplication
-#else
+#endif
+
+#ifdef FUUGB_SYSTEM_WINDOWS
     #include "WinApplication.h"
 	#define FUUGB_APP FuuGB::WinApplication
+#endif
+
+#ifdef FUUGB_SYSTEM_LINUX
+    #include "LinuxApplication.h"
+    #define FUUGB_APP FuuGB::LinuxApplication
 #endif
 
 #endif /* FuuGB_h */
