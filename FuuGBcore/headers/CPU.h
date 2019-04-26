@@ -130,7 +130,7 @@ namespace FuuGB
 			INC_A = 0x3C, //Increment A
 			DEC_A = 0x3D, //Decrement A
 			LD_8IMM_A = 0x3E, //Load 8 bit immediate value into A
-			CLEAR_CARRY_FLAG = 0x3F, //Clear carry flag
+			COMP_CARRY_FLAG = 0x3F, //Compliment carry flag
 			LD_B_B = 0x40, //Load B into B (Redundant)
 			LD_C_B = 0x41, //Load C into B
 			LD_D_B = 0x42, //Load D into B
@@ -327,13 +327,16 @@ namespace FuuGB
 
 		void clock();
 		void executeNextOpCode();
-		void increment16BitRegister(uWORD);
-		void increment8BitRegister(uBYTE);
-		void decrement8BitRegister(uBYTE);
-		void decrement16BitRegister(uWORD);
-		void add16BitRegister(uWORD, uWORD);
+		void increment16BitRegister(uWORD & reg);
+		void increment8BitRegister(uBYTE & reg);
+		void decrement8BitRegister(uBYTE & reg);
+		void decrement16BitRegister(uWORD & reg);
+		void add16BitRegister(uWORD & host, uWORD operand);
 		bool TestBitInByte(uBYTE byte, int pos);
 		bool TestBitInWord(uWORD word, int pos);
+		bool checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte);
+		bool checkBorrowFromBit_Byte(int pos, uBYTE byte, uBYTE subtractedByte);
+		uBYTE twoComp_Byte(uBYTE byte);
 	};
 }
 

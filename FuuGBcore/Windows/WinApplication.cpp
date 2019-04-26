@@ -7,9 +7,6 @@
 
 #include "Fuupch.h"
 #include "WinApplication.h"
-#include "System.h"
-#include "Gameboy.h"
-#include "FuuEvent.h"
 
 namespace FuuGB
 {
@@ -44,13 +41,15 @@ namespace FuuGB
 					switch (FUUGB_WIN_EVENT)
 					{
 					case ID_LOADROM:
-						FILE* romFile;
-						char filepath[255];
-						sprintf(filepath, "%ws", open_file(_SDLwindow));
-						romFile = fopen(filepath, "r");
-						if (gameBoy != nullptr) { delete gameBoy; }
-						gameBoy = new Gameboy(_SDLwindow, new Cartridge(romFile));
-						fclose(romFile);
+						Cartridge* ROM;
+						ROM = FUUGB_LOAD_ROM();
+						if (ROM == NULL)
+							break;
+						if (gameBoy != nullptr)
+							delete gameBoy;
+
+						gameBoy = new Gameboy(_SDLwindow, ROM);
+
 						break;
 					case ID_EXIT:
 						FUUGB_RUNNING = false;
@@ -70,7 +69,7 @@ namespace FuuGB
 		SDL_DestroyWindow(_SDLwindow);
 		FUUGB_QUIT();
 	}
-	wchar_t* WinApplication::open_file(SDL_Window* win)
+	char* WinApplication::open_file(SDL_Window* win)
 	{
 		OPENFILENAME ofn;
 
@@ -86,8 +85,22 @@ namespace FuuGB
 		ofn.Flags = OFN_NOCHANGEDIR;
 
 		GetOpenFileName(&ofn);
-		FUUGB_SUBSYSTEM_LOG("Test");
 
-		return ofn.lpstrFile;
+		char* path = new char[255];
+		sprintf(path, "%ws", ofn.lpstrFile);
+
+		return path;
+	}
+
+	Cartridge* WinApplication::getRom(char* path, SDL_Window* win)
+	{
+		FILE* romFile;
+		if (path[0] == '\0')
+			return NULL;
+		romFile = fopen(path, "r");
+		Cartridge* cart = new Cartridge(romFile);
+		fclose(romFile);
+		delete path;
+		return cart;
 	}
 }
