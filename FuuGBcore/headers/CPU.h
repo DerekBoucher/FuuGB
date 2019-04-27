@@ -337,6 +337,14 @@ namespace FuuGB
 		bool checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte);
 		bool checkBorrowFromBit_Byte(int pos, uBYTE byte, uBYTE subtractedByte);
 		uBYTE twoComp_Byte(uBYTE byte);
+		void add8BitRegister(uBYTE & host, uBYTE operand);
+		void add8BitRegister(uBYTE & host, uBYTE operand, bool carry);
+		void sub8BitRegister(uBYTE & host, uBYTE operand);
+		void sub8BitRegister(uBYTE & host, uBYTE operand, bool carry);
+		void and8BitRegister(uBYTE & host, uBYTE operand);
+		void xor8BitRegister(uBYTE & host, uBYTE operand);
+		void or8BitRegister(uBYTE & host, uBYTE operand);
+		void cmp8BitRegister(uBYTE host, uBYTE operand);
 	};
 }
 

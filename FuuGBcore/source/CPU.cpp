@@ -48,10 +48,11 @@ namespace FuuGB
 	void CPU::executeNextOpCode()
 	{
 		bool oldCarry = true;
-		uBYTE byte = 0x0;
+		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
-		switch (memory->readMemory(PC++))
+		printf("[CPU]: Executing next OpCode: %x\n", byte);
+		switch (byte)
 		{
 		case NOP:
 			//4 CPU Cycle
@@ -415,6 +416,7 @@ namespace FuuGB
 
 		case RJmp_CARRY:
 			//8 Clock Cycles
+			byte = memory->readMemory(PC++);
 			if (CPU_FLAG_BIT_TEST(C_FLAG))
 			{
 				if (TestBitInByte(byte, 7))
@@ -665,6 +667,544 @@ namespace FuuGB
 			HL.hi = AF.hi;
 			break;
 
+		case LD_B_L:
+			//4 Clock Cycles
+			HL.lo = BC.hi;
+			break;
+
+		case LD_C_L:
+			//4 Clock Cycles
+			HL.lo = BC.lo;
+			break;
+
+		case LD_D_L:
+			//4 Clock Cycles
+			HL.lo = DE.hi;
+			break;
+
+		case LD_E_L:
+			//4 Clock Cycles
+			HL.lo = DE.lo;
+			break;
+
+		case LD_H_L:
+			//4 Clock Cycles
+			HL.lo = HL.hi;
+			break;
+
+		case LD_L_L:
+			//4 Clock Cycles
+			HL.lo = HL.lo;
+			break;
+
+		case LD_adrHL_L:
+			//8 Clock Cycles
+			HL.lo = memory->readMemory(HL.data);
+			break;
+
+		case LD_A_L:
+			//4 Clock Cycles
+			HL.lo = AF.hi;
+			break;
+
+		case LD_B_adrHL:
+			//8 Clock Cycles
+			memory->writeMemory(HL.data, BC.hi);
+			break;
+
+		case LD_C_adrHL:
+			//8 Clock Cycles
+			memory->writeMemory(HL.data, BC.lo);
+			break;
+
+		case LD_D_adrHL:
+			//8 Clock Cycles
+			memory->writeMemory(HL.data, DE.hi);
+			break;
+			
+		case LD_E_adrHL:
+			//8 Clock Cycles
+			memory->writeMemory(HL.data, DE.lo);
+			break;
+
+		case LD_H_adrHL:
+			//8 Clock Cycles
+			memory->writeMemory(HL.data, HL.hi);
+			break;
+
+		case LD_L_adrHL:
+			//8 Clock Cycles
+			memory->writeMemory(HL.data, HL.lo);
+			break;
+
+		case HALT:
+			//4 Clock Cycles
+			/*
+			
+			------------------------------ TO-DO ------------------------------
+			Possible implementations:
+				Put CPU thread to sleep on a Cond Var, next interupt signals that cond Var
+			*/
+			break;
+
+		case LD_A_adrHL:
+			//8 Clock Cycles
+			memory->writeMemory(HL.data, AF.hi);
+			break;
+
+		case LD_B_A:
+			//4 Clock Cycles
+			AF.hi = BC.hi;
+			break;
+
+		case LD_C_A:
+			//4 Clock Cycles
+			AF.hi = BC.lo;
+			break;
+
+		case LD_D_A:
+			//4 Clock Cycles
+			AF.hi = DE.hi;
+			break;
+
+		case LD_E_A:
+			//4 Clock Cycles
+			AF.hi = DE.lo;
+			break;
+
+		case LD_H_A:
+			//4 Clock Cycles
+			AF.hi = HL.hi;
+			break;
+
+		case LD_L_A:
+			//4 Clock Cycles
+			AF.hi = HL.lo;
+			break;
+
+		case LD_adrHL_A:
+			//8 Clock Cycles
+			AF.hi = memory->readMemory(HL.data);
+			break;
+
+		case LD_A_A:
+			//4 Clock Cycles
+			AF.hi = AF.hi;
+			break;
+
+		case ADD_B_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, BC.hi);
+			break;
+
+		case ADD_C_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, BC.lo);
+			break;
+
+		case ADD_D_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, DE.hi);
+			break;
+
+		case ADD_E_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, DE.lo);
+			break;
+
+		case ADD_H_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, HL.hi);
+
+		case ADD_L_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, HL.lo);
+			break;
+
+		case ADD_adrHL_A:
+			//8 Clock Cycles
+			add8BitRegister(AF.hi, memory->readMemory(HL.data));
+			break;
+
+		case ADD_A_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, AF.hi);
+			break;
+
+		case ADC_B_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, BC.hi, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case ADC_C_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, BC.lo, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case ADC_D_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, DE.hi, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case ADC_E_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, DE.lo, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case ADC_H_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, HL.hi, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case ADC_L_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, HL.lo, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case ADC_adrHL_A:
+			//8 Clock Cycles
+			add8BitRegister(AF.hi, memory->readMemory(HL.data), CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case ADC_A_A:
+			//4 Clock Cycles
+			add8BitRegister(AF.hi, AF.hi, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case SUB_B_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, BC.hi);
+			break;
+
+		case SUB_C_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, BC.lo);
+			break; 
+
+		case SUB_D_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, DE.hi);
+			break;
+
+		case SUB_E_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, DE.lo);
+			break;
+
+		case SUB_H_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, HL.hi);
+			break;
+
+		case SUB_L_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, HL.lo);
+			break;
+
+		case SUB_adrHL_A:
+			//8 Clock Cycles
+			sub8BitRegister(AF.hi, memory->readMemory(HL.data));
+			break;
+
+		case SUB_A_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, AF.hi);
+			break;
+
+		case SBC_B_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, BC.hi, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case SBC_C_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, BC.lo, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case SBC_D_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, DE.hi, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case SBC_E_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, DE.lo, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case SBC_H_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, HL.hi, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case SBC_L_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, HL.lo, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case SBC_adrHL_A:
+			//8 Clock Cycles
+			sub8BitRegister(AF.hi, memory->readMemory(HL.data), CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case SBC_A_A:
+			//4 Clock Cycles
+			sub8BitRegister(AF.hi, AF.hi, CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case AND_B_A:
+			//4 Clock Cycles
+			and8BitRegister(AF.hi, BC.hi);
+			break;
+
+		case AND_C_A:
+			//4 Clock Cycles
+			and8BitRegister(AF.hi, BC.lo);
+			break;
+
+		case AND_D_A:
+			//4 Clock Cycles
+			and8BitRegister(AF.hi, DE.hi);
+			break;
+
+		case AND_E_A:
+			//4 Clock Cycles
+			and8BitRegister(AF.hi, DE.lo);
+			break;
+
+		case AND_H_A:
+			//4 Clock Cycles
+			and8BitRegister(AF.hi, HL.hi);
+			break;
+
+		case AND_L_A:
+			//4 Clock Cycles
+			and8BitRegister(AF.hi, HL.lo);
+			break;
+
+		case AND_adrHL_A:
+			//8 Clock Cycles
+			and8BitRegister(AF.hi, memory->readMemory(HL.data));
+			break;
+
+		case AND_A_A:
+			//4 Clock Cycles
+			and8BitRegister(AF.hi, AF.hi);
+			break;
+
+		case XOR_B_A:
+			//4 Clock Cycles
+			xor8BitRegister(AF.hi, BC.hi);
+			break;
+
+		case XOR_C_A:
+			//4 Clock Cycles
+			xor8BitRegister(AF.hi, BC.lo);
+			break;
+
+		case XOR_D_A:
+			//4 Clock Cycles
+			xor8BitRegister(AF.hi, DE.hi);
+			break;
+
+		case XOR_E_A:
+			//4 Clock Cycles
+			xor8BitRegister(AF.hi, DE.lo);
+			break;
+
+		case XOR_H_A:
+			//4 Clock Cycles
+			xor8BitRegister(AF.hi, HL.hi);
+			break;
+
+		case XOR_L_A:
+			//4 Clock Cycles
+			xor8BitRegister(AF.hi, HL.lo);
+			break;
+
+		case XOR_adrHL_A:
+			//8 Clock Cycles
+			xor8BitRegister(AF.hi, memory->readMemory(HL.data));
+			break;
+
+		case XOR_A_A:
+			//4 Clock Cycles
+			xor8BitRegister(AF.hi, AF.hi);
+			break;
+
+		case OR_B_A:
+			//4 Clock Cycles
+			or8BitRegister(AF.hi, BC.hi);
+			break;
+
+		case OR_C_A:
+			//4 Clock Cycles
+			or8BitRegister(AF.hi, BC.lo);
+			break;
+
+		case OR_D_A:
+			//4 Clock Cycles
+			or8BitRegister(AF.hi, DE.hi);
+			break;
+
+		case OR_E_A:
+			//4 Clock Cycles
+			or8BitRegister(AF.hi, DE.lo);
+			break;
+
+		case OR_H_A:
+			//4 Clock Cycles
+			or8BitRegister(AF.hi, HL.hi);
+			break;
+
+		case OR_L_A:
+			//4 Clock Cycles
+			or8BitRegister(AF.hi, HL.lo);
+			break;
+
+		case OR_adrHL_A:
+			//8 Clock Cycles
+			or8BitRegister(AF.hi, memory->readMemory(HL.data));
+			break;
+
+		case OR_A_A:
+			//4 Clock Cycles
+			or8BitRegister(AF.hi, AF.hi);
+			break;
+
+		case CMP_B_A:
+			//4 Clock Cycles
+			cmp8BitRegister(AF.hi, BC.hi);
+			break;
+
+		case CMP_C_A:
+			//4 Clock Cycles
+			cmp8BitRegister(AF.hi, BC.lo);
+			break;
+
+		case CMP_D_A:
+			//4 Clock Cycles
+			cmp8BitRegister(AF.hi, DE.hi);
+			break;
+
+		case CMP_E_A:
+			//4 Clock Cycles
+			cmp8BitRegister(AF.hi, DE.lo);
+			break;
+
+		case CMP_H_A:
+			//4 Clock Cycles
+			cmp8BitRegister(AF.hi, HL.hi);
+			break;
+
+		case CMP_L_A:
+			//4 Clock Cycles
+			cmp8BitRegister(AF.hi, HL.lo);
+			break;
+
+		case CMP_adrHL_A:
+			//8 Clock Cycles
+			cmp8BitRegister(AF.hi, memory->readMemory(HL.data));
+			break;
+
+		case CMP_A_A:
+			//4 Clock Cycles
+			cmp8BitRegister(AF.hi, AF.hi);
+			break;
+
+		case RET_NOT_ZERO:
+		/*
+		to do
+		*/
+			break;
+
+		case POP_BC:
+			//12 Clock Cycles
+			BC.hi = memory->readMemory(SP++);
+			BC.lo = memory->readMemory(SP++);
+			break;
+
+		case JMP_NOT_ZERO:
+			//12 Clock Cycles
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
+			{
+				PC = temp->data;
+			}
+			break;
+
+		case JMP:
+			//12 Clock Cycles
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			PC = temp->data;
+			break;
+
+		case CALL_NOT_ZERO:
+			//24 Clock Cycles (if cc= true)
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
+			{
+				std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+				Register temp2;
+				temp2.data = PC;
+				memory->writeMemory(--SP, temp2.hi);
+				memory->writeMemory(--SP, temp2.lo);
+				PC = temp->data;
+			}
+			break;
+
+		case PUSH_BC:
+			//12 clock cycles
+			memory->writeMemory(--SP, BC.hi);
+			memory->writeMemory(--SP, BC.lo);
+			break;
+
+		case ADD_IMM_A:
+			//8 Clock Cycles
+			add8BitRegister(AF.hi, memory->readMemory(PC++));
+			break;
+
+		case RST_0:
+			//16 Clock Cycles
+			temp->data = PC;
+			std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+			memory->writeMemory(--SP, temp->hi);
+			memory->writeMemory(--SP, temp->lo);
+			PC = 0x0000;
+			break;
+
+		case RET_ZERO:
+			//8 Clock Cycles if cc false else 20 clock cycles
+			std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+			if (CPU_FLAG_BIT_TEST(Z_FLAG))
+			{
+				temp->lo = memory->readMemory(SP++);
+				temp->hi = memory->readMemory(SP++);
+				PC = temp->data;
+				std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+			}
+			break;
+
+		case RETURN:
+			//16 Clock Cycles
+			temp->lo = memory->readMemory(SP++);
+			temp->hi = memory->readMemory(SP++);
+			PC = temp->data;
+			std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+
+		case JMP_ZERO:
+			//12 Clock cycles(false) or 16 clock cycles(true)
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			if (CPU_FLAG_BIT_TEST(Z_FLAG))
+			{
+				std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+				PC = temp->data;
+			}
+			break;
+
 		default:
 			break;
 		}
@@ -738,8 +1278,8 @@ namespace FuuGB
 	{
 		std::bitset<sizeof(uBYTE) * 8> BitField(byte);
 		std::bitset<sizeof(uBYTE) * 8> AddedBitField(addedByte);
-		std::bitset<sizeof(uBYTE)> bitSum(new bool);
 		bool carry = false;
+		std::bitset<sizeof(bool)> bitSum(carry);
 
 		for (int i = 0; i < pos; ++i)
 		{
@@ -792,5 +1332,115 @@ namespace FuuGB
 		uBYTE result = twoCompByte.to_ulong() + 0x01;
 
 		return result;
+	}
+
+	void CPU::add8BitRegister(uBYTE& host, uBYTE operand)
+	{
+		host = host + operand;
+
+		if (host == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_RESET(N_FLAG);
+		if (checkCarryFromBit_Byte(2, host, operand))
+			CPU_FLAG_BIT_SET(H_FLAG);
+		if (checkCarryFromBit_Byte(6, host, operand))
+			CPU_FLAG_BIT_SET(C_FLAG);
+	}
+
+	void CPU::add8BitRegister(uBYTE& host, uBYTE operand, bool carry)
+	{
+		host = host + operand + carry;
+
+		if (host == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_RESET(N_FLAG);
+		if (checkCarryFromBit_Byte(2, host, operand))
+			CPU_FLAG_BIT_SET(H_FLAG);
+		if (checkCarryFromBit_Byte(6, host, operand))
+			CPU_FLAG_BIT_SET(C_FLAG);
+	}
+
+	void CPU::sub8BitRegister(uBYTE& host, uBYTE operand)
+	{
+		host = host - operand;
+
+		if (host == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_SET(N_FLAG);
+		
+		if (!checkBorrowFromBit_Byte(3, host, operand))
+			CPU_FLAG_BIT_SET(H_FLAG);
+
+		if (!checkBorrowFromBit_Byte(7, host, operand))
+			CPU_FLAG_BIT_SET(C_FLAG);
+	}
+
+	void CPU::sub8BitRegister(uBYTE& host, uBYTE operand, bool carry)
+	{
+		host = host - operand - carry;
+
+		if (host == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_SET(N_FLAG);
+
+		if (!checkBorrowFromBit_Byte(3, host, operand))
+			CPU_FLAG_BIT_SET(H_FLAG);
+
+		if (!checkBorrowFromBit_Byte(7, host, operand))
+			CPU_FLAG_BIT_SET(C_FLAG);
+	}
+
+	void CPU::and8BitRegister(uBYTE& host, uBYTE operand)
+	{
+		host = host & operand;
+
+		if (host == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_RESET(N_FLAG);
+		CPU_FLAG_BIT_SET(H_FLAG);
+		CPU_FLAG_BIT_RESET(C_FLAG);
+	}
+
+	void CPU::xor8BitRegister(uBYTE& host, uBYTE operand)
+	{
+		host = host ^ operand;
+
+		if (host == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_RESET(N_FLAG);
+		CPU_FLAG_BIT_RESET(H_FLAG);
+		CPU_FLAG_BIT_RESET(C_FLAG);
+	}
+
+	void CPU::or8BitRegister(uBYTE& host, uBYTE operand)
+	{
+		host = host | operand;
+
+		if (host == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_RESET(N_FLAG);
+		CPU_FLAG_BIT_RESET(H_FLAG);
+		CPU_FLAG_BIT_RESET(C_FLAG);
+	}
+
+	void CPU::cmp8BitRegister(uBYTE host, uBYTE operand)
+	{
+		if (host == operand)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_SET(N_FLAG);
+
+		if (!checkBorrowFromBit_Byte(3, host, operand))
+			CPU_FLAG_BIT_SET(H_FLAG);
+
+		if (host < operand)
+			CPU_FLAG_BIT_SET(C_FLAG);
 	}
 }
