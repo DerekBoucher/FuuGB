@@ -24,8 +24,8 @@ namespace FuuGB
 
 		_cpuRunning = true;
 		_cpuTHR = new std::thread(&CPU::clock, this);
-		FlagBits = new std::bitset<sizeof(uBYTE)*8>(AF.lo);
-		AluBits = new std::bitset<sizeof(uBYTE)*8>(AF.hi);
+		FlagBits = new std::bitset<sizeof(uBYTE)*8>(&AF.lo);
+		AluBits = new std::bitset<sizeof(uBYTE)*8>(&AF.hi);
 		
 		FUUGB_CPU_LOG("CPU Initialized.");
 	}
@@ -60,8 +60,8 @@ namespace FuuGB
 
 		case LD_16IMM_BC:
 			//12 CPU Cycles
-			BC.hi = memory->readMemory(PC++);
 			BC.lo = memory->readMemory(PC++);
+			BC.hi = memory->readMemory(PC++);
 			break;
 
 		case LD_A_adrBC:
@@ -91,24 +91,15 @@ namespace FuuGB
 
 		case RLC_A:
 			//4 CPU Cycles
-			if (TestBitInByte(AF.hi, 7))
-				CPU_FLAG_BIT_SET(C_FLAG);
-			AF.hi = AF.hi << 0x1;
-			
-			if (AF.hi == 0x00)
-				CPU_FLAG_BIT_SET(Z_FLAG);
-
-			CPU_FLAG_BIT_RESET(N_FLAG);
-			CPU_FLAG_BIT_RESET(H_FLAG);
+			rotateReg(true, false, AF.hi);
 			break;
 
 		case LD_SP_adr:
 			//20 CPU cycles
-			Register LD_addr;
-			LD_addr.hi = memory->readMemory(PC++);
-			LD_addr.lo = memory->readMemory(PC++);
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
 			SP_data = memory->readMemory(SP);
-			memory->writeMemory(LD_addr.data, SP_data);
+			memory->writeMemory(temp->data, SP_data);
 			break;
 
 		case ADD_BC_HL:
@@ -143,10 +134,7 @@ namespace FuuGB
 
 		case RRC_A:
 			//4 CPU Cycles
-			CPU_FLAG_BIT_SET(C_FLAG, ALU_BIT_TEST(0));
-			AF.hi = AF.hi >> 1;
-			if (AF.hi == 0x0)
-				CPU_FLAG_BIT_SET(Z_FLAG);
+			rotateReg(false, false, AF.hi);
 			break;
 
 		case STOP:
@@ -190,10 +178,7 @@ namespace FuuGB
 
 		case RL_A:
 			//4 Clock Cycles
-			oldCarry = CPU_FLAG_BIT_TEST(C_FLAG);
-			CPU_FLAG_BIT_SET(C_FLAG, ALU_BIT_TEST(7));
-			AF.hi = AF.hi << 1;
-			ALU_BIT_SET(0, oldCarry);
+			rotateReg(true, true, AF.hi);
 			break;
 
 		case RJmp_IMM:
@@ -237,10 +222,7 @@ namespace FuuGB
 
 		case RR_A:
 			//4 clock cycles
-			oldCarry = CPU_FLAG_BIT_TEST(C_FLAG);
-			CPU_FLAG_BIT_SET(C_FLAG, ALU_BIT_TEST(0));
-			AF.hi = AF.hi >> 1;
-			ALU_BIT_SET(7, oldCarry);
+			rotateReg(false, true, AF.hi);
 			break;
 
 		case RJmp_NOTZERO:
@@ -257,8 +239,8 @@ namespace FuuGB
 
 		case LD_16IMM_HL:
 			//12 Clock Cycles
-			HL.hi = memory->readMemory(PC++);
 			HL.lo = memory->readMemory(PC++);
+			HL.hi = memory->readMemory(PC++);
 			break;
 
 		case LDI_A_adrHL:
@@ -356,8 +338,8 @@ namespace FuuGB
 
 		case LD_16IM_SP:
 			//12 Clock Cycles
-			temp->hi = memory->readMemory(PC++);
 			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
 			SP = temp->data;
 			break;
 
@@ -1124,29 +1106,31 @@ namespace FuuGB
 			break;
 
 		case JMP_NOT_ZERO:
-			//12 Clock Cycles
+			//16/12 Clock Cycles
 			temp->lo = memory->readMemory(PC++);
 			temp->hi = memory->readMemory(PC++);
 			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
 				PC = temp->data;
 			}
 			break;
 
 		case JMP:
-			//12 Clock Cycles
+			//16 Clock Cycles
 			temp->lo = memory->readMemory(PC++);
 			temp->hi = memory->readMemory(PC++);
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			PC = temp->data;
 			break;
 
 		case CALL_NOT_ZERO:
-			//24 Clock Cycles (if cc= true)
+			//24/12 Clock Cycles
 			temp->lo = memory->readMemory(PC++);
 			temp->hi = memory->readMemory(PC++);
 			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
-				std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
 				Register temp2;
 				temp2.data = PC;
 				memory->writeMemory(--SP, temp2.hi);
@@ -1156,9 +1140,10 @@ namespace FuuGB
 			break;
 
 		case PUSH_BC:
-			//12 clock cycles
+			//16 clock cycles
 			memory->writeMemory(--SP, BC.hi);
 			memory->writeMemory(--SP, BC.lo);
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			break;
 
 		case ADD_IMM_A:
@@ -1169,7 +1154,7 @@ namespace FuuGB
 		case RST_0:
 			//16 Clock Cycles
 			temp->data = PC;
-			std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			memory->writeMemory(--SP, temp->hi);
 			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0000;
@@ -1177,13 +1162,13 @@ namespace FuuGB
 
 		case RET_ZERO:
 			//8 Clock Cycles if cc false else 20 clock cycles
-			std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			if (CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
 				temp->lo = memory->readMemory(SP++);
 				temp->hi = memory->readMemory(SP++);
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
 				PC = temp->data;
-				std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
 			}
 			break;
 
@@ -1191,18 +1176,1310 @@ namespace FuuGB
 			//16 Clock Cycles
 			temp->lo = memory->readMemory(SP++);
 			temp->hi = memory->readMemory(SP++);
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			PC = temp->data;
-			std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
 
 		case JMP_ZERO:
-			//12 Clock cycles(false) or 16 clock cycles(true)
+			//16/12 Clock cycles
 			temp->lo = memory->readMemory(PC++);
 			temp->hi = memory->readMemory(PC++);
 			if (CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
-				std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
 				PC = temp->data;
 			}
+			break;
+
+		case EXT_OP:
+			//4 Clock Cycles, this opcode is special, it allows for 16 bit opcodes
+			switch (memory->readMemory(PC++))
+			{
+			case RLC_B:
+				//4 clock Cycles
+				rotateReg(true, false, BC.hi);
+				break;
+
+			case RLC_C:
+				//4 clock Cycles
+				rotateReg(true, false, BC.lo);
+				break;
+
+			case RLC_D:
+				//4 clock Cycles
+				rotateReg(true, false, DE.hi);
+				break;
+
+			case RLC_E:
+				//4 clock Cycles
+				rotateReg(true, false, DE.lo);
+				break;
+
+			case RLC_H:
+				//4 clock Cycles
+				rotateReg(true, false, HL.hi);
+				break;
+
+			case RLC_L:
+				//4 clock Cycles
+				rotateReg(true, false, HL.lo);
+				break;
+
+			case RLC_adrHL:
+				//8 clock Cycles
+				rotateReg(true, false, memory->readMemory(HL.data));
+				break;
+
+			case eRLC_A:
+				//4 clock Cycles
+				rotateReg(true, false, AF.hi);
+				break;
+				
+			case RRC_B:
+				//4 clock Cycles
+				rotateReg(false, false, BC.hi);
+				break;
+
+			case RRC_C:
+				//4 clock Cycles
+				rotateReg(false, false, BC.lo);
+				break;
+
+			case RRC_D:
+				//4 clock Cycles
+				rotateReg(false, false, DE.hi);
+				break;
+
+			case RRC_E:
+				//4 clock Cycles
+				rotateReg(false, false, DE.lo);
+				break;
+
+			case RRC_H:
+				//4 clock Cycles
+				rotateReg(false, false, HL.hi);
+				break;
+
+			case RRC_L:
+				//4 clock Cycles
+				rotateReg(false, false, HL.lo);
+				break;
+
+			case RRC_adrHL:
+				//8 clock Cycles
+				rotateReg(false, false, memory->readMemory(HL.data));
+				break;
+
+			case eRRC_A:
+				//4 clock Cycles
+				rotateReg(false, false, AF.hi);
+				break;
+
+			case RL_B:
+				//4 clock Cycles
+				rotateReg(true, true, BC.hi);
+				break;
+
+			case RL_C:
+				//4 clock Cycles
+				rotateReg(true, true, BC.lo);
+				break;
+
+			case RL_D:
+				//4 clock Cycles
+				rotateReg(true, true, DE.hi);
+				break;
+
+			case RL_E:
+				//4 clock Cycles
+				rotateReg(true, true, DE.lo);
+				break;
+
+			case RL_H:
+				//4 clock Cycles
+				rotateReg(true, true, HL.hi);
+				break;
+
+			case RL_L:
+				//4 clock Cycles
+				rotateReg(true, true, HL.lo);
+				break;
+
+			case RL_adrHL:
+				//8 clock Cycles
+				rotateReg(true, true, memory->readMemory(HL.data));
+				break;
+
+			case eRL_A:
+				//4 clock Cycles
+				rotateReg(true, true, AF.hi);
+				break;
+
+			case RR_B:
+				//4 clock Cycles
+				rotateReg(false, true, BC.hi);
+				break;
+
+			case RR_C:
+				//4 clock Cycles
+				rotateReg(false, true, BC.lo);
+				break;
+
+			case RR_D:
+				//4 clock Cycles
+				rotateReg(false, true, DE.hi);
+				break;
+
+			case RR_E:
+				//4 clock Cycles
+				rotateReg(false, true, DE.lo);
+				break;
+
+			case RR_H:
+				//4 clock Cycles
+				rotateReg(false, true, HL.hi);
+				break;
+
+			case RR_L:
+				//4 clock Cycles
+				rotateReg(false, true, HL.lo);
+				break;
+
+			case RR_adrHL:
+				//8 clock Cycles
+				rotateReg(false, true, memory->readMemory(HL.data));
+				break;
+
+			case eRR_A:
+				//4 clock Cycles
+				rotateReg(false, true, AF.hi);
+				break;
+
+			case SLA_B:
+				//4 clock cycles
+				shiftReg(true, false, BC.hi);
+				break;
+
+			case SLA_C:
+				//4 clock cycles
+				shiftReg(true, false, BC.lo);
+				break;
+
+			case SLA_D:
+				//4 clock cycles
+				shiftReg(true, false, DE.hi);
+				break;
+
+			case SLA_E:
+				//4 clock cycles
+				shiftReg(true, false, DE.lo);
+				break;
+
+			case SLA_H:
+				//4 clock cycles
+				shiftReg(true, false, HL.hi);
+				break;
+
+			case SLA_L:
+				//4 clock cycles
+				shiftReg(true, false, HL.lo);
+				break;
+
+			case SLA_adrHL:
+				//8 Clock Cycles
+				shiftReg(true, false, memory->readMemory(HL.data));
+				break;
+
+			case SLA_A:
+				//8 Clock Cycles
+				shiftReg(true, false, AF.hi);
+				break;
+
+			case SRA_B:
+				//4 clock Cycles
+				shiftReg(false, true, BC.hi);
+				break;
+
+			case SRA_C:
+				//4 clock Cycles
+				shiftReg(false, true, BC.lo);
+				break;
+
+			case SRA_D:
+				//4 clock Cycles
+				shiftReg(false, true, DE.hi);
+				break;
+
+			case SRA_E:
+				//4 clock Cycles
+				shiftReg(false, true, DE.lo);
+				break;
+
+			case SRA_H:
+				//4 clock Cycles
+				shiftReg(false, true, HL.hi);
+				break;
+
+			case SRA_L:
+				//4 clock Cycles
+				shiftReg(false, true, HL.lo);
+				break;
+
+			case SRA_adrHL:
+				//8 clock Cycles
+				shiftReg(false, true, memory->readMemory(HL.data));
+				break;
+
+			case SRA_A:
+				//4 clock Cycles
+				shiftReg(false, true, AF.hi);
+				break;
+
+			case SWAP_B:
+				//4 Clock Cycles
+				swapReg(BC.hi);
+				break;
+
+			case SWAP_C:
+				//4 Clock Cycles
+				swapReg(BC.lo);
+				break;
+
+			case SWAP_D:
+				//4 Clock Cycles
+				swapReg(DE.hi);
+				break;
+
+			case SWAP_E:
+				//4 Clock Cycles
+				swapReg(DE.lo);
+				break;
+
+			case SWAP_H:
+				//4 Clock Cycles
+				swapReg(HL.hi);
+				break;
+
+			case SWAP_L:
+				//4 Clock Cycles
+				swapReg(HL.lo);
+				break;
+
+			case SWAP_adrHL:
+				//8 Clock Cycles
+				swapReg(memory->readMemory(HL.data));
+				break;
+
+			case SWAP_A:
+				//4 Clock Cycles
+				swapReg(AF.hi);
+				break;
+
+			case SRL_B:
+				//4 Clock Cycles
+				shiftReg(false, false, BC.hi);
+				break;
+
+			case SRL_C:
+				//4 Clock Cycles
+				shiftReg(false, false, BC.lo);
+				break;
+
+			case SRL_D:
+				//4 Clock Cycles
+				shiftReg(false, false, DE.hi);
+				break;
+
+			case SRL_E:
+				//4 Clock Cycles
+				shiftReg(false, false, DE.lo);
+				break;
+
+			case SRL_H:
+				//4 Clock Cycles
+				shiftReg(false, false, HL.hi);
+				break;
+
+			case SRL_L:
+				//4 Clock Cycles
+				shiftReg(false, false, HL.lo);
+				break;
+
+			case SRL_adrHL:
+				//8 Clock Cycles
+				shiftReg(false, false, memory->readMemory(HL.data));
+				break;
+
+			case SRL_A:
+				//4 Clock Cycles
+				shiftReg(false, false, AF.hi);
+				break;
+
+			case BIT_1_B:
+				//4 Clock Cycles
+				test_bit(0, BC.hi);
+				break;
+
+			case BIT_1_C:
+				//4 Clock Cycles
+				test_bit(0, BC.lo);
+				break;
+
+			case BIT_1_D:
+				//4 Clock Cycles
+				test_bit(0, DE.hi);
+				break;
+
+			case BIT_1_E:
+				//4 Clock Cycles
+				test_bit(0, DE.lo);
+				break;
+
+			case BIT_1_H:
+				//4 Clock Cycles
+				test_bit(0, HL.hi);
+				break;
+
+			case BIT_1_L:
+				//4 Clock Cycles
+				test_bit(0, HL.lo);
+				break;
+
+			case BIT_1_adrHL:
+				//8 Clock Cycles
+				test_bit(0, memory->readMemory(HL.data));
+				break;
+
+			case BIT_1_A:
+				//4 Clock Cycles
+				test_bit(0, AF.hi);
+				break;
+
+			case BIT_2_B:
+				//4 Clock Cycles
+				test_bit(1, BC.hi);
+				break;
+
+			case BIT_2_C:
+				//4 Clock Cycles
+				test_bit(1, BC.lo);
+				break;
+
+			case BIT_2_D:
+				//4 Clock Cycles
+				test_bit(1, DE.hi);
+				break;
+
+			case BIT_2_E:
+				//4 Clock Cycles
+				test_bit(1, DE.lo);
+				break;
+
+			case BIT_2_H:
+				//4 Clock Cycles
+				test_bit(1, HL.hi);
+				break;
+
+			case BIT_2_L:
+				//4 Clock Cycles
+				test_bit(1, HL.lo);
+				break;
+
+			case BIT_2_adrHL:
+				//8 Clock Cycles
+				test_bit(1, memory->readMemory(HL.data));
+				break;
+
+			case BIT_2_A:
+				//4 Clock Cycles
+				test_bit(1, AF.hi);
+				break;
+
+			case BIT_3_B:
+				//4 Clock Cycles
+				test_bit(2, BC.hi);
+				break;
+
+			case BIT_3_C:
+				//4 Clock Cycles
+				test_bit(2, BC.lo);
+				break;
+
+			case BIT_3_D:
+				//4 Clock Cycles
+				test_bit(2, DE.hi);
+				break;
+
+			case BIT_3_E:
+				//4 Clock Cycles
+				test_bit(2, DE.lo);
+				break;
+
+			case BIT_3_H:
+				//4 Clock Cycles
+				test_bit(2, HL.hi);
+				break;
+
+			case BIT_3_L:
+				//4 Clock Cycles
+				test_bit(2, HL.lo);
+				break;
+
+			case BIT_3_adrHL:
+				//8 Clock Cycles
+				test_bit(2, memory->readMemory(HL.data));
+				break;
+
+			case BIT_3_A:
+				//4 Clock Cycles
+				test_bit(2, AF.hi);
+				break;
+
+			case BIT_4_B:
+				//4 Clock Cycles
+				test_bit(3, BC.hi);
+				break;
+
+			case BIT_4_C:
+				//4 Clock Cycles
+				test_bit(3, BC.lo);
+				break;
+
+			case BIT_4_D:
+				//4 Clock Cycles
+				test_bit(3, DE.hi);
+				break;
+
+			case BIT_4_E:
+				//4 Clock Cycles
+				test_bit(3, DE.lo);
+				break;
+
+			case BIT_4_H:
+				//4 Clock Cycles
+				test_bit(3, HL.hi);
+				break;
+
+			case BIT_4_L:
+				//4 Clock Cycles
+				test_bit(3, HL.lo);
+				break;
+
+			case BIT_4_adrHL:
+				//8 Clock Cycles
+				test_bit(3, memory->readMemory(HL.data));
+				break;
+
+			case BIT_4_A:
+				//4 Clock Cycles
+				test_bit(3, AF.hi);
+				break;
+
+			case BIT_5_B:
+				//4 Clock Cycles
+				test_bit(4, BC.hi);
+				break;
+
+			case BIT_5_C:
+				//4 Clock Cycles
+				test_bit(4, BC.lo);
+				break;
+
+			case BIT_5_D:
+				//4 Clock Cycles
+				test_bit(4, DE.hi);
+				break;
+
+			case BIT_5_E:
+				//4 Clock Cycles
+				test_bit(4, DE.lo);
+				break;
+
+			case BIT_5_H:
+				//4 Clock Cycles
+				test_bit(4, HL.hi);
+				break;
+
+			case BIT_5_L:
+				//4 Clock Cycles
+				test_bit(4, HL.lo);
+				break;
+			
+			case BIT_5_adrHL:
+				//8 Clock Cycles
+				test_bit(4, memory->readMemory(HL.data));
+				break;
+
+			case BIT_5_A:
+				//4 Clock Cycles
+				test_bit(4, AF.hi);
+				break;
+
+			case BIT_6_B:
+				//4 Clock Cycles
+				test_bit(5, BC.hi);
+				break;
+
+			case BIT_6_C:
+				//4 Clock Cycles
+				test_bit(5, BC.lo);
+				break;
+
+			case BIT_6_D:
+				//4 Clock Cycles
+				test_bit(5, DE.hi);
+				break;
+
+			case BIT_6_E:
+				//4 Clock Cycles
+				test_bit(5, DE.lo);
+				break;
+
+			case BIT_6_H:
+				//4 Clock Cycles
+				test_bit(5, HL.hi);
+				break;
+
+			case BIT_6_L:
+				//4 Clock Cycles
+				test_bit(5, HL.lo);
+				break;
+
+			case BIT_6_adrHL:
+				//8 Clock Cycles
+				test_bit(5, memory->readMemory(HL.data));
+				break;
+				
+			case BIT_6_A:
+				//4 Clock Cycles
+				test_bit(5, AF.hi);
+				break;
+
+			case BIT_7_B:
+				//4 Clock Cycles
+				test_bit(6, BC.hi);
+				break;
+
+			case BIT_7_C:
+				//4 Clock Cycles
+				test_bit(6, BC.lo);
+				break;
+
+			case BIT_7_D:
+				//4 Clock Cycles
+				test_bit(6, DE.hi);
+				break;
+
+			case BIT_7_E:
+				//4 Clock Cycles
+				test_bit(6, DE.lo);
+				break;
+
+			case BIT_7_H:
+				//4 Clock Cycles
+				test_bit(6, HL.hi);
+				break;
+
+			case BIT_7_L:
+				//4 Clock Cycles
+				test_bit(6, HL.lo);
+				break;
+
+			case BIT_7_adrHL:
+				//8 Clock Cycles
+				test_bit(6, memory->readMemory(HL.data));
+				break;
+
+			case BIT_7_A:
+				//4 Clock Cycles
+				test_bit(6, AF.hi);
+				break;
+
+			case BIT_8_B:
+				//4 Clock Cycles
+				test_bit(7, BC.hi);
+				break;
+
+			case BIT_8_C:
+				//4 Clock Cycles
+				test_bit(7, BC.lo);
+				break;
+
+			case BIT_8_D:
+				//4 Clock Cycles
+				test_bit(7, DE.hi);
+				break;
+
+			case BIT_8_E:
+				//4 Clock Cycles
+				test_bit(7, DE.lo);
+				break;
+
+			case BIT_8_H:
+				//4 Clock Cycles
+				test_bit(7, HL.hi);
+				break;
+
+			case BIT_8_L:
+				//4 Clock Cycles
+				test_bit(7, HL.lo);
+				break;
+
+			case BIT_8_adrHL:
+				//8 Clock Cycles
+				test_bit(7, memory->readMemory(HL.data));
+				break;
+
+			case BIT_8_A:
+				//4 Clock Cycles
+				test_bit(7, AF.hi);
+				break;
+
+			case RES_1_B:
+				//4 Clock Cycles
+				reset_bit(0, BC.hi);
+				break;
+
+			case RES_1_C:
+				//4 Clock Cycles
+				reset_bit(0, BC.lo);
+				break;
+
+			case RES_1_D:
+				//4 Clock Cycles
+				reset_bit(0, DE.hi);
+				break;
+
+			case RES_1_E:
+				//4 Clock Cycles
+				reset_bit(0, DE.lo);
+				break;
+
+			case RES_1_H:
+				//4 Clock Cycles
+				reset_bit(0, HL.hi);
+				break;
+
+			case RES_1_L:
+				//4 Clock Cycles
+				reset_bit(0, HL.lo);
+				break;
+
+			case RES_1_adrHL:
+				//8 Clock Cycles
+				reset_bit(0, memory->readMemory(HL.data));
+				break;
+
+			case RES_1_A:
+				//4 Clock Cycles
+				reset_bit(0, AF.hi);
+				break;
+
+			case RES_2_B:
+				//4 Clock Cycles
+				reset_bit(1, BC.hi);
+				break;
+
+			case RES_2_C:
+				//4 Clock Cycles
+				reset_bit(1, BC.lo);
+				break;
+
+			case RES_2_D:
+				//4 Clock Cycles
+				reset_bit(1, DE.hi);
+				break;
+
+			case RES_2_E:
+				//4 Clock Cycles
+				reset_bit(1, DE.lo);
+				break;
+
+			case RES_2_H:
+				//4 Clock Cycles
+				reset_bit(1, HL.hi);
+				break;
+
+			case RES_2_L:
+				//4 Clock Cycles
+				reset_bit(1, HL.lo);
+				break;
+
+			case RES_2_adrHL:
+				//8 Clock Cycles
+				reset_bit(1, memory->readMemory(HL.data));
+				break;
+
+			case RES_2_A:
+				//4 Clock Cycles
+				reset_bit(1, AF.hi);
+				break;
+
+			case RES_3_B:
+				//4 Clock Cycles
+				reset_bit(2, BC.hi);
+				break;
+
+			case RES_3_C:
+				//4 Clock Cycles
+				reset_bit(2, BC.lo);
+				break;
+
+			case RES_3_D:
+				//4 Clock Cycles
+				reset_bit(2, DE.hi);
+				break;
+
+			case RES_3_E:
+				//4 Clock Cycles
+				reset_bit(2, DE.lo);
+				break;
+
+			case RES_3_H:
+				//4 Clock Cycles
+				reset_bit(2, HL.hi);
+				break;
+
+			case RES_3_L:
+				//4 Clock Cycles
+				reset_bit(2, HL.lo);
+				break;
+
+			case RES_3_adrHL:
+				//8 Clock Cycles
+				reset_bit(2, memory->readMemory(HL.data));
+				break;
+
+			case RES_3_A:
+				//4 Clock Cycles
+				reset_bit(2, AF.hi);
+				break;
+
+			case RES_4_B:
+				//4 Clock Cycles
+				reset_bit(3, BC.hi);
+				break;
+
+			case RES_4_C:
+				//4 Clock Cycles
+				reset_bit(3, BC.lo);
+				break;
+
+			case RES_4_D:
+				//4 Clock Cycles
+				reset_bit(3, DE.hi);
+				break;
+
+			case RES_4_E:
+				//4 Clock Cycles
+				reset_bit(3, DE.lo);
+				break;
+
+			case RES_4_H:
+				//4 Clock Cycles
+				reset_bit(3, HL.hi);
+				break;
+
+			case RES_4_L:
+				//4 Clock Cycles
+				reset_bit(3, HL.lo);
+				break;
+
+			case RES_4_adrHL:
+				//8 Clock Cycles
+				reset_bit(3, memory->readMemory(HL.data));
+				break;
+
+			case RES_4_A:
+				//4 Clock Cycles
+				reset_bit(3, AF.hi);
+				break;
+
+			case RES_5_B:
+				//4 Clock Cycles
+				reset_bit(4, BC.hi);
+				break;
+
+			case RES_5_C:
+				//4 Clock Cycles
+				reset_bit(4, BC.lo);
+				break;
+
+			case RES_5_D:
+				//4 Clock Cycles
+				reset_bit(4, DE.hi);
+				break;
+
+			case RES_5_E:
+				//4 Clock Cycles
+				reset_bit(4, DE.lo);
+				break;
+
+			case RES_5_H:
+				//4 Clock Cycles
+				reset_bit(4, HL.hi);
+				break;
+
+			case RES_5_L:
+				//4 Clock Cycles
+				reset_bit(4, HL.lo);
+				break;
+
+			case RES_5_adrHL:
+				//8 Clock Cycles
+				reset_bit(4, memory->readMemory(HL.data));
+				break;
+
+			case RES_5_A:
+				//4 Clock Cycles
+				reset_bit(4, AF.hi);
+				break;
+
+			case RES_6_B:
+				//4 Clock Cycles
+				reset_bit(5, BC.hi);
+				break;
+
+			case RES_6_C:
+				//4 Clock Cycles
+				reset_bit(5, BC.lo);
+				break;
+
+			case RES_6_D:
+				//4 Clock Cycles
+				reset_bit(5, DE.hi);
+				break;
+
+			case RES_6_E:
+				//4 Clock Cycles
+				reset_bit(5, DE.lo);
+				break;
+
+			case RES_6_H:
+				//4 Clock Cycles
+				reset_bit(5, HL.hi);
+				break;
+
+			case RES_6_L:
+				//4 Clock Cycles
+				reset_bit(5, HL.lo);
+				break;
+
+			case RES_6_adrHL:
+				//8 Clock Cycles
+				reset_bit(5, memory->readMemory(HL.data));
+				break;
+
+			case RES_6_A:
+				//4 Clock Cycles
+				reset_bit(5, AF.hi);
+				break;
+
+			case RES_7_B:
+				//4 Clock Cycles
+				reset_bit(6, BC.hi);
+				break;
+
+			case RES_7_C:
+				//4 Clock Cycles
+				reset_bit(6, BC.lo);
+				break;
+
+			case RES_7_D:
+				//4 Clock Cycles
+				reset_bit(6, DE.hi);
+				break;
+
+			case RES_7_E:
+				//4 Clock Cycles
+				reset_bit(6, DE.lo);
+				break;
+
+			case RES_7_H:
+				//4 Clock Cycles
+				reset_bit(6, HL.hi);
+				break;
+
+			case RES_7_L:
+				//4 Clock Cycles
+				reset_bit(6, HL.lo);
+				break;
+
+			case RES_7_adrHL:
+				//8 Clock Cycles
+				reset_bit(6, memory->readMemory(HL.data));
+				break;
+
+			case RES_7_A:
+				//4 Clock Cycles
+				reset_bit(6, AF.hi);
+				break;
+
+			case RES_8_B:
+				//4 Clock Cycles
+				reset_bit(7, BC.hi);
+				break;
+
+			case RES_8_C:
+				//4 Clock Cycles
+				reset_bit(7, BC.lo);
+				break;
+
+			case RES_8_D:
+				//4 Clock Cycles
+				reset_bit(7, DE.hi);
+				break;
+
+			case RES_8_E:
+				//4 Clock Cycles
+				reset_bit(7, DE.lo);
+				break;
+
+			case RES_8_H:
+				//4 Clock Cycles
+				reset_bit(7, HL.hi);
+				break;
+
+			case RES_8_L:
+				//4 Clock Cycles
+				reset_bit(7, HL.lo);
+				break;
+
+			case RES_8_adrHL:
+				//8 Clock Cycles
+				reset_bit(7, memory->readMemory(HL.data));
+				break;
+
+			case RES_8_A:
+				//4 Clock Cycles
+				reset_bit(7, AF.hi);
+				break;
+
+			case SET_1_B:
+				//4 Clock Cycles
+				set_bit(0, BC.hi);
+				break;
+
+			case SET_1_C:
+				//4 Clock Cycles
+				set_bit(0, BC.lo);
+				break;
+
+			case SET_1_D:
+				//4 Clock Cycles
+				set_bit(0, DE.hi);
+				break;
+
+			case SET_1_E:
+				//4 Clock Cycles
+				set_bit(0, DE.lo);
+				break;
+
+			case SET_1_H:
+				//4 Clock Cycles
+				set_bit(0, HL.hi);
+				break;
+
+			case SET_1_L:
+				//4 Clock Cycles
+				set_bit(0, HL.lo);
+				break;
+
+			case SET_1_adrHL:
+				//8 Clock Cycles
+				set_bit(0, memory->readMemory(HL.data));
+				break;
+
+			case SET_1_A:
+				//4 Clock Cycles
+				set_bit(0, AF.hi);
+				break;
+
+			case SET_2_B:
+				//4 Clock Cycles
+				set_bit(1, BC.hi);
+				break;
+
+			case SET_2_C:
+				//4 Clock Cycles
+				set_bit(1, BC.lo);
+				break;
+
+			case SET_2_D:
+				//4 Clock Cycles
+				set_bit(1, DE.hi);
+				break;
+
+			case SET_2_E:
+				//4 Clock Cycles
+				set_bit(1, DE.lo);
+				break;
+
+			case SET_2_H:
+				//4 Clock Cycles
+				set_bit(1, HL.hi);
+				break;
+
+			case SET_2_L:
+				//4 Clock Cycles
+				set_bit(1, HL.lo);
+				break;
+
+			case SET_2_adrHL:
+				//8 Clock Cycles
+				set_bit(1, memory->readMemory(HL.data));
+				break;
+
+			case SET_2_A:
+				//4 Clock Cycles
+				set_bit(1, AF.hi);
+				break;
+
+			case SET_3_B:
+				//4 Clock Cycles
+				set_bit(2, BC.hi);
+				break;
+
+			case SET_3_C:
+				//4 Clock Cycles
+				set_bit(2, BC.lo);
+				break;
+
+			case SET_3_D:
+				//4 Clock Cycles
+				set_bit(2, DE.hi);
+				break;
+
+			case SET_3_E:
+				//4 Clock Cycles
+				set_bit(2, DE.lo);
+				break;
+
+			case SET_3_H:
+				//4 Clock Cycles
+				set_bit(2, HL.hi);
+				break;
+
+			case SET_3_L:
+				//4 Clock Cycles
+				set_bit(2, HL.lo);
+				break;
+
+			case SET_3_adrHL:
+				//8 Clock Cycles
+				set_bit(2, memory->readMemory(HL.data));
+				break;
+
+			case SET_3_A:
+				//4 Clock Cycles
+				set_bit(2, AF.hi);
+				break;
+
+			case SET_4_B:
+				//4 Clock Cycles
+				set_bit(3, BC.hi);
+				break;
+
+			case SET_4_C:
+				//4 Clock Cycles
+				set_bit(3, BC.lo);
+				break;
+
+			case SET_4_D:
+				//4 Clock Cycles
+				set_bit(3, DE.hi);
+				break;
+
+			case SET_4_E:
+				//4 Clock Cycles
+				set_bit(3, DE.lo);
+				break;
+
+			case SET_4_H:
+				//4 Clock Cycles
+				set_bit(3, HL.hi);
+				break;
+
+			case SET_4_L:
+				//4 Clock Cycles
+				set_bit(3, HL.lo);
+				break;
+
+			case SET_4_adrHL:
+				//8 Clock Cycles
+				set_bit(3, memory->readMemory(HL.data));
+				break;
+
+			case SET_4_A:
+				//4 Clock Cycles
+				set_bit(3, AF.hi);
+				break;
+
+			case SET_5_B:
+				//4 Clock Cycles
+				set_bit(4, BC.hi);
+				break;
+
+			case SET_5_C:
+				//4 Clock Cycles
+				set_bit(4, BC.lo);
+				break;
+
+			case SET_5_D:
+				//4 Clock Cycles
+				set_bit(4, DE.hi);
+				break;
+
+			case SET_5_E:
+				//4 Clock Cycles
+				set_bit(4, DE.lo);
+				break;
+
+			case SET_5_H:
+				//4 Clock Cycles
+				set_bit(4, HL.hi);
+				break;
+
+			case SET_5_L:
+				//4 Clock Cycles
+				set_bit(4, HL.lo);
+				break;
+
+			case SET_5_adrHL:
+				//8 Clock Cycles
+				set_bit(4, memory->readMemory(HL.data));
+				break;
+
+			case SET_5_A:
+				//4 Clock Cycles
+				set_bit(4, AF.hi);
+				break;
+
+			case SET_6_B:
+				//4 Clock Cycles
+				set_bit(5, BC.hi);
+				break;
+
+			case SET_6_C:
+				//4 Clock Cycles
+				set_bit(5, BC.lo);
+				break;
+
+			case SET_6_D:
+				//4 Clock Cycles
+				set_bit(5, DE.hi);
+				break;
+
+			case SET_6_E:
+				//4 Clock Cycles
+				set_bit(5, DE.lo);
+				break;
+
+			case SET_6_H:
+				//4 Clock Cycles
+				set_bit(5, HL.hi);
+				break;
+
+			case SET_6_L:
+				//4 Clock Cycles
+				set_bit(5, HL.lo);
+				break;
+
+			case SET_6_adrHL:
+				//8 Clock Cycles
+				set_bit(5, memory->readMemory(HL.data));
+				break;
+
+			case SET_6_A:
+				//4 Clock Cycles
+				set_bit(5, AF.hi);
+				break;
+
+			case SET_7_B:
+				//4 Clock Cycles
+				set_bit(6, BC.hi);
+				break;
+
+			case SET_7_C:
+				//4 Clock Cycles
+				set_bit(6, BC.lo);
+				break;
+
+			case SET_7_D:
+				//4 Clock Cycles
+				set_bit(6, DE.hi);
+				break;
+
+			case SET_7_E:
+				//4 Clock Cycles
+				set_bit(6, DE.lo);
+				break;
+
+			case SET_7_H:
+				//4 Clock Cycles
+				set_bit(6, HL.hi);
+				break;
+
+			case SET_7_L:
+				//4 Clock Cycles
+				set_bit(6, HL.lo);
+				break;
+
+			case SET_7_adrHL:
+				//8 Clock Cycles
+				set_bit(6, memory->readMemory(HL.data));
+				break;
+
+			case SET_7_A:
+				//4 Clock Cycles
+				set_bit(6, AF.hi);
+				break;
+
+			case SET_8_B:
+				//4 Clock Cycles
+				set_bit(7, BC.hi);
+				break;
+
+			case SET_8_C:
+				//4 Clock Cycles
+				set_bit(7, BC.lo);
+				break;
+				
+			case SET_8_D:
+				//4 Clock Cycles
+				set_bit(7, DE.hi);
+				break;
+
+			case SET_8_E:
+				//4 Clock Cycles
+				set_bit(7, DE.lo);
+				break;
+
+			case SET_8_H:
+				//4 Clock Cycles
+				set_bit(7, HL.hi);
+				break;
+
+			case SET_8_L:
+				//4 Clock Cycles
+				set_bit(7, HL.lo);
+				break;
+
+			case SET_8_adrHL:
+				//8 Clock Cycles
+				set_bit(7, memory->readMemory(HL.data));
+				break;
+
+			case SET_8_A:
+				//4 Clock Cycles
+				set_bit(7, AF.hi);
+				break;
+
+			default:
+				break;
+			}
+			break;
+
+		case CALL_ZERO:
 			break;
 
 		default:
@@ -1217,7 +2494,7 @@ namespace FuuGB
 
 	void CPU::increment16BitRegister(uWORD& reg)
 	{
-		std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+		CPU_SLEEP_FOR_MACHINE_CYCLE();
 		++reg;
 	}
 
@@ -1247,13 +2524,13 @@ namespace FuuGB
 
 	void CPU::decrement16BitRegister(uWORD& reg)
 	{
-		std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+		CPU_SLEEP_FOR_MACHINE_CYCLE();
 		--reg;
 	}
 
 	void CPU::add16BitRegister(uWORD& host, uWORD operand)
 	{
-		std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4));
+		CPU_SLEEP_FOR_MACHINE_CYCLE();
 		CPU_FLAG_BIT_RESET(N_FLAG);
 
 		if (checkCarryFromBit_Byte(10, host, operand))
@@ -1442,5 +2719,170 @@ namespace FuuGB
 
 		if (host < operand)
 			CPU_FLAG_BIT_SET(C_FLAG);
+	}
+
+	void CPU::rotateReg(bool direction, bool withCarry, uBYTE& reg)
+	{
+		std::bitset<8> BitField(reg);
+		if (direction) //left
+		{
+			bool oldCarry = CPU_FLAG_BIT_TEST(C_FLAG);
+			bool MSB = BitField[7];
+
+			if (MSB)
+				CPU_FLAG_BIT_SET(C_FLAG);
+			else
+				CPU_FLAG_BIT_RESET(C_FLAG);
+
+			for (int i = 7; i > 1; --i)
+			{
+				BitField.set(i, BitField[i - 1]);
+			}
+
+			if (withCarry)
+				BitField.set(0, oldCarry);
+			else
+				BitField.set(0, MSB);
+		}
+		else //Right
+		{
+			bool oldCarry = CPU_FLAG_BIT_TEST(C_FLAG);
+			bool LSB = BitField[0];
+
+			if (LSB)
+				CPU_FLAG_BIT_SET(C_FLAG);
+			else
+				CPU_FLAG_BIT_RESET(C_FLAG);
+
+			for (int i = 0; i < BitField.size() - 1; ++i)
+			{
+				BitField.set(i, BitField[i + 1]);
+			}
+
+			if (withCarry)
+				BitField.set(7, oldCarry);
+			else
+				BitField.set(7, LSB);
+		}
+
+		reg = BitField.to_ulong();
+
+		CPU_FLAG_BIT_RESET(N_FLAG);
+		CPU_FLAG_BIT_RESET(H_FLAG);
+
+		if (reg == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+	}
+
+	void CPU::shiftReg(bool direction, bool keepMSB, uBYTE& reg)
+	{
+		std::bitset<8> BitField(reg);
+		if (direction) //left
+		{
+			if (BitField[7])
+				CPU_FLAG_BIT_SET(C_FLAG);
+			else
+				CPU_FLAG_BIT_RESET(C_FLAG);
+
+			for (int i = 7; i > 1; --i)
+			{
+				BitField.set(i, BitField[i - 1]);
+			}
+
+			BitField[0] = false;
+		}
+		else //Right
+		{
+			if (BitField[0])
+				CPU_FLAG_BIT_SET(C_FLAG);
+			else
+				CPU_FLAG_BIT_RESET(C_FLAG);
+
+			for (int i = 1; i < BitField.size() - 1; ++i)
+			{
+				BitField.set(i, BitField[i + 1]);
+			}
+
+			if (!keepMSB)
+				BitField[7] = false;
+		}
+
+		reg = BitField.to_ulong();
+
+		if (reg == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_RESET(N_FLAG);
+		CPU_FLAG_BIT_RESET(H_FLAG);
+	}
+
+	void CPU::swapReg(uBYTE& reg)
+	{
+		std::bitset<8> BitField(reg);
+		bool lowNibble[4];
+		bool hiNibble[4];
+
+		for (int i = 0; i < 4; ++i)
+			lowNibble[i] = BitField[i];
+		for (int i = 0; i < 4; ++i)
+			hiNibble[i] = BitField[i + 4];
+
+		for (int i = 0; i < 4; ++i)
+			BitField[i] = hiNibble[i];
+
+		for (int i = 0; i < 4; ++i)
+			BitField[i + 4] = lowNibble[i];
+
+		reg = BitField.to_ulong();
+
+		if (reg == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_RESET(N_FLAG);
+		CPU_FLAG_BIT_RESET(H_FLAG);
+		CPU_FLAG_BIT_RESET(C_FLAG);
+	}
+
+	void CPU::Flag_set(int flag)
+	{
+		FlagBits->set(flag);
+		AF.lo = FlagBits->to_ulong();
+	}
+
+	void CPU::Flag_reset(int flag)
+	{
+		FlagBits->reset(flag);
+		AF.lo = FlagBits->to_ulong();
+	}
+
+	bool CPU::Flag_test(int flag)
+	{
+		return FlagBits->test(flag);
+	}
+
+	void CPU::test_bit(int pos, uBYTE reg)
+	{
+		std::bitset<8> BitField(reg);
+		if (!BitField.test(pos))
+			CPU_FLAG_BIT_SET(Z_FLAG);
+
+		CPU_FLAG_BIT_RESET(N_FLAG);
+		CPU_FLAG_BIT_SET(H_FLAG);
+	}
+
+	void CPU::reset_bit(int pos, uBYTE& reg)
+	{
+		std::bitset<8> BitField(reg);
+		BitField.reset(pos);
+
+		reg = BitField.to_ulong();
+	}
+
+	void CPU::set_bit(int pos, uBYTE& reg)
+	{
+		std::bitset<8> BitField(reg);
+		BitField.set(pos);
+
+		reg = BitField.to_ulong();
 	}
 }

@@ -15,12 +15,13 @@
 
 #define CPU_CLOCK_PERIOD_NS 239
 #define CLOCK_FREQUENCY 4190
-#define CPU_FLAG_BIT_SET(...) FuuGB::CPU::FlagBits->set(__VA_ARGS__)
-#define CPU_FLAG_BIT_TEST(...) FuuGB::CPU::FlagBits->test(__VA_ARGS__)
-#define CPU_FLAG_BIT_RESET(...) FuuGB::CPU::FlagBits->reset(__VA_ARGS__)
+#define CPU_FLAG_BIT_SET(...) FuuGB::CPU::Flag_set(__VA_ARGS__)
+#define CPU_FLAG_BIT_TEST(...) FuuGB::CPU::Flag_test(__VA_ARGS__)
+#define CPU_FLAG_BIT_RESET(...) FuuGB::CPU::Flag_reset(__VA_ARGS__)
 #define ALU_BIT_SET(...) FuuGB::CPU::AluBits->set(__VA_ARGS__)
 #define ALU_BIT_TEST(...) FuuGB::CPU::AluBits->test(__VA_ARGS__)
 #define ALU_BIT_RESET(...) FuuGB::CPU::AluBits->reset(__VA_ARGS__)
+#define CPU_SLEEP_FOR_MACHINE_CYCLE() std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4))
 
 #define Z_FLAG 7
 #define N_FLAG 6
@@ -325,6 +326,266 @@ namespace FuuGB
 			RST_38 = 0xFF //Call routine at memory location 0x0038
 		};
 
+		enum extOpCode
+		{
+			RLC_B = 0x00, //Rotate B left. Old bit 7 to Carry Flag
+			RLC_C = 0x01, //Rotate C left. Old bit 7 to Carry Flag
+			RLC_D = 0x02, //Rotate D left. Old bit 7 to Carry Flag
+			RLC_E = 0x03, //Rotate E left. Old bit 7 to Carry Flag
+			RLC_H = 0x04, //Rotate H left. Old bit 7 to Carry Flag
+			RLC_L = 0x05, //Rotate L left. Old bit 7 to Carry Flag
+			RLC_adrHL = 0x06, //Rotate (HL) left. Old bit 7 to Carry Flag
+			eRLC_A = 0x07, //Rotate A left. Old bit 7 to Carry Flag
+			RRC_B = 0x08, //Rotate B right. Old bit 0 into carry flag
+			RRC_C = 0x09, //Rotate C right. old bit 0 into carry flag
+			RRC_D = 0x0A, //Rotate D right. old bit 0 into carry flag
+			RRC_E = 0x0B, //Rotate E right. old bit 0 into carry flag
+			RRC_H = 0x0C, //Rotate H right. old bit 0 into carry flag
+			RRC_L = 0x0D, //Rotate L right. old bit 0 into carry flag
+			RRC_adrHL = 0x0E, //Rotate (HL) right. old bit 0 into carry flag
+			eRRC_A = 0x0F, //Rotate A right. old bit 0 into carry flag
+			RL_B = 0x10, //Rotate B left through Carry Flag
+			RL_C = 0x11, //Rotate C left through Carry Flag
+			RL_D = 0x12, //Rotate D left through Carry Flag
+			RL_E = 0x13, //Rotate E left through Carry Flag
+			RL_H = 0x14, //Rotate H left through Carry Flag
+			RL_L = 0x15, //Rotate L left through Carry Flag
+			RL_adrHL = 0x16, //Rotate (HL) left through Carry Flag
+			eRL_A = 0x17, //Rotate A left through Carry Flag
+			RR_B = 0x18, // Rotate B right through carry flag
+			RR_C = 0x19, // Rotate C right through carry flag
+			RR_D = 0x1A, // Rotate D right through carry flag
+			RR_E = 0x1B, // Rotate E right through carry flag
+			RR_H = 0x1C, // Rotate H right through carry flag
+			RR_L = 0x1D, // Rotate L right through carry flag
+			RR_adrHL = 0x1E, // Rotate (HL) right through carry flag
+			eRR_A = 0x1F, // Rotate A right through carry flag
+			SLA_B = 0x20, //Shift B left into Carry. LSB of B set to 0
+			SLA_C = 0x21, //Shift C left into Carry. LSB of C set to 0
+			SLA_D = 0x22, //Shift D left into Carry. LSB of D set to 0
+			SLA_E = 0x23, //Shift E left into Carry. LSB of E set to 0
+			SLA_H = 0x24, //Shift H left into Carry. LSB of H set to 0
+			SLA_L = 0x25, //Shift L left into Carry. LSB of L set to 0
+			SLA_adrHL = 0x26, //Shift (HL) left into Carry. LSB of (HL) set to 0
+			SLA_A = 0x27, //Shift A left into Carry. LSB of A set to 0
+			SRA_B = 0x28, //Shift B right into carry. MSB does not change
+			SRA_C = 0x29, //Shift C right into carry. MSB does not change
+			SRA_D = 0x2A, //Shift D right into carry. MSB does not change
+			SRA_E = 0x2B, //Shift E right into carry. MSB does not change
+			SRA_H = 0x2C, //Shift H right into carry. MSB does not change
+			SRA_L = 0x2D, //Shift L right into carry. MSB does not change
+			SRA_adrHL = 0x2E, //Shift (HL) right into carry. MSB does not change
+			SRA_A = 0x2F, //Shift A right into carry. MSB does not change
+			SWAP_B = 0x30, //Swap upper & lower nibles of B
+			SWAP_C = 0x31, //Swap upper & lower nibles of C
+			SWAP_D = 0x32, //Swap upper & lower nibles of D
+			SWAP_E = 0x33, //Swap upper & lower nibles of E
+			SWAP_H = 0x34, //Swap upper & lower nibles of H
+			SWAP_L = 0x35, //Swap upper & lower nibles of L
+			SWAP_adrHL = 0x36, //Swap upper & lower nibles of (HL)
+			SWAP_A = 0x37, //Swap upper & lower nibles of A
+			SRL_B = 0x38, //Shift n Right into Carry. MSB set to 0
+			SRL_C = 0x39, //Shift n Right into Carry. MSB set to 0
+			SRL_D = 0x3A, //Shift n Right into Carry. MSB set to 0
+			SRL_E = 0x3B, //Shift n Right into Carry. MSB set to 0
+			SRL_H = 0x3C, //Shift n Right into Carry. MSB set to 0
+			SRL_L = 0x3D, //Shift n Right into Carry. MSB set to 0
+			SRL_adrHL = 0x3E, //Shift n Right into Carry. MSB set to 0
+			SRL_A = 0x3F, //Shift n Right into Carry. MSB set to 0
+			BIT_1_B = 0x40, //Test bit 1 in reg n
+			BIT_1_C = 0x41, //Test bit 1 in reg n
+			BIT_1_D = 0x42, //Test bit 1 in reg n
+			BIT_1_E = 0x43, //Test bit 1 in reg n
+			BIT_1_H = 0x44, //Test bit 1 in reg n
+			BIT_1_L = 0x45, //Test bit 1 in reg n
+			BIT_1_adrHL = 0x46, //Test bit 1 in reg n
+			BIT_1_A = 0x47, //Test bit 1 in reg n
+			BIT_2_B = 0x48, //Test bit 2 in reg n
+			BIT_2_C = 0x49, //Test bit 2 in reg n
+			BIT_2_D = 0x4A, //Test bit 2 in reg n
+			BIT_2_E = 0x4B, //Test bit 2 in reg n
+			BIT_2_H = 0x4C, //Test bit 2 in reg n
+			BIT_2_L = 0x4D, //Test bit 2 in reg n
+			BIT_2_adrHL = 0x4E, //Test bit 2 in reg n
+			BIT_2_A = 0x4F, //Test bit 2 in reg n
+			BIT_3_B = 0x50, //Test bit 3 in reg n
+			BIT_3_C = 0x51, //Test bit 3 in reg n
+			BIT_3_D = 0x52, //Test bit 3 in reg n
+			BIT_3_E = 0x53, //Test bit 3 in reg n
+			BIT_3_H = 0x54, //Test bit 3 in reg n
+			BIT_3_L = 0x55, //Test bit 3 in reg n
+			BIT_3_adrHL = 0x56, //Test bit 3 in reg n
+			BIT_3_A = 0x57, //Test bit 3 in reg n
+			BIT_4_B = 0x58, //Test bit 4 in reg n
+			BIT_4_C = 0x59, //Test bit 4 in reg n
+			BIT_4_D = 0x5A, //Test bit 4 in reg n
+			BIT_4_E = 0x5B, //Test bit 4 in reg n
+			BIT_4_H = 0x5C, //Test bit 4 in reg n
+			BIT_4_L = 0x5D, //Test bit 4 in reg n
+			BIT_4_adrHL = 0x5E, //Test bit 4 in reg n
+			BIT_4_A = 0x5F, //Test bit 4 in reg n
+			BIT_5_B = 0x60, //Test bit 5 in reg n
+			BIT_5_C = 0x61, //Test bit 5 in reg n
+			BIT_5_D = 0x62, //Test bit 5 in reg n
+			BIT_5_E = 0x63, //Test bit 5 in reg n
+			BIT_5_H = 0x64, //Test bit 5 in reg n
+			BIT_5_L = 0x65, //Test bit 5 in reg n
+			BIT_5_adrHL = 0x66, //Test bit 5 in reg n
+			BIT_5_A = 0x67, //Test bit 5 in reg n
+			BIT_6_B = 0x68, //Test bit 6 in reg n
+			BIT_6_C = 0x69, //Test bit 6 in reg n
+			BIT_6_D = 0x6A, //Test bit 6 in reg n
+			BIT_6_E = 0x6B, //Test bit 6 in reg n
+			BIT_6_H = 0x6C, //Test bit 6 in reg n
+			BIT_6_L = 0x6D, //Test bit 6 in reg n
+			BIT_6_adrHL = 0x6E, //Test bit 6 in reg n
+			BIT_6_A = 0x6F, //Test bit 6 in reg n
+			BIT_7_B = 0x70, //Test bit 7 in reg n
+			BIT_7_C = 0x71, //Test bit 7 in reg n
+			BIT_7_D = 0x72, //Test bit 7 in reg n
+			BIT_7_E = 0x73, //Test bit 7 in reg n
+			BIT_7_H = 0x74, //Test bit 7 in reg n
+			BIT_7_L = 0x75, //Test bit 7 in reg n
+			BIT_7_adrHL = 0x76, //Test bit 7 in reg n
+			BIT_7_A = 0x77, //Test bit 7 in reg n
+			BIT_8_B = 0x78, //Test bit 8 in reg n
+			BIT_8_C = 0x79, //Test bit 8 in reg n
+			BIT_8_D = 0x7A, //Test bit 8 in reg n
+			BIT_8_E = 0x7B, //Test bit 8 in reg n
+			BIT_8_H = 0x7C, //Test bit 8 in reg n
+			BIT_8_L = 0x7D, //Test bit 8 in reg n
+			BIT_8_adrHL = 0x7E, //Test bit 8 in reg n
+			BIT_8_A = 0x7F, //Test bit 8 in reg n
+			RES_1_B = 0x80, //Reset bit 1 in reg n
+			RES_1_C = 0x81, //Reset bit 1 in reg n
+			RES_1_D = 0x82, //Reset bit 1 in reg n
+			RES_1_E = 0x83, //Reset bit 1 in reg n
+			RES_1_H = 0x84, //Reset bit 1 in reg n
+			RES_1_L = 0x85, //Reset bit 1 in reg n
+			RES_1_adrHL = 0x86, //Reset bit 1 in reg n
+			RES_1_A = 0x87, //Reset bit 1 in reg n
+			RES_2_B = 0x88, //Reset bit 2 in reg n
+			RES_2_C = 0x89, //Reset bit 2 in reg n
+			RES_2_D = 0x8A, //Reset bit 2 in reg n
+			RES_2_E = 0x8B, //Reset bit 2 in reg n
+			RES_2_H = 0x8C, //Reset bit 2 in reg n
+			RES_2_L = 0x8D, //Reset bit 2 in reg n
+			RES_2_adrHL = 0x8E, //Reset bit 2 in reg n
+			RES_2_A = 0x8F, //Reset bit 2 in reg n
+			RES_3_B = 0x90, //Reset bit 3 in reg n
+			RES_3_C = 0x91, //Reset bit 3 in reg n
+			RES_3_D = 0x92, //Reset bit 3 in reg n
+			RES_3_E = 0x93, //Reset bit 3 in reg n
+			RES_3_H = 0x94, //Reset bit 3 in reg n
+			RES_3_L = 0x95, //Reset bit 3 in reg n
+			RES_3_adrHL = 0x96, //Reset bit 3 in reg n
+			RES_3_A = 0x97, //Reset bit 3 in reg n
+			RES_4_B = 0x98, //Reset bit 4 in reg n
+			RES_4_C = 0x99, //Reset bit 4 in reg n
+			RES_4_D = 0x9A, //Reset bit 4 in reg n
+			RES_4_E = 0x9B, //Reset bit 4 in reg n
+			RES_4_H = 0x9C, //Reset bit 4 in reg n
+			RES_4_L = 0x9D, //Reset bit 4 in reg n
+			RES_4_adrHL = 0x9E, //Reset bit 4 in reg n
+			RES_4_A = 0x9F, //Reset bit 4 in reg n
+			RES_5_B = 0xA0, //Reset bit 5 in reg n
+			RES_5_C = 0xA1, //Reset bit 5 in reg n
+			RES_5_D = 0xA2, //Reset bit 5 in reg n
+			RES_5_E = 0xA3, //Reset bit 5 in reg n
+			RES_5_H = 0xA4, //Reset bit 5 in reg n
+			RES_5_L = 0xA5, //Reset bit 5 in reg n
+			RES_5_adrHL = 0xA6, //Reset bit 5 in reg n
+			RES_5_A = 0xA7, //Reset bit 5 in reg n
+			RES_6_B = 0xA8, //Reset bit 6 in reg n
+			RES_6_C = 0xA9, //Reset bit 6 in reg n
+			RES_6_D = 0xAA, //Reset bit 6 in reg n
+			RES_6_E = 0xAB, //Reset bit 6 in reg n
+			RES_6_H = 0xAC, //Reset bit 6 in reg n
+			RES_6_L = 0xAD, //Reset bit 6 in reg n
+			RES_6_adrHL = 0xAE, //Reset bit 6 in reg n
+			RES_6_A = 0xAF, //Reset bit 6 in reg n
+			RES_7_B = 0xB0, //Reset bit 7 in reg n
+			RES_7_C = 0xB1, //Reset bit 7 in reg n
+			RES_7_D = 0xB2, //Reset bit 7 in reg n
+			RES_7_E = 0xB3, //Reset bit 7 in reg n
+			RES_7_H = 0xB4, //Reset bit 7 in reg n
+			RES_7_L = 0xB5, //Reset bit 7 in reg n
+			RES_7_adrHL = 0xB6, //Reset bit 7 in reg n
+			RES_7_A = 0xB7, //Reset bit 7 in reg n
+			RES_8_B = 0xB8, //Reset bit 8 in reg n
+			RES_8_C = 0xB9, //Reset bit 8 in reg n
+			RES_8_D = 0xBA, //Reset bit 8 in reg n
+			RES_8_E = 0xBB, //Reset bit 8 in reg n
+			RES_8_H = 0xBC, //Reset bit 8 in reg n
+			RES_8_L = 0xBD, //Reset bit 8 in reg n
+			RES_8_adrHL = 0xBE, //Reset bit 8 in reg n
+			RES_8_A = 0xBF, //Reset bit 8 in reg n
+			SET_1_B = 0xC0, //Set bit 1 in reg n
+			SET_1_C = 0xC1, //Set bit 1 in reg n
+			SET_1_D = 0xC2, //Set bit 1 in reg n
+			SET_1_E = 0xC3, //Set bit 1 in reg n
+			SET_1_H = 0xC4, //Set bit 1 in reg n
+			SET_1_L = 0xC5, //Set bit 1 in reg n
+			SET_1_adrHL = 0xC6, //Set bit 1 in reg n
+			SET_1_A = 0xC7, //Set bit 1 in reg n
+			SET_2_B = 0xC8, //Set bit 2 in reg n
+			SET_2_C = 0xC9, //Set bit 2 in reg n
+			SET_2_D = 0xCA, //Set bit 2 in reg n
+			SET_2_E = 0xCB, //Set bit 2 in reg n
+			SET_2_H = 0xCC, //Set bit 2 in reg n
+			SET_2_L = 0xCD, //Set bit 2 in reg n
+			SET_2_adrHL = 0xCE, //Set bit 2 in reg n
+			SET_2_A = 0xCF, //Set bit 2 in reg n
+			SET_3_B = 0xD0, //Set bit 3 in reg n
+			SET_3_C = 0xD1, //Set bit 3 in reg n
+			SET_3_D = 0xD2, //Set bit 3 in reg n
+			SET_3_E = 0xD3, //Set bit 3 in reg n
+			SET_3_H = 0xD4, //Set bit 3 in reg n
+			SET_3_L = 0xD5, //Set bit 3 in reg n
+			SET_3_adrHL = 0xD6, //Set bit 3 in reg n
+			SET_3_A = 0xD7, //Set bit 3 in reg n
+			SET_4_B = 0xD8, //Set bit 4 in reg n
+			SET_4_C = 0xD9, //Set bit 4 in reg n
+			SET_4_D = 0xDA, //Set bit 4 in reg n
+			SET_4_E = 0xDB, //Set bit 4 in reg n
+			SET_4_H = 0xDC, //Set bit 4 in reg n
+			SET_4_L = 0xDD, //Set bit 4 in reg n
+			SET_4_adrHL = 0xDE, //Set bit 4 in reg n
+			SET_4_A = 0xDF, //Set bit 4 in reg n
+			SET_5_B = 0xE0, //Set bit 5 in reg n
+			SET_5_C = 0xE1, //Set bit 5 in reg n
+			SET_5_D = 0xE2,//Set bit 5 in reg n
+			SET_5_E = 0xE3,//Set bit 5 in reg n
+			SET_5_H = 0xE4, //Set bit 5 in reg n
+			SET_5_L = 0xE5, //Set bit 5 in reg n
+			SET_5_adrHL = 0xE6, //Set bit 5 in reg n
+			SET_5_A = 0xE7, //Set bit 5 in reg n
+			SET_6_B = 0xE8, //Set bit 6 in reg n
+			SET_6_C = 0xE9, //Set bit 6 in reg n
+			SET_6_D = 0xEA, //Set bit 6 in reg n
+			SET_6_E = 0xEB, //Set bit 6 in reg n
+			SET_6_H = 0xEC, //Set bit 6 in reg n
+			SET_6_L = 0xED, //Set bit 6 in reg n
+			SET_6_adrHL = 0xEE, //Set bit 6 in reg n
+			SET_6_A = 0xEF, //Set bit 6 in reg n
+			SET_7_B = 0xF0, //Set bit 7 in reg n
+			SET_7_C = 0xF1, //Set bit 7 in reg n
+			SET_7_D = 0xF2, //Set bit 7 in reg n
+			SET_7_E = 0xF3, //Set bit 7 in reg n
+			SET_7_H = 0xF4, //Set bit 7 in reg n
+			SET_7_L = 0xF5, //Set bit 7 in reg n
+			SET_7_adrHL = 0xF6, //Set bit 7 in reg n
+			SET_7_A = 0xF7, //Set bit 7 in reg n
+			SET_8_B = 0xF8, //Set bit 8 in reg n
+			SET_8_C = 0xF9, //Set bit 8 in reg n
+			SET_8_D = 0xFA, //Set bit 8 in reg n
+			SET_8_E = 0xFB, //Set bit 8 in reg n
+			SET_8_H = 0xFC, //Set bit 8 in reg n
+			SET_8_L = 0xFD, //Set bit 8 in reg n
+			SET_8_adrHL = 0xFE, //Set bit 8 in reg n
+			SET_8_A = 0xFF //Set bit 8 in reg n
+		};
+
 		void clock();
 		void executeNextOpCode();
 		void increment16BitRegister(uWORD & reg);
@@ -345,6 +606,15 @@ namespace FuuGB
 		void xor8BitRegister(uBYTE & host, uBYTE operand);
 		void or8BitRegister(uBYTE & host, uBYTE operand);
 		void cmp8BitRegister(uBYTE host, uBYTE operand);
+		void rotateReg(bool direction, bool withCarry, uBYTE & reg);
+		void shiftReg(bool direction, bool keepMSB, uBYTE & reg);
+		void swapReg(uBYTE & reg);
+		void Flag_set(int flag);
+		void Flag_reset(int flag);
+		bool Flag_test(int flag);
+		void test_bit(int pos, uBYTE reg);
+		void reset_bit(int pos, uBYTE & reg);
+		void set_bit(int pos, uBYTE & reg);
 	};
 }
 

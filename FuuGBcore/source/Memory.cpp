@@ -52,17 +52,13 @@ namespace FuuGB
 
 	void Memory::writeMemory(uWORD addr, uBYTE data)
 	{
-		std::unique_lock<decltype(ramKey)> lock(ramKey);
-		ramCond.wait(lock);
+		std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS));
 		M_MEM[addr] = data;
-		lock.unlock();
 	}
 
 	uBYTE& Memory::readMemory(uWORD addr)
 	{
-		std::unique_lock<decltype(ramKey)> lock(ramKey);
-		ramCond.wait(lock);
-		lock.unlock();
+		std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS));
 		return M_MEM[addr];
 	}
 }
