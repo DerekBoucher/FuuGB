@@ -23,6 +23,8 @@
 #define ALU_BIT_RESET(...) FuuGB::CPU::AluBits->reset(__VA_ARGS__)
 #define CPU_SLEEP_FOR_MACHINE_CYCLE() std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4))
 
+#define INTERUPT_EN_REGISTER_ADR 0xFFFF
+
 #define Z_FLAG 7
 #define N_FLAG 6
 #define H_FLAG 5
@@ -596,8 +598,11 @@ namespace FuuGB
 		bool TestBitInByte(uBYTE byte, int pos);
 		bool TestBitInWord(uWORD word, int pos);
 		bool checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte);
+		bool checkCarryFromBit_Word(int pos, uWORD word, uWORD addedWord);
 		bool checkBorrowFromBit_Byte(int pos, uBYTE byte, uBYTE subtractedByte);
+		bool checkBorrowFromBit_Word(int pos, uWORD word, uWORD subtractedWord);
 		uBYTE twoComp_Byte(uBYTE byte);
+		uWORD twoComp_Word(uWORD word);
 		void add8BitRegister(uBYTE & host, uBYTE operand);
 		void add8BitRegister(uBYTE & host, uBYTE operand, bool carry);
 		void sub8BitRegister(uBYTE & host, uBYTE operand);

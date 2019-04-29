@@ -51,7 +51,9 @@ namespace FuuGB
 		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
-		printf("[CPU]: Executing next OpCode: %x\n", byte);
+		printf("[CPU]: Executing next OpCode @PC=%x: %x\n", PC-1,byte);
+		if (PC - 1 == 0x002B)
+			std::cout << "";
 		switch (byte)
 		{
 		case NOP:
@@ -1094,9 +1096,15 @@ namespace FuuGB
 			break;
 
 		case RET_NOT_ZERO:
-		/*
-		to do
-		*/
+			//20/8 Clock Cycles
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
+			{
+				temp->lo = memory->readMemory(SP++);
+				temp->hi = memory->readMemory(SP++);
+				PC = temp->data;
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
+			}
 			break;
 
 		case POP_BC:
@@ -1178,6 +1186,7 @@ namespace FuuGB
 			temp->hi = memory->readMemory(SP++);
 			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			PC = temp->data;
+			break;
 
 		case JMP_ZERO:
 			//16/12 Clock cycles
@@ -2480,6 +2489,335 @@ namespace FuuGB
 			break;
 
 		case CALL_ZERO:
+			//24/12 Clock Cycles
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			if (CPU_FLAG_BIT_TEST(Z_FLAG))
+			{
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				Register temp2;
+				temp2.data = PC;
+				memory->writeMemory(--SP, temp2.hi);
+				memory->writeMemory(--SP, temp2.lo);
+				PC = temp->data;
+			}
+			break;
+
+		case CALL:
+			//24 Clock Cycles
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			Register temp2;
+			temp2.data = PC;
+			memory->writeMemory(--SP, temp2.hi);
+			memory->writeMemory(--SP, temp2.lo);
+			PC = temp->data;
+			break;
+
+		case ADC_8IMM_A:
+			//8 Clock Cycles
+			add8BitRegister(AF.hi, memory->readMemory(PC++), CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case RST_8:
+			//16 Clock Cycles
+			temp->data = PC;
+			memory->writeMemory(--SP, temp2.hi);
+			memory->writeMemory(--SP, temp2.lo);
+			PC = 0x0008;
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			break;
+
+		case RET_NOCARRY:
+			//20/8 Clock Cycles
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			if (!CPU_FLAG_BIT_TEST(C_FLAG))
+			{
+				temp->lo = memory->readMemory(SP++);
+				temp->hi = memory->readMemory(SP++);
+				PC = temp->data;
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
+			}
+			break;
+
+		case POP_DE:
+			//12 Clock Cycles
+			DE.lo = memory->readMemory(SP++);
+			DE.hi = memory->readMemory(SP++);
+			break;
+
+		case JMP_NOCARRY:
+			//16/12 Clock cycles
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			if (!CPU_FLAG_BIT_TEST(C_FLAG))
+			{
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				PC = temp->data;
+			}
+			break;
+
+		case CALL_NOCARRY:
+			//24/12 Clock Cycles
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			if (!CPU_FLAG_BIT_TEST(C_FLAG))
+			{
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				Register temp2;
+				temp2.data = PC;
+				memory->writeMemory(--SP, temp2.hi);
+				memory->writeMemory(--SP, temp2.lo);
+				PC = temp->data;
+			}
+			break;
+
+		case PUSH_DE:
+			//16 clock cycles
+			memory->writeMemory(--SP, DE.hi);
+			memory->writeMemory(--SP, DE.lo);
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			break;
+
+		case SUB_8IMM_A:
+			//8 Clock Cycles
+			sub8BitRegister(AF.hi, memory->readMemory(PC++));
+			break;
+
+		case RST_10:
+			//16 Clock Cycles
+			temp->data = PC;
+			memory->writeMemory(--SP, temp2.hi);
+			memory->writeMemory(--SP, temp2.lo);
+			PC = 0x0010;
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			break;
+
+		case RET_CARRY:
+			//20/8 Clock Cycles
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			if (CPU_FLAG_BIT_TEST(C_FLAG))
+			{
+				temp->lo = memory->readMemory(SP++);
+				temp->hi = memory->readMemory(SP++);
+				PC = temp->data;
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
+			}
+			break;
+
+		case RET_INT:
+			//16 Clock Cycles
+			temp->lo = memory->readMemory(SP++);
+			temp->hi = memory->readMemory(SP++);
+			PC = temp->data;
+			byte = 0xFF;
+			memory->writeMemory(INTERUPT_EN_REGISTER_ADR, byte);
+			break;
+
+		case JMP_CARRY:
+			//16/12 Clock cycles
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			if (CPU_FLAG_BIT_TEST(C_FLAG))
+			{
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				PC = temp->data;
+			}
+			break;
+
+		case CALL_CARRY:
+			//24/12 Clock Cycles
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			if (CPU_FLAG_BIT_TEST(C_FLAG))
+			{
+				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				Register temp2;
+				temp2.data = PC;
+				memory->writeMemory(--SP, temp2.hi);
+				memory->writeMemory(--SP, temp2.lo);
+				PC = temp->data;
+			}
+			break;
+
+		case SBC_8IMM_A:
+			//8 Clock Cycles
+			sub8BitRegister(AF.hi, memory->readMemory(PC++), CPU_FLAG_BIT_TEST(C_FLAG));
+			break;
+
+		case RST_18:
+			//16 Clock Cycles
+			temp->data = PC;
+			memory->writeMemory(--SP, temp2.hi);
+			memory->writeMemory(--SP, temp2.lo);
+			PC = 0x0018;
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			break;
+
+		case LDH_A_IMMadr:
+			//12 Clock Cycles
+			memory->writeMemory((0xFF00 + memory->readMemory(PC++)), AF.hi);
+			break;
+
+		case POP_HL:
+			//12 Clock Cycles
+			HL.lo = memory->readMemory(SP++);
+			HL.hi = memory->readMemory(SP++);
+			break;
+
+		case LDH_A_C:
+			//8 Clock Cycles
+			memory->writeMemory((0xFF00 + BC.lo), AF.hi);
+			break;
+
+		case PUSH_HL:
+			//16 clock cycles
+			memory->writeMemory(--SP, HL.hi);
+			memory->writeMemory(--SP, HL.lo);
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			break;
+
+		case AND_8IMM_A:
+			//8 Clock Cycles
+			and8BitRegister(AF.hi, memory->readMemory(PC++));
+			break;
+
+		case RST_20:
+			//16 Clock Cycles
+			temp->data = PC;
+			memory->writeMemory(--SP, temp2.hi);
+			memory->writeMemory(--SP, temp2.lo);
+			PC = 0x0020;
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			break;
+
+		case ADD_SIMM_SP:
+			//16 Clock Cycles
+			byte = memory->readMemory(PC++);
+			if (TestBitInByte(byte, 7))
+			{
+				if (checkBorrowFromBit_Byte(5, SP, byte))
+					CPU_FLAG_BIT_SET(H_FLAG);
+				SP = SP - twoComp_Byte(byte);
+			}
+			else
+			{
+				if (checkCarryFromBit_Byte(3,SP,byte))
+					CPU_FLAG_BIT_SET(H_FLAG);
+				if (checkCarryFromBit_Byte(7, SP, byte))
+					CPU_FLAG_BIT_SET(C_FLAG);
+				SP = SP + byte;
+			}
+
+			CPU_FLAG_BIT_RESET(Z_FLAG);
+			CPU_FLAG_BIT_RESET(N_FLAG);
+			
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			break;
+
+		case JMP_adrHL:
+			//4 Clock Cycles
+			PC = HL.data;
+			break;
+
+		case LD_A_adr:
+			//16 Clock Cycles
+			temp->lo = memory->readMemory(PC++);
+			temp->lo = memory->readMemory(PC++);
+			memory->writeMemory(temp->data, AF.hi);
+			break;
+
+		case XOR_8IMM_A:
+			//8 Clock Cycles
+			xor8BitRegister(AF.hi, memory->readMemory(PC++));
+			break;
+			
+		case RST_28:
+			//16 Clock Cycles
+			temp->data = PC;
+			memory->writeMemory(--SP, temp2.hi);
+			memory->writeMemory(--SP, temp2.lo);
+			PC = 0x0028;
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			break;
+
+		case LDH_IMMadr_A:
+			//12 Clock Cycles
+			AF.hi = memory->readMemory(0xFF00 + memory->readMemory(PC++));
+			break;
+
+		case POP_AF:
+			//12 Clock Cycles
+			AF.lo = memory->readMemory(SP++);
+			AF.hi = memory->readMemory(SP++);
+			break;
+
+		case DISABLE_INT:
+			//4 Clock Cycles ************************INVESTIGATE
+			byte = 0x00;
+			memory->writeMemory(INTERUPT_EN_REGISTER_ADR, byte);
+			break;
+
+		case PUSH_AF:
+			//16 clock cycles
+			memory->writeMemory(--SP, AF.hi);
+			memory->writeMemory(--SP, AF.lo);
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			break;
+
+		case OR_8IMM_A:
+			//8 Clock Cycles
+			or8BitRegister(AF.hi, memory->readMemory(PC++));
+			break;
+
+		case RST_30:
+			//16 Clock Cycles
+			temp->data = PC;
+			memory->writeMemory(--SP, temp2.hi);
+			memory->writeMemory(--SP, temp2.lo);
+			PC = 0x0030;
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			break;
+
+		case LDHL_S_8IMM_SP_HL:
+			//12 Clock Cycles
+			add16BitRegister(HL.data, (SP + memory->readMemory(PC++)));
+			CPU_FLAG_BIT_RESET(Z_FLAG);
+			break;
+
+		case LD_HL_SP:
+			//8 Clock Cycles
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			SP = HL.data;
+			break;
+
+		case LD_16adr_A:
+			//16 Clock Cycles
+			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
+			AF.hi = memory->readMemory(temp->data);
+			break;
+
+		case ENABLE_INT:
+			//4 Clock Cycles ************************INVESTIGATE
+			byte = 0xFF;
+			memory->writeMemory(INTERUPT_EN_REGISTER_ADR, byte);
+			break;
+
+		case CMP_8IMM_A:
+			//8 Clock Cycles
+			cmp8BitRegister(AF.hi, memory->readMemory(PC++));
+			break;
+
+		case RST_38:
+			//16 Clock Cycles
+			temp->data = PC;
+			memory->writeMemory(--SP, temp2.hi);
+			memory->writeMemory(--SP, temp2.lo);
+			PC = 0x0038;
+			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			break;
 
 		default:
@@ -2533,9 +2871,9 @@ namespace FuuGB
 		CPU_SLEEP_FOR_MACHINE_CYCLE();
 		CPU_FLAG_BIT_RESET(N_FLAG);
 
-		if (checkCarryFromBit_Byte(10, host, operand))
+		if (checkCarryFromBit_Word(10, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
-		if (checkCarryFromBit_Byte(14, host, operand))
+		if (checkCarryFromBit_Word(14, host, operand))
 			CPU_FLAG_BIT_SET(C_FLAG);
 	}
 
@@ -2555,6 +2893,24 @@ namespace FuuGB
 	{
 		std::bitset<sizeof(uBYTE) * 8> BitField(byte);
 		std::bitset<sizeof(uBYTE) * 8> AddedBitField(addedByte);
+		bool carry = false;
+		std::bitset<sizeof(bool)> bitSum(carry);
+
+		for (int i = 0; i < pos; ++i)
+		{
+			bitSum[0] = BitField[i] + AddedBitField[i] + carry;
+			if (!bitSum[0])
+				carry = true;
+			else
+				carry = false;
+		}
+		return carry;
+	}
+
+	bool CPU::checkCarryFromBit_Word(int pos, uWORD word, uWORD addedWord)
+	{
+		std::bitset<sizeof(uWORD) * 8> BitField(word);
+		std::bitset<sizeof(uWORD) * 8> AddedBitField(addedWord);
 		bool carry = false;
 		std::bitset<sizeof(bool)> bitSum(carry);
 
@@ -2600,6 +2956,37 @@ namespace FuuGB
 		return borrow;
 	}
 
+	bool CPU::checkBorrowFromBit_Word(int pos, uWORD word, uWORD subtractedWord)
+	{
+		std::bitset<sizeof(uWORD) * 8> BitField(word);
+		std::bitset<sizeof(uWORD) * 8> SubBitField(subtractedWord);
+		bool borrow = false;
+
+		for (int i = 0; i < pos; ++i)
+		{
+			if (!BitField[i] & SubBitField[i])
+			{
+				int j = i;
+				while (!BitField[++j])
+				{
+					if (j == pos)
+						return false;
+				}
+				BitField[j] = false;
+
+				while (--j != i)
+				{
+					BitField[j] = true;
+				}
+				borrow = true;
+			}
+			else
+				borrow = false;
+		}
+
+		return borrow;
+	}
+
 	uBYTE CPU::twoComp_Byte(uBYTE byte)
 	{
 		std::bitset<8> twoCompByte(byte);
@@ -2607,6 +2994,17 @@ namespace FuuGB
 		twoCompByte.flip();
 		
 		uBYTE result = twoCompByte.to_ulong() + 0x01;
+
+		return result;
+	}
+
+	uWORD CPU::twoComp_Word(uWORD word)
+	{
+		std::bitset<16> twoCompWord(word);
+
+		twoCompWord.flip();
+
+		uWORD result = twoCompWord.to_ulong() + 0x01;
 
 		return result;
 	}
@@ -2619,9 +3017,10 @@ namespace FuuGB
 			CPU_FLAG_BIT_SET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
+
 		if (checkCarryFromBit_Byte(2, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
-		if (checkCarryFromBit_Byte(6, host, operand))
+		if (host > (0xFF - operand))
 			CPU_FLAG_BIT_SET(C_FLAG);
 	}
 
@@ -2633,9 +3032,10 @@ namespace FuuGB
 			CPU_FLAG_BIT_SET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
+
 		if (checkCarryFromBit_Byte(2, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
-		if (checkCarryFromBit_Byte(6, host, operand))
+		if (host > (0xFF - carry - operand))
 			CPU_FLAG_BIT_SET(C_FLAG);
 	}
 
@@ -2651,7 +3051,7 @@ namespace FuuGB
 		if (!checkBorrowFromBit_Byte(3, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
 
-		if (!checkBorrowFromBit_Byte(7, host, operand))
+		if (host < operand)
 			CPU_FLAG_BIT_SET(C_FLAG);
 	}
 
@@ -2667,7 +3067,7 @@ namespace FuuGB
 		if (!checkBorrowFromBit_Byte(3, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
 
-		if (!checkBorrowFromBit_Byte(7, host, operand))
+		if (host < (operand + carry))
 			CPU_FLAG_BIT_SET(C_FLAG);
 	}
 
@@ -2731,18 +3131,13 @@ namespace FuuGB
 
 			if (MSB)
 				CPU_FLAG_BIT_SET(C_FLAG);
-			else
-				CPU_FLAG_BIT_RESET(C_FLAG);
 
-			for (int i = 7; i > 1; --i)
-			{
-				BitField.set(i, BitField[i - 1]);
-			}
+			reg = reg << 1;
 
-			if (withCarry)
-				BitField.set(0, oldCarry);
-			else
-				BitField.set(0, MSB);
+			if (withCarry && oldCarry)
+				reg = reg | 0x01;
+			else if (MSB)
+				reg = reg | 0x01;
 		}
 		else //Right
 		{
@@ -2751,27 +3146,21 @@ namespace FuuGB
 
 			if (LSB)
 				CPU_FLAG_BIT_SET(C_FLAG);
-			else
-				CPU_FLAG_BIT_RESET(C_FLAG);
 
-			for (int i = 0; i < BitField.size() - 1; ++i)
-			{
-				BitField.set(i, BitField[i + 1]);
-			}
+			reg = reg >> 1;
 
-			if (withCarry)
-				BitField.set(7, oldCarry);
-			else
-				BitField.set(7, LSB);
+			if (withCarry && oldCarry)
+				reg = reg | 0x80;
+			else if (LSB)
+				reg = reg | 0x80;
 		}
-
-		reg = BitField.to_ulong();
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
 		CPU_FLAG_BIT_RESET(H_FLAG);
 
 		if (reg == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+
 	}
 
 	void CPU::shiftReg(bool direction, bool keepMSB, uBYTE& reg)
@@ -2781,8 +3170,6 @@ namespace FuuGB
 		{
 			if (BitField[7])
 				CPU_FLAG_BIT_SET(C_FLAG);
-			else
-				CPU_FLAG_BIT_RESET(C_FLAG);
 
 			for (int i = 7; i > 1; --i)
 			{
@@ -2795,8 +3182,6 @@ namespace FuuGB
 		{
 			if (BitField[0])
 				CPU_FLAG_BIT_SET(C_FLAG);
-			else
-				CPU_FLAG_BIT_RESET(C_FLAG);
 
 			for (int i = 1; i < BitField.size() - 1; ++i)
 			{
@@ -2811,6 +3196,7 @@ namespace FuuGB
 
 		if (reg == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
 		CPU_FLAG_BIT_RESET(H_FLAG);
@@ -2837,6 +3223,7 @@ namespace FuuGB
 
 		if (reg == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
 		CPU_FLAG_BIT_RESET(H_FLAG);

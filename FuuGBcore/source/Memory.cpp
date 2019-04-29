@@ -22,15 +22,15 @@ namespace FuuGB
 		for (int i = 0x100;i < 0x4000; ++i)
 			M_MEM[i] = cart->ROM[i];
 		_memoryRunning = true;
-		_ramTHR = new std::thread(&Memory::ramClock, this);
+		//_ramTHR = new std::thread(&Memory::ramClock, this);
 		FUUGB_MEM_LOG("RAM Initialized.");
 	}
 
 	Memory::~Memory()
 	{
-		_ramTHR->join();
-		ramCond.notify_all();
-		delete _ramTHR;
+		//_ramTHR->join();
+		//ramCond.notify_all();
+		//delete _ramTHR;
 		delete[] M_MEM;
 		delete cart;
 		FUUGB_MEM_LOG("RAM Destroyed.");
@@ -40,7 +40,7 @@ namespace FuuGB
 	{
 		while (_memoryRunning)
 		{
-			std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS));
+			//std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS));
 			ramCond.notify_all();
 		}
 	}
@@ -52,13 +52,13 @@ namespace FuuGB
 
 	void Memory::writeMemory(uWORD addr, uBYTE data)
 	{
-		std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS));
+		//std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS));
 		M_MEM[addr] = data;
 	}
 
 	uBYTE& Memory::readMemory(uWORD addr)
 	{
-		std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS));
+		//std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS));
 		return M_MEM[addr];
 	}
 }
