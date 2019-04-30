@@ -19,7 +19,7 @@ namespace FuuGB
 		bootROM = fopen("DMG_ROM.bin", "rb");
 		fread(M_MEM, sizeof(uBYTE), 0x100, bootROM);
 		fclose(bootROM);
-		for (int i = 0x100;i < 0x4000; ++i)
+		for (int i = 0x100; i < 0x4000; ++i)
 			M_MEM[i] = cart->ROM[i];
 		_memoryRunning = true;
 		//_ramTHR = new std::thread(&Memory::ramClock, this);

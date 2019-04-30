@@ -52,7 +52,15 @@ namespace FuuGB
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
 		printf("[CPU]: Executing next OpCode @PC=%x: %x\n", PC-1,byte);
-		if (PC - 1 == 0x002B)
+		if (PC - 1 == 0x000c)
+			std::cout << "";
+		if (PC - 1 == 0x002e)
+			std::cout << "";
+		if (PC - 1 == 0x0034)
+			std::cout << "";
+		if (PC - 1 == 0x0040)
+			std::cout << "";
+		if (PC - 1 == 0x0051)
 			std::cout << "";
 		switch (byte)
 		{
@@ -187,9 +195,9 @@ namespace FuuGB
 			//8 Clock Cycles
 			byte = memory->readMemory(PC++);
 			if (TestBitInByte(byte, 7))
-				PC = PC - (byte & 0x7F);
+				PC = PC - twoComp_Byte(byte);
 			else
-				PC = PC + (byte & 0x7F);
+				PC = PC + byte;
 			break;
 
 		case ADD_DE_HL:
@@ -361,6 +369,8 @@ namespace FuuGB
 			++byte;
 			if (byte == 0x00)
 				CPU_FLAG_BIT_SET(Z_FLAG);
+			else
+				CPU_FLAG_BIT_RESET(Z_FLAG);
 
 			CPU_FLAG_BIT_RESET(N_FLAG);
 
@@ -376,6 +386,8 @@ namespace FuuGB
 			--byte;
 			if (byte == 0x00)
 				CPU_FLAG_BIT_SET(Z_FLAG);
+			else
+				CPU_FLAG_BIT_RESET(Z_FLAG);
 
 			CPU_FLAG_BIT_SET(N_FLAG);
 
@@ -2707,6 +2719,8 @@ namespace FuuGB
 					CPU_FLAG_BIT_SET(H_FLAG);
 				if (checkCarryFromBit_Byte(7, SP, byte))
 					CPU_FLAG_BIT_SET(C_FLAG);
+				else
+					CPU_FLAG_BIT_RESET(C_FLAG);
 				SP = SP + byte;
 			}
 
@@ -2725,7 +2739,7 @@ namespace FuuGB
 		case LD_A_adr:
 			//16 Clock Cycles
 			temp->lo = memory->readMemory(PC++);
-			temp->lo = memory->readMemory(PC++);
+			temp->hi = memory->readMemory(PC++);
 			memory->writeMemory(temp->data, AF.hi);
 			break;
 
@@ -2841,11 +2855,15 @@ namespace FuuGB
 		++reg;
 		if (reg == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
 
 		if (checkCarryFromBit_Byte(2, reg, 0x01))
 			CPU_FLAG_BIT_SET(H_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(H_FLAG);
 	}
 
 	void CPU::decrement8BitRegister(uBYTE& reg)
@@ -2853,11 +2871,15 @@ namespace FuuGB
 		--reg;
 		if (reg == 0x0)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_SET(N_FLAG);
 
 		if (checkBorrowFromBit_Byte(3, reg, 0x01))
 			CPU_FLAG_BIT_SET(H_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(H_FLAG);
 	}
 
 	void CPU::decrement16BitRegister(uWORD& reg)
@@ -2873,8 +2895,13 @@ namespace FuuGB
 
 		if (checkCarryFromBit_Word(10, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
-		if (checkCarryFromBit_Word(14, host, operand))
+		else
+			CPU_FLAG_BIT_RESET(H_FLAG);
+
+		if (host > 0xFFFF - operand)
 			CPU_FLAG_BIT_SET(C_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(C_FLAG);
 	}
 
 	bool CPU::TestBitInByte(uBYTE byte, int pos)
@@ -3015,13 +3042,20 @@ namespace FuuGB
 
 		if (host == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
 
 		if (checkCarryFromBit_Byte(2, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(H_FLAG);
+
 		if (host > (0xFF - operand))
 			CPU_FLAG_BIT_SET(C_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(C_FLAG);
 	}
 
 	void CPU::add8BitRegister(uBYTE& host, uBYTE operand, bool carry)
@@ -3030,13 +3064,20 @@ namespace FuuGB
 
 		if (host == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
 
 		if (checkCarryFromBit_Byte(2, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(H_FLAG);
+
 		if (host > (0xFF - carry - operand))
 			CPU_FLAG_BIT_SET(C_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(C_FLAG);
 	}
 
 	void CPU::sub8BitRegister(uBYTE& host, uBYTE operand)
@@ -3045,14 +3086,20 @@ namespace FuuGB
 
 		if (host == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_SET(N_FLAG);
 		
 		if (!checkBorrowFromBit_Byte(3, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(H_FLAG);
 
 		if (host < operand)
 			CPU_FLAG_BIT_SET(C_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(C_FLAG);
 	}
 
 	void CPU::sub8BitRegister(uBYTE& host, uBYTE operand, bool carry)
@@ -3061,14 +3108,20 @@ namespace FuuGB
 
 		if (host == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_SET(N_FLAG);
 
 		if (!checkBorrowFromBit_Byte(3, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(H_FLAG);
 
 		if (host < (operand + carry))
 			CPU_FLAG_BIT_SET(C_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(C_FLAG);
 	}
 
 	void CPU::and8BitRegister(uBYTE& host, uBYTE operand)
@@ -3077,6 +3130,8 @@ namespace FuuGB
 
 		if (host == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
 		CPU_FLAG_BIT_SET(H_FLAG);
@@ -3089,6 +3144,8 @@ namespace FuuGB
 
 		if (host == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
 		CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3101,6 +3158,8 @@ namespace FuuGB
 
 		if (host == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
 		CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3111,14 +3170,20 @@ namespace FuuGB
 	{
 		if (host == operand)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_SET(N_FLAG);
 
 		if (!checkBorrowFromBit_Byte(3, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(H_FLAG);
 
 		if (host < operand)
 			CPU_FLAG_BIT_SET(C_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(C_FLAG);
 	}
 
 	void CPU::rotateReg(bool direction, bool withCarry, uBYTE& reg)
@@ -3131,6 +3196,9 @@ namespace FuuGB
 
 			if (MSB)
 				CPU_FLAG_BIT_SET(C_FLAG);
+			else
+				CPU_FLAG_BIT_RESET(C_FLAG);
+
 
 			reg = reg << 1;
 
@@ -3146,6 +3214,8 @@ namespace FuuGB
 
 			if (LSB)
 				CPU_FLAG_BIT_SET(C_FLAG);
+			else
+				CPU_FLAG_BIT_RESET(C_FLAG);
 
 			reg = reg >> 1;
 
@@ -3160,6 +3230,8 @@ namespace FuuGB
 
 		if (reg == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 	}
 
@@ -3170,6 +3242,8 @@ namespace FuuGB
 		{
 			if (BitField[7])
 				CPU_FLAG_BIT_SET(C_FLAG);
+			else
+				CPU_FLAG_BIT_RESET(C_FLAG);
 
 			for (int i = 7; i > 1; --i)
 			{
@@ -3182,6 +3256,8 @@ namespace FuuGB
 		{
 			if (BitField[0])
 				CPU_FLAG_BIT_SET(C_FLAG);
+			else
+				CPU_FLAG_BIT_RESET(C_FLAG);
 
 			for (int i = 1; i < BitField.size() - 1; ++i)
 			{
@@ -3196,6 +3272,8 @@ namespace FuuGB
 
 		if (reg == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
@@ -3223,6 +3301,8 @@ namespace FuuGB
 
 		if (reg == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
@@ -3252,6 +3332,8 @@ namespace FuuGB
 		std::bitset<8> BitField(reg);
 		if (!BitField.test(pos))
 			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
 		CPU_FLAG_BIT_SET(H_FLAG);
