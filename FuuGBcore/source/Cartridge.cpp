@@ -198,6 +198,10 @@ namespace FuuGB
 		default:
 			break;
 		}
+
+		ramBank_cnt = ROM[0x148];
+		extRamEnabled = false;
+		mode = false;
 	}
 
 	Cartridge::~Cartridge()

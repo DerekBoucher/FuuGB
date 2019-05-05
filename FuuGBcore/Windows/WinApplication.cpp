@@ -42,11 +42,19 @@ namespace FuuGB
 					{
 					case ID_LOADROM:
 						Cartridge* ROM;
+						if (gameBoy != nullptr)
+							gameBoy->Pause();
 						ROM = FUUGB_LOAD_ROM();
 						if (ROM == NULL)
+						{
+							gameBoy->Resume();
 							break;
+						}
 						if (gameBoy != nullptr)
+						{
+							gameBoy->Resume();
 							delete gameBoy;
+						}
 
 						gameBoy = new Gameboy(_SDLwindow, ROM);
 

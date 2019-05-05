@@ -24,6 +24,14 @@
 #define CPU_SLEEP_FOR_MACHINE_CYCLE() std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4))
 
 #define INTERUPT_EN_REGISTER_ADR 0xFFFF
+#define INTERUPT_FLAG_REG 0xFF0F
+#define TIMER_DIV_REG 0xFF04
+
+#define VBLANK_INT 0x0040
+#define LCDC_INT 0x0048
+#define TIMER_OVER_INT 0x0050
+#define SER_TRF_INT 0x0058 //When transfer complete
+#define CONTROL_INT 0x0060
 
 #define Z_FLAG 7
 #define N_FLAG 6
@@ -37,6 +45,7 @@ namespace FuuGB
 	public:
 		CPU(Memory*);
 		virtual ~CPU();
+		void Pause();
 		void stop();
 
 	private:
@@ -65,8 +74,10 @@ namespace FuuGB
 		Cartridge*      gameCart;
 		std::thread*    _cpuTHR;
 		bool            _cpuRunning;
+		bool			_cpuPaused;
 		std::bitset<sizeof(uBYTE)*8>* FlagBits;
 		std::bitset<sizeof(uBYTE)*8>* AluBits;
+		int				timer_update_cnt;
 
 		enum opCode
 		{
@@ -620,6 +631,9 @@ namespace FuuGB
 		void test_bit(int pos, uBYTE reg);
 		void reset_bit(int pos, uBYTE & reg);
 		void set_bit(int pos, uBYTE & reg);
+		void checkInterupts();
+		void updateTimers();
+		void halt();
 	};
 }
 

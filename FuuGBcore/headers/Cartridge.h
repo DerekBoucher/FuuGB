@@ -26,6 +26,11 @@ namespace FuuGB
         bool        HuC1;
         bool        ROMonly;
         bool        RAM;
+		uBYTE		ramBank_cnt;
+		uBYTE		currentRamBank;
+		uBYTE		currentRomBank;
+		bool		extRamEnabled;
+		bool		mode; //false = 16Mbit/8kB mode, else 4Mbit/32kB mode
     };
 }
 #endif /* Cartridge_h */

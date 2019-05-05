@@ -21,9 +21,22 @@ namespace FuuGB
     public:
         Memory(Cartridge*);
         virtual ~Memory();
+		void closeBootRom();
         void stop();
         void writeMemory(uWORD, uBYTE);
         uBYTE& readMemory(uWORD);
+
+		uBYTE & DMA_read(uWORD addr);
+
+		void DMA_write(uWORD addr, uBYTE data);
+
+		void changeROMBank(uWORD addr, uBYTE data);
+
+		void toggleRAM(uWORD addr, uBYTE data);
+
+		void changeMode(uBYTE data);
+
+		void changeRAMBank(uWORD addr, uBYTE data);
     
     private:
         uBYTE*                  M_MEM;
@@ -36,6 +49,8 @@ namespace FuuGB
         std::condition_variable vramCond;
         bool                    CycleDone;
         bool                    _memoryRunning;
+		bool					bootRomClosed;
+	
     
         void ramClock();
     };

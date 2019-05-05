@@ -21,6 +21,10 @@ namespace FuuGB
     public:
         Gameboy(SDL_Window*, Cartridge*);
         virtual ~Gameboy();
+
+		void Pause();
+
+		void Resume();
     
     private:
         CPU*        cpu;

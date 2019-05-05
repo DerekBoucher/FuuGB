@@ -27,4 +27,14 @@ namespace FuuGB
 		delete memory;
 		delete cpu;
 	}
+
+	void Gameboy::Pause()
+	{
+		cpu->Pause();
+	}
+
+	void Gameboy::Resume()
+	{
+		Shared::cv_GB.notify_all();
+	}
 }

@@ -43,6 +43,8 @@ namespace FuuGB
     {
         static const int ScaleFactor = 3;
         static bool RUNNING;
+		static std::condition_variable cv_GB;
+		static std::mutex mu_GB;
     };
 }
 
