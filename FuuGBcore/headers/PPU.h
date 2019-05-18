@@ -11,6 +11,7 @@
 
 #include "Core.h"
 #include "Logger.h"
+#include "Memory.h"
 
 #define NATIVE_SIZE_X   160
 #define NATIVE_SIZE_Y   144
@@ -21,7 +22,7 @@ namespace FuuGB
     class FUUGB_API PPU
     {
     public:
-        PPU(SDL_Window* windowPtr);
+        PPU(SDL_Window* windowPtr, Memory* mem);
         virtual ~PPU();
         void stop();
     
@@ -32,6 +33,7 @@ namespace FuuGB
         std::condition_variable     ppuCond;
         std::mutex                  key;
         bool                        _ppuRunning;
+		Memory*						MEM;
     
         void clock();
         void renderScreen();

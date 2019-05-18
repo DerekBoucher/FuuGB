@@ -13,8 +13,8 @@ namespace FuuGB
 {
 	Gameboy::Gameboy(SDL_Window* windowPtr, Cartridge* cart)
 	{
-		this->ppu = new PPU(windowPtr);
 		this->memory = new Memory(cart);
+		this->ppu = new PPU(windowPtr, this->memory);
 		this->cpu = new CPU(this->memory);
 	}
 

@@ -13,6 +13,8 @@
 #include "Logger.h"
 
 #define RAM_CLOCK_PERIOD_NS 952
+#define ECHO_RAM_OFFSET 0x2000
+#define SLEEP_CLOCK_CYCLE() std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS))
 
 namespace FuuGB
 {
@@ -37,16 +39,16 @@ namespace FuuGB
 		void changeMode(uBYTE data);
 
 		void changeRAMBank(uWORD addr, uBYTE data);
+		std::mutex              ramKey;
+		std::mutex              vramKey;
+		std::condition_variable ramCond;
+		std::condition_variable vramCond;
     
     private:
         uBYTE*                  M_MEM;
         Cartridge*              cart;
         FILE*                   bootROM;
         std::thread*            _ramTHR;
-        std::mutex              ramKey;
-        std::mutex              vramKey;
-        std::condition_variable ramCond;
-        std::condition_variable vramCond;
         bool                    CycleDone;
         bool                    _memoryRunning;
 		bool					bootRomClosed;

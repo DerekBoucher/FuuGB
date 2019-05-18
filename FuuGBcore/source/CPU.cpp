@@ -50,15 +50,19 @@ namespace FuuGB
 
 	void CPU::clock()
 	{
+		std::unique_lock<std::mutex> lock(memory->ramKey, std::defer_lock);
 		while (_cpuRunning)
 		{
 			if (_cpuPaused)
 			{
-				std::unique_lock<std::mutex> lock(Shared::mu_GB);
-				Shared::cv_GB.wait(lock);
-				lock.unlock();
+				std::unique_lock<std::mutex> pauseLock(Shared::mu_GB);
+				Shared::cv_GB.wait(pauseLock);
+				pauseLock.unlock();
 				_cpuPaused = false;
 			}
+			lock.lock();
+			memory->ramCond.wait(lock);
+			lock.unlock();
 			executeNextOpCode();
 			checkInterupts();
 			updateTimers();

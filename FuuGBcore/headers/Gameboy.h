@@ -9,9 +9,7 @@
 #ifndef GAMEBOY_H_
 #define GAMEBOY_H_
 #include "Core.h"
-#include "Cartridge.h"
 #include "CPU.h"
-#include "Memory.h"
 #include "PPU.h"
 
 namespace FuuGB

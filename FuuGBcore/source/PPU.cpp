@@ -11,8 +11,9 @@
 
 namespace FuuGB
 {
-	PPU::PPU(SDL_Window* windowRef)
+	PPU::PPU(SDL_Window* windowRef, Memory* mem)
 	{
+		MEM = mem;
 		_ppuRunning = true;
 		renderer = SDL_GetRenderer(windowRef);
 		if (renderer == NULL)

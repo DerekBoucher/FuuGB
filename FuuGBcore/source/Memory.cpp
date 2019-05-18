@@ -55,6 +55,8 @@ namespace FuuGB
 		{
 			if (M_MEM[0xFF50] == 0x01)
 				closeBootRom();
+			SLEEP_CLOCK_CYCLE();
+			ramCond.notify_all();
 		}
 	}
 
@@ -65,7 +67,7 @@ namespace FuuGB
 
 	void Memory::writeMemory(uWORD addr, uBYTE data)
 	{
-		if (addr < 0x8000)
+		if (addr < 0x8000) //Cart area
 		{
 			if (addr >= 0x0000 && addr < 0x2000)
 				toggleRAM(addr, data);
@@ -76,24 +78,26 @@ namespace FuuGB
 			else if (addr >= 0x6000 && addr < 0x8000)
 				changeMode(data);
 		}
-		else if ((addr >= 0xA000) && (addr < 0xC000))
+		else if ((addr >= 0x8000) && (addr < 0xA000)) //Video RAM
+		{
+
+		}
+		else if ((addr >= 0xA000) && (addr < 0xC000)) //Switchable Ram Bank
 		{
 			if (cart->extRamEnabled)
 			{
 				M_MEM[addr] = data;
 			}
 		}
-		else if ((addr >= 0xC000) && (addr < 0xE000))
+		else if ((addr >= 0xC000) && (addr < 0xE000))//Internal RAM
 		{
-
+			M_MEM[addr] = data;
+			M_MEM[addr + ECHO_RAM_OFFSET] = data;
 		}
-		else if ((addr >= 0xE000) && (addr < 0xFE00))
+		else if ((addr >= 0xE000) && (addr < 0xFE00)) //Echo of Internal RAM
 		{
-
-		}
-		else if ((addr >= 0xFEA0) && (addr < 0xFEFF))
-		{
-
+			M_MEM[addr] = data;
+			M_MEM[addr - ECHO_RAM_OFFSET] = data;
 		}
 		else
 			M_MEM[addr] = data;
@@ -133,7 +137,7 @@ namespace FuuGB
 					cart->currentRomBank += 0x01;
 			}
 		}
-		else if (cart->MBC3)
+		else if (cart->MBC3 || cart->MBC5)
 		{
 			cart->currentRomBank = data & 0x7F;
 
@@ -146,7 +150,7 @@ namespace FuuGB
 
 	void Memory::toggleRAM(uWORD addr, uBYTE data)
 	{
-		if (cart->MBC1 || cart->MBC3)
+		if (cart->MBC1 || cart->MBC3 || cart->MBC5)
 		{
 			if (data & 0x0F == 0x0A)
 				cart->extRamEnabled = true;
