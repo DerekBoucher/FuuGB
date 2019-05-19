@@ -178,11 +178,8 @@ namespace FuuGB
 			break;
 
 		case STOP:
-			/*
-			
-			----------------------- TO-DO ---------------------------
-			
-			*/
+			//4 Clock Cycles
+			_cpuPaused = true;
 			break;
 
 		case LD_16IMM_DE:
