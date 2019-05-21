@@ -31,8 +31,8 @@ namespace FuuGB
             SDL_Window* _SDLwindow = SDL_CreateWindow("FuuGBemu",
                                                       SDL_WINDOWPOS_CENTERED,
                                                       SDL_WINDOWPOS_CENTERED,
-                                                      NATIVE_SIZE_X*SCALE_FACTOR,
-                                                      NATIVE_SIZE_Y*SCALE_FACTOR,
+                                                      160*SCALE_FACTOR,
+                                                      144*SCALE_FACTOR,
                                                       0);
             SDL_SysWMinfo* NativeWindowInfo = new SDL_SysWMinfo;
             SDL_GetWindowWMInfo(_SDLwindow, NativeWindowInfo);
