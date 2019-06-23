@@ -26,11 +26,12 @@ namespace FuuGB
         PPU(SDL_Window* windowPtr, Memory* mem);
         virtual ~PPU();
         void stop();
+		void updateGraphics();
+		SDL_Renderer*               renderer;
     
     private:
         SDL_Rect pixels[NATIVE_SIZE_X][NATIVE_SIZE_Y];
 		SDL_Rect display[160][144];
-        SDL_Renderer*               renderer;
         std::thread*                _ppuTHR;
         std::condition_variable     ppuCond;
         std::mutex                  key;
@@ -41,7 +42,6 @@ namespace FuuGB
 		uWORD						BG_Map_Pointer;
     
         void clock();
-        void renderScreen();
     };
 }
 #endif /* PPU_h */

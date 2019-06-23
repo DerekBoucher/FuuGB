@@ -39,16 +39,16 @@ namespace FuuGB
 				display[i][j].y = j * SCALE_FACTOR;
 			}
 		}
-		_ppuTHR = new std::thread(&PPU::clock, this);
+		//_ppuTHR = new std::thread(&PPU::clock, this);
 		OAM_Pointer = 0x8800;
 		FUUGB_PPU_LOG("PPU Initialized.");
 	}
 
 	PPU::~PPU()
 	{
-		_ppuTHR->join();
-		ppuCond.notify_all();
-		delete _ppuTHR;
+		//_ppuTHR->join();
+		//ppuCond.notify_all();
+		//delete _ppuTHR;
 		SDL_DestroyRenderer(this->renderer);
 		FUUGB_PPU_LOG("PPU Destroyed.");
 	}
@@ -58,7 +58,7 @@ namespace FuuGB
 		_ppuRunning = false;
 	}
 
-	void PPU::clock()
+	void PPU::clock() //Obsolete - Not in use currently
 	{
 		while (_ppuRunning)
 		{
@@ -90,7 +90,7 @@ namespace FuuGB
 			Uint32 framestart;
 			framestart = SDL_GetTicks();
 			if (LCDC.test(7))
-				renderScreen();
+				updateGraphics();
 			frametime = SDL_GetTicks() - framestart;
 			if (frameDelay > frametime)
 			{
@@ -99,8 +99,20 @@ namespace FuuGB
 		}
 	}
 
-	void PPU::renderScreen()
+	void PPU::updateGraphics()
 	{
+		std::bitset<8> LCDC(MEM->DMA_read(0xFF40));
+
+		if (LCDC.test(4))
+			BGW_Pointer = 0x8000;
+		else
+			BGW_Pointer = 0x8800;
+
+		if (LCDC.test(3))
+			BG_Map_Pointer = 0x9C00;
+		else
+			BG_Map_Pointer = 0x9800;
+
 		//Determine the Pixel Palette prior to rendering the frame
 		std::bitset<8> BGP(MEM->DMA_read(0xFF47));
 		uBYTE PixelColors[4][3]; //[0][x] = 00, [1][x] = 01, [2][x] = 10, [3][x] = 11
@@ -108,25 +120,25 @@ namespace FuuGB
 		{
 			if (!BGP[i] & !BGP[i + 1])
 			{
-				PixelColors[i / 2][0] = 255;
+				PixelColors[i / 2][0] = 255; //8-bitx3 RGB encoding for WHITE
 				PixelColors[i / 2][1] = 255;
 				PixelColors[i / 2][2] = 255;
 			}
 			else if (!BGP[i] & BGP[i + 1])
 			{
-				PixelColors[i / 2][0] = 211;
+				PixelColors[i / 2][0] = 211; //8-Bitx3 RGB encoding for light Gray
 				PixelColors[i / 2][1] = 211;
 				PixelColors[i / 2][2] = 211;
 			}
 			else if (BGP[i] & !BGP[i + 1])
 			{
-				PixelColors[i / 2][0] = 169;
+				PixelColors[i / 2][0] = 169; //8-Bitx3 RGB encoding for Gray
 				PixelColors[i / 2][1] = 169;
 				PixelColors[i / 2][2] = 169;
 			}
 			else
 			{
-				PixelColors[i / 2][0] = 0;
+				PixelColors[i / 2][0] = 0; //8-bitx3 RGB encoding for black
 				PixelColors[i / 2][1] = 0;
 				PixelColors[i / 2][2] = 0;
 			}
@@ -183,7 +195,8 @@ namespace FuuGB
 					}
 				}
 			}
-			MEM->DMA_write(0xFF44, MEM->DMA_read(0xFF44) + 1);
+
+			MEM->DMA_write(0xFF44, 144);
 			//Produce V-Blank Interrupt if full frame rendered
 			if (MEM->DMA_read(0xFF44) == 144)
 			{
@@ -218,6 +231,7 @@ namespace FuuGB
 			}
 			++x;
 		}
-		SDL_RenderPresent(renderer);
+		if(LCDC.test(7))
+			SDL_RenderPresent(renderer);
 	}
 }

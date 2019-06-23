@@ -29,7 +29,7 @@ namespace FuuGB
 
 		_cpuRunning = true;
 		_cpuPaused = false;
-		_cpuTHR = new std::thread(&CPU::clock, this);
+		//_cpuTHR = new std::thread(&CPU::clock, this);
 		FlagBits = new std::bitset<sizeof(uBYTE)*8>(&AF.lo);
 		AluBits = new std::bitset<sizeof(uBYTE)*8>(&AF.hi);
 		
@@ -38,8 +38,8 @@ namespace FuuGB
 
 	CPU::~CPU()
 	{
-		_cpuTHR->join();
-		delete _cpuTHR;
+		//_cpuTHR->join();
+		//delete _cpuTHR;
 		FUUGB_CPU_LOG("CPU Destroyed.");
 	}
 
@@ -50,7 +50,6 @@ namespace FuuGB
 
 	void CPU::clock()
 	{
-		std::unique_lock<std::mutex> lock(memory->ramKey, std::defer_lock);
 		while (_cpuRunning)
 		{
 			if (_cpuPaused)
@@ -60,17 +59,17 @@ namespace FuuGB
 				pauseLock.unlock();
 				_cpuPaused = false;
 			}
-			lock.lock();
-			memory->ramCond.wait(lock);
-			lock.unlock();
 			executeNextOpCode();
-			checkInterupts();
 			updateTimers();
+			checkInterupts();
 		}
 	}
 
-	void CPU::executeNextOpCode()
+	int CPU::executeNextOpCode()
 	{
+		if (PC == 0xe0)
+			std::cout << "";
+		timer_update_cnt = 0;
 		bool oldCarry = true;
 		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
@@ -184,8 +183,8 @@ namespace FuuGB
 
 		case LD_16IMM_DE:
 			//12 Clock Cycles
-			DE.hi = memory->readMemory(PC++);
 			DE.lo = memory->readMemory(PC++);
+			DE.hi = memory->readMemory(PC++);
 			timer_update_cnt += 12;
 			break;
 
@@ -1305,13 +1304,13 @@ namespace FuuGB
 
 		case RET_NOT_ZERO:
 			//20/8 Clock Cycles
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
 				temp->lo = memory->readMemory(SP++);
 				temp->hi = memory->readMemory(SP++);
 				PC = temp->data;
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				timer_update_cnt += 20;
 			}
 			else
@@ -1331,7 +1330,7 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				PC = temp->data;
 				timer_update_cnt += 16;
 			}
@@ -1343,7 +1342,7 @@ namespace FuuGB
 			//16 Clock Cycles
 			temp->lo = memory->readMemory(PC++);
 			temp->hi = memory->readMemory(PC++);
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			PC = temp->data;
 			timer_update_cnt += 16;
 			break;
@@ -1354,7 +1353,7 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				Register temp2;
 				temp2.data = PC;
 				memory->writeMemory(--SP, temp2.hi);
@@ -1370,7 +1369,7 @@ namespace FuuGB
 			//16 clock cycles
 			memory->writeMemory(--SP, BC.hi);
 			memory->writeMemory(--SP, BC.lo);
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			timer_update_cnt += 16;
 			break;
 
@@ -1383,7 +1382,7 @@ namespace FuuGB
 		case RST_0:
 			//16 Clock Cycles
 			temp->data = PC;
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			memory->writeMemory(--SP, temp->hi);
 			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0000;
@@ -1392,12 +1391,12 @@ namespace FuuGB
 
 		case RET_ZERO:
 			//8 Clock Cycles if cc false else 20 clock cycles
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			if (CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
 				temp->lo = memory->readMemory(SP++);
 				temp->hi = memory->readMemory(SP++);
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				PC = temp->data;
 				timer_update_cnt += 20;
 			}
@@ -1409,7 +1408,7 @@ namespace FuuGB
 			//16 Clock Cycles
 			temp->lo = memory->readMemory(SP++);
 			temp->hi = memory->readMemory(SP++);
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			PC = temp->data;
 			timer_update_cnt += 16;
 			break;
@@ -1420,7 +1419,7 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				PC = temp->data;
 				timer_update_cnt += 16;
 			}
@@ -2980,7 +2979,7 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				Register temp2;
 				temp2.data = PC;
 				memory->writeMemory(--SP, temp2.hi);
@@ -2996,7 +2995,7 @@ namespace FuuGB
 			//24 Clock Cycles
 			temp->lo = memory->readMemory(PC++);
 			temp->hi = memory->readMemory(PC++);
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			Register temp2;
 			temp2.data = PC;
 			memory->writeMemory(--SP, temp2.hi);
@@ -3017,19 +3016,19 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp2.hi);
 			memory->writeMemory(--SP, temp2.lo);
 			PC = 0x0008;
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			timer_update_cnt += 16;
 			break;
 
 		case RET_NOCARRY:
 			//20/8 Clock Cycles
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			if (!CPU_FLAG_BIT_TEST(C_FLAG))
 			{
 				temp->lo = memory->readMemory(SP++);
 				temp->hi = memory->readMemory(SP++);
 				PC = temp->data;
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				timer_update_cnt += 20;
 			}
 			else
@@ -3049,7 +3048,7 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (!CPU_FLAG_BIT_TEST(C_FLAG))
 			{
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				PC = temp->data;
 				timer_update_cnt += 16;
 			}
@@ -3063,7 +3062,7 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (!CPU_FLAG_BIT_TEST(C_FLAG))
 			{
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				Register temp2;
 				temp2.data = PC;
 				memory->writeMemory(--SP, temp2.hi);
@@ -3079,7 +3078,7 @@ namespace FuuGB
 			//16 clock cycles
 			memory->writeMemory(--SP, DE.hi);
 			memory->writeMemory(--SP, DE.lo);
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			timer_update_cnt += 16;
 			break;
 
@@ -3095,19 +3094,19 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp2.hi);
 			memory->writeMemory(--SP, temp2.lo);
 			PC = 0x0010;
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			timer_update_cnt += 16;
 			break;
 
 		case RET_CARRY:
 			//20/8 Clock Cycles
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			if (CPU_FLAG_BIT_TEST(C_FLAG))
 			{
 				temp->lo = memory->readMemory(SP++);
 				temp->hi = memory->readMemory(SP++);
 				PC = temp->data;
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				timer_update_cnt += 20;
 			}else
 				timer_update_cnt += 8;
@@ -3129,7 +3128,7 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (CPU_FLAG_BIT_TEST(C_FLAG))
 			{
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				PC = temp->data;
 				timer_update_cnt += 16;
 			}
@@ -3143,7 +3142,7 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (CPU_FLAG_BIT_TEST(C_FLAG))
 			{
-				CPU_SLEEP_FOR_MACHINE_CYCLE();
+				
 				Register temp2;
 				temp2.data = PC;
 				memory->writeMemory(--SP, temp2.hi);
@@ -3167,7 +3166,7 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp2.hi);
 			memory->writeMemory(--SP, temp2.lo);
 			PC = 0x0018;
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			timer_update_cnt += 16;
 			break;
 
@@ -3194,7 +3193,7 @@ namespace FuuGB
 			//16 clock cycles
 			memory->writeMemory(--SP, HL.hi);
 			memory->writeMemory(--SP, HL.lo);
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			timer_update_cnt += 16;
 			break;
 
@@ -3210,7 +3209,7 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp2.hi);
 			memory->writeMemory(--SP, temp2.lo);
 			PC = 0x0020;
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			timer_update_cnt += 16;
 			break;
 
@@ -3236,8 +3235,8 @@ namespace FuuGB
 			CPU_FLAG_BIT_RESET(Z_FLAG);
 			CPU_FLAG_BIT_RESET(N_FLAG);
 			
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
+			
 			timer_update_cnt += 16;
 			break;
 
@@ -3267,7 +3266,7 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp2.hi);
 			memory->writeMemory(--SP, temp2.lo);
 			PC = 0x0028;
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
+			
 			timer_update_cnt += 16;
 			break;
 
@@ -3295,7 +3294,6 @@ namespace FuuGB
 			//16 clock cycles
 			memory->writeMemory(--SP, AF.hi);
 			memory->writeMemory(--SP, AF.lo);
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			timer_update_cnt += 16;
 			break;
 
@@ -3311,7 +3309,6 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp2.hi);
 			memory->writeMemory(--SP, temp2.lo);
 			PC = 0x0030;
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			timer_update_cnt += 16;
 			break;
 
@@ -3324,7 +3321,6 @@ namespace FuuGB
 
 		case LD_HL_SP:
 			//8 Clock Cycles
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			SP = HL.data;
 			timer_update_cnt += 8;
 			break;
@@ -3356,13 +3352,13 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp2.hi);
 			memory->writeMemory(--SP, temp2.lo);
 			PC = 0x0038;
-			CPU_SLEEP_FOR_MACHINE_CYCLE();
 			timer_update_cnt += 16;
 			break;
 
 		default:
 			break;
 		}
+		return timer_update_cnt;
 	}
 
 	void CPU::stop()
@@ -3372,7 +3368,6 @@ namespace FuuGB
 
 	void CPU::increment16BitRegister(uWORD& reg)
 	{
-		CPU_SLEEP_FOR_MACHINE_CYCLE();
 		++reg;
 	}
 
@@ -3410,13 +3405,13 @@ namespace FuuGB
 
 	void CPU::decrement16BitRegister(uWORD& reg)
 	{
-		CPU_SLEEP_FOR_MACHINE_CYCLE();
+		
 		--reg;
 	}
 
 	void CPU::add16BitRegister(uWORD& host, uWORD operand)
 	{
-		CPU_SLEEP_FOR_MACHINE_CYCLE();
+		
 		CPU_FLAG_BIT_RESET(N_FLAG);
 
 		if (checkCarryFromBit_Word(10, host, operand))

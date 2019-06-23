@@ -13,24 +13,53 @@ namespace FuuGB
 {
 	Gameboy::Gameboy(SDL_Window* windowPtr, Cartridge* cart)
 	{
+		running = true;
 		this->memory = new Memory(cart);
 		this->ppu = new PPU(windowPtr, this->memory);
 		this->cpu = new CPU(this->memory);
+		globalPause = false;
+		_gameboyTHR = new std::thread(&Gameboy::Run, this);
 	}
 
 	Gameboy::~Gameboy()
 	{
+		running = false;
 		ppu->stop();
 		memory->stop();
 		cpu->stop();
+		_gameboyTHR->join();
+		delete _gameboyTHR;
 		delete ppu;
 		delete memory;
 		delete cpu;
 	}
 
+	void Gameboy::Run()
+	{
+		while (running)
+		{
+			const int MAXCYCLES = 69905;
+			int cycles = 0;
+			while (cycles <= MAXCYCLES)
+			{
+				if (globalPause)
+				{
+					std::unique_lock<std::mutex> pauseLock(Shared::mu_GB);
+					Shared::cv_GB.wait(pauseLock);
+					pauseLock.unlock();
+					globalPause = false;
+				}
+				cycles += cpu->executeNextOpCode();
+				cpu->updateTimers();
+				cpu->checkInterupts();
+			}
+			ppu->updateGraphics();
+		}
+	}
+
 	void Gameboy::Pause()
 	{
-		cpu->Pause();
+		globalPause = true;
 	}
 
 	void Gameboy::Resume()

@@ -47,6 +47,9 @@ namespace FuuGB
 		virtual ~CPU();
 		void Pause();
 		void stop();
+		void checkInterupts();
+		void updateTimers();
+		int executeNextOpCode();
 
 	private:
 		union Register
@@ -600,7 +603,6 @@ namespace FuuGB
 		};
 
 		void clock();
-		void executeNextOpCode();
 		void increment16BitRegister(uWORD & reg);
 		void increment8BitRegister(uBYTE & reg);
 		void decrement8BitRegister(uBYTE & reg);
@@ -631,8 +633,6 @@ namespace FuuGB
 		void test_bit(int pos, uBYTE reg);
 		void reset_bit(int pos, uBYTE & reg);
 		void set_bit(int pos, uBYTE & reg);
-		void checkInterupts();
-		void updateTimers();
 		void halt();
 	};
 }
