@@ -26,8 +26,10 @@ namespace FuuGB
         PPU(SDL_Window* windowPtr, Memory* mem);
         virtual ~PPU();
         void stop();
-		void updateGraphics();
+        void DrawScanLine();
 		SDL_Renderer*               renderer;
+        void renderscreen();
+        void updateGraphics(int);
     
     private:
         SDL_Rect pixels[NATIVE_SIZE_X][NATIVE_SIZE_Y];
@@ -40,6 +42,12 @@ namespace FuuGB
 		uWORD						BGW_Pointer;
 		uWORD						OAM_Pointer;
 		uWORD						BG_Map_Pointer;
+        int                         currentScanLine;
+        int                         scanline_counter;
+        void RenderTiles();
+        void RenderSprites();
+        void setLCDStatus();
+        
     
         void clock();
     };

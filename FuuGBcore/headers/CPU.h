@@ -14,7 +14,7 @@
 #include "Logger.h"
 
 #define CPU_CLOCK_PERIOD_NS 239
-#define CLOCK_FREQUENCY 4190
+#define CLOCK_FREQUENCY 4194304
 #define CPU_FLAG_BIT_SET(...) FuuGB::CPU::Flag_set(__VA_ARGS__)
 #define CPU_FLAG_BIT_TEST(...) FuuGB::CPU::Flag_test(__VA_ARGS__)
 #define CPU_FLAG_BIT_RESET(...) FuuGB::CPU::Flag_reset(__VA_ARGS__)
@@ -48,9 +48,9 @@ namespace FuuGB
 		void Pause();
 		void stop();
 		void checkInterupts();
-		void updateTimers();
+		void updateTimers(int);
 		int executeNextOpCode();
-
+        
 	private:
 		union Register
 		{
@@ -81,6 +81,8 @@ namespace FuuGB
 		std::bitset<sizeof(uBYTE)*8>* FlagBits;
 		std::bitset<sizeof(uBYTE)*8>* AluBits;
 		int				timer_update_cnt;
+        int             divider_register;
+        int             divider_count;
 
 		enum opCode
 		{
@@ -634,6 +636,7 @@ namespace FuuGB
 		void reset_bit(int pos, uBYTE & reg);
 		void set_bit(int pos, uBYTE & reg);
 		void halt();
+        void updateDivider(int);
 	};
 }
 

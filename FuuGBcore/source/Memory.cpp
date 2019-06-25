@@ -9,6 +9,7 @@
 #include "Fuupch.h"
 #include "Memory.h"
 
+
 namespace FuuGB
 {
 	Memory::Memory(Cartridge* gameCart)
@@ -27,6 +28,7 @@ namespace FuuGB
 		_ramTHR = new std::thread(&Memory::ramClock, this);
 		FUUGB_MEM_LOG("RAM Initialized.");
 		bootRomClosed = false;
+        timer_counter = 0;
 	}
 
 	Memory::~Memory()
@@ -99,6 +101,35 @@ namespace FuuGB
 			M_MEM[addr] = data;
 			M_MEM[addr - ECHO_RAM_OFFSET] = data;
 		}
+        else if(addr == 0xFF07) //Timer Controller
+        {
+            uBYTE currentfrequency = this->readMemory(addr) & 0x03;
+            M_MEM[addr] = data;
+            uBYTE newfreq = this->readMemory(addr) & 0x03;
+            if(currentfrequency != newfreq)
+            {
+                uBYTE frequency = this->readMemory(0xFF07) & 0x03;
+                switch(frequency)
+                {
+                    case 0: this->timer_counter = 1024; break;
+                    case 1: this->timer_counter = 16; break;
+                    case 2: this->timer_counter = 64; break;
+                    case 3: this->timer_counter = 256; break;
+                }
+            }
+        }
+        else if(addr == 0xFF04)
+        {
+            M_MEM[addr] = 0;
+        }
+        else if(addr == 0xFF44)
+        {
+            M_MEM[addr] = 0;
+        }
+        else if(addr == 0xFF46)
+        {
+            DMA_Transfer(data);
+        }
 		else
 			M_MEM[addr] = data;
 	}
@@ -129,7 +160,7 @@ namespace FuuGB
 		}
 		else if (cart->MBC2)
 		{
-			if (addr & 0x10 == 0x10)
+			if ((addr & 0x10) == 0x10)
 			{
 				cart->currentRomBank = data & 0x0F;
 
@@ -152,7 +183,7 @@ namespace FuuGB
 	{
 		if (cart->MBC1 || cart->MBC3 || cart->MBC5)
 		{
-			if (data & 0x0F == 0x0A)
+			if ((data & 0x0F) == 0x0A)
 				cart->extRamEnabled = true;
 			else
 				cart->extRamEnabled = false;
@@ -161,7 +192,7 @@ namespace FuuGB
 		{
 			if ((addr & 0x10) == 0x00)
 			{
-				if (data & 0x0F == 0x0A)
+				if ((data & 0x0F) == 0x0A)
 					cart->extRamEnabled = true;
 				else
 					cart->extRamEnabled = false;
@@ -196,4 +227,25 @@ namespace FuuGB
 			}
 		}
 	}
+    
+    void Memory::RequestInterupt(int code)
+    {
+        std::bitset<8> IF(this->readMemory(0xFF0F));
+        
+        switch(code)
+        {
+            case 0: IF.set(0); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
+            case 1: IF.set(1); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
+            case 2: IF.set(2); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
+            case 3: IF.set(3); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
+            case 4: IF.set(4); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
+        }
+    }
+    
+    void Memory::DMA_Transfer(uBYTE data)
+    {
+        uWORD addr = data << 8;
+        for(int i = 0; i < 0xA0; i++)
+            this->writeMemory(0xFE00+i, this->readMemory(addr+i));
+    }
 }

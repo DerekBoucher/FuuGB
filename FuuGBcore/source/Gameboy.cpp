@@ -39,8 +39,8 @@ namespace FuuGB
 		while (running)
 		{
 			const int MAXCYCLES = 69905;
-			int cycles = 0;
-			while (cycles <= MAXCYCLES)
+			int cyclesthisupdate = 0;
+			while (cyclesthisupdate <= MAXCYCLES)
 			{
 				if (globalPause)
 				{
@@ -49,11 +49,13 @@ namespace FuuGB
 					pauseLock.unlock();
 					globalPause = false;
 				}
-				cycles += cpu->executeNextOpCode();
-				cpu->updateTimers();
+				int cycles = cpu->executeNextOpCode();
+                cyclesthisupdate += cycles;
+				cpu->updateTimers(cycles);
+                ppu->updateGraphics(cycles);
 				cpu->checkInterupts();
 			}
-			ppu->updateGraphics();
+            ppu->renderscreen();
 		}
 	}
 

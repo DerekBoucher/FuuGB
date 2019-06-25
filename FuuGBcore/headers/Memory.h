@@ -37,12 +37,16 @@ namespace FuuGB
 		void toggleRAM(uWORD addr, uBYTE data);
 
 		void changeMode(uBYTE data);
+        
+        void RequestInterupt(int code);
 
 		void changeRAMBank(uWORD addr, uBYTE data);
 		std::mutex              ramKey;
 		std::mutex              vramKey;
 		std::condition_variable ramCond;
 		std::condition_variable vramCond;
+        int                     timer_counter;
+        
     
     private:
         uBYTE*                  M_MEM;
@@ -52,6 +56,7 @@ namespace FuuGB
         bool                    CycleDone;
         bool                    _memoryRunning;
 		bool					bootRomClosed;
+        void                    DMA_Transfer(uBYTE);
 	
     
         void ramClock();

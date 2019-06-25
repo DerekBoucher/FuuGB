@@ -26,7 +26,9 @@ namespace FuuGB
 		memory = mem;
 
 		timer_update_cnt = 0;
-
+        divider_register = 0;
+        divider_count = 0;
+        
 		_cpuRunning = true;
 		_cpuPaused = false;
 		//_cpuTHR = new std::thread(&CPU::clock, this);
@@ -60,21 +62,20 @@ namespace FuuGB
 				_cpuPaused = false;
 			}
 			executeNextOpCode();
-			updateTimers();
 			checkInterupts();
 		}
 	}
 
 	int CPU::executeNextOpCode()
 	{
-		if (PC == 0xe0)
-			std::cout << "";
+		if (PC == 0x66)
+            std::printf("");
 		timer_update_cnt = 0;
-		bool oldCarry = true;
 		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
 		printf("[CPU]: Executing next OpCode @PC=%x: %x\n", PC-1,byte);
+        printf("[Value at 0xFF44] = %x\n", memory->DMA_read(0xFF44));
 		switch (byte)
 		{
 		case NOP:
@@ -3833,18 +3834,24 @@ namespace FuuGB
 
 	void CPU::Flag_set(int flag)
 	{
+        delete FlagBits;
+        FlagBits = new std::bitset<8>(AF.lo);
 		FlagBits->set(flag);
-		AF.lo = FlagBits->to_ulong();
+		AF.lo = (uBYTE)FlagBits->to_ulong();
 	}
 
 	void CPU::Flag_reset(int flag)
 	{
+        delete FlagBits;
+        FlagBits = new std::bitset<8>(AF.lo);
 		FlagBits->reset(flag);
-		AF.lo = FlagBits->to_ulong();
+		AF.lo = (uBYTE)FlagBits->to_ulong();
 	}
 
 	bool CPU::Flag_test(int flag)
 	{
+        delete FlagBits;
+        FlagBits = new std::bitset<8>(AF.lo);
 		return FlagBits->test(flag);
 	}
 
@@ -3885,7 +3892,9 @@ namespace FuuGB
 		if (IF[0] && IME[0]) //V-Blank
 		{
 			IME.reset();
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, IME.to_ulong());
+            IF.reset(0);
+            memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
+			memory->writeMemory(INTERUPT_EN_REGISTER_ADR, (uBYTE)IME.to_ulong());
 			Temp.data = PC;
 			memory->DMA_write(--SP, Temp.hi);
 			memory->DMA_write(--SP, Temp.lo);
@@ -3894,7 +3903,9 @@ namespace FuuGB
 		else if (IF[1] && IME[1]) // LCDC
 		{
 			IME.reset();
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, IME.to_ulong());
+            IF.reset(1);
+            memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
+			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, (uBYTE)IME.to_ulong());
 			Temp.data = PC;
 			memory->DMA_write(--SP, Temp.hi);
 			memory->DMA_write(--SP, Temp.lo);
@@ -3903,7 +3914,9 @@ namespace FuuGB
 		else if (IF[2] && IME[2]) // Timer Overflow
 		{
 			IME.reset();
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, IME.to_ulong());
+            IF.reset(2);
+            memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
+			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, (uBYTE)IME.to_ulong());
 			Temp.data = PC;
 			memory->DMA_write(--SP, Temp.hi);
 			memory->DMA_write(--SP, Temp.lo);
@@ -3912,7 +3925,9 @@ namespace FuuGB
 		else if (IF[3] && IME[3]) // Serial I/O Complete
 		{
 			IME.reset();
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, IME.to_ulong());
+            IF.reset(3);
+            memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
+			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, (uBYTE)IME.to_ulong());
 			Temp.data = PC;
 			memory->DMA_write(--SP, Temp.hi);
 			memory->DMA_write(--SP, Temp.lo);
@@ -3921,7 +3936,9 @@ namespace FuuGB
 		else if (IF[4] && IME[4]) //Pin 10 - 13 hi to lo (Control Input)
 		{
 			IME.reset();
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, IME.to_ulong());
+            IF.reset(4);
+            memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
+			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, (uBYTE)IME.to_ulong());
 			Temp.data = PC;
 			memory->DMA_write(--SP, Temp.hi);
 			memory->DMA_write(--SP, Temp.lo);
@@ -3929,15 +3946,52 @@ namespace FuuGB
 		}
 	}
 
-	void CPU::updateTimers()
+	void CPU::updateTimers(int cycles)
 	{
-		if (timer_update_cnt >= 256)
-		{
-			timer_update_cnt = 0;
-			memory->DMA_write(TIMER_DIV_REG, memory->DMA_read(TIMER_DIV_REG) + 0x01);
-		}
+        std::bitset<8> TMC(memory->readMemory(0xFF07));
+        std::bitset<8> TMA(memory->readMemory(0xFF06));
+        std::bitset<8> TIMA(memory->readMemory(0xFF05));
+        
+        this->updateDivider(cycles);
+        
+        if(TMC.test(2)) //Check if clock is enabled
+        {
+            memory->timer_counter -= cycles;
+            
+            if(memory->timer_counter <= 0)
+            {
+                uBYTE frequency = memory->readMemory(0xFF07) & 0x03;
+                switch(frequency)
+                {
+                    case 0: memory->timer_counter = 1024; break;
+                    case 1: memory->timer_counter = 16; break;
+                    case 2: memory->timer_counter = 64; break;
+                    case 3: memory->timer_counter = 256; break;
+                }
+                
+                //Timer Overflow
+                if(memory->readMemory(0xFF05) == 255)
+                {
+                    memory->writeMemory(0xFF05, memory->readMemory(0xFF06));
+                    memory->RequestInterupt(2);
+                }
+                else
+                    memory->writeMemory(0xFF05, memory->readMemory(0xFF05)+1);
+            }
+        }
+        
 	}
 
+    void CPU::updateDivider(int cycles)
+    {
+        divider_count += cycles;
+        if(divider_count >= 255)
+        {
+            memory->DMA_write(0xFF04, memory->DMA_read(0xFF04)+1);
+            divider_count = 0;
+        }
+    }
+    
 	void CPU::halt()
 	{
 		std::bitset<8> IME(memory->DMA_read(INTERUPT_EN_REGISTER_ADR));
@@ -3967,4 +4021,6 @@ namespace FuuGB
 			}
 		}
 	}
+    
+    
 }
