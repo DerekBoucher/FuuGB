@@ -18,8 +18,10 @@ namespace FuuGB
 		renderer = SDL_GetRenderer(windowRef);
 		if (renderer == NULL)
 			renderer = SDL_CreateRenderer(windowRef, -1, SDL_RENDERER_ACCELERATED);
+        
+        SDL_RenderClear(renderer);
 
-		for (int i = 0;i < NATIVE_SIZE_X; ++i)
+		for (int i = 0; i < NATIVE_SIZE_X; ++i)
 		{
 			for (int j = 0; j < NATIVE_SIZE_Y; ++j)
 			{
@@ -27,16 +29,6 @@ namespace FuuGB
 				pixels[i][j].w = SCALE_FACTOR;
 				pixels[i][j].x = i * SCALE_FACTOR;
 				pixels[i][j].y = j * SCALE_FACTOR;
-			}
-		}
-		for (int i = 0;i < 160; ++i)
-		{
-			for (int j = 0; j < 144; ++j)
-			{
-				display[i][j].h = SCALE_FACTOR;
-				display[i][j].w = SCALE_FACTOR;
-				display[i][j].x = i * SCALE_FACTOR;
-				display[i][j].y = j * SCALE_FACTOR;
 			}
 		}
 		//_ppuTHR = new std::thread(&PPU::clock, this);
@@ -115,8 +107,8 @@ namespace FuuGB
         
         if(scanline_counter <= 0) //Time to render new frame
         {
-            MEM->DMA_write(0xFF44, MEM->DMA_read(0xFF44)+1);
             currentScanLine = MEM->DMA_read(0xFF44);
+            MEM->DMA_write(0xFF44, MEM->DMA_read(0xFF44)+1);
             
             scanline_counter = 456;
             
@@ -295,13 +287,134 @@ namespace FuuGB
             
             SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
             SDL_RenderFillRect(renderer, &pixels[pixel][currentScanLine]);
+            SDL_RenderDrawRect(renderer, &pixels[pixel][currentScanLine]);
         }
-        
     }
     
     void PPU::RenderSprites()
     {
+        std::bitset<8> LCDC(MEM->readMemory(0xFF40));
         
+        bool u_8x16 = false;
+        
+        if(LCDC.test(2))
+            u_8x16 = true;
+        
+        for (int sprite = 0; sprite < 40; sprite++)
+        {
+            uBYTE index = sprite*4;
+            uBYTE yPos = MEM->readMemory(0xFE00 + index) - 16;
+            uBYTE xPos = MEM->readMemory(0xFE00 + index +1) - 8;
+            uBYTE tilelocation = MEM->readMemory(0xFFE0 + index + 2);
+            uBYTE attributes = MEM->readMemory(0xFFE0 + index + 3);
+            
+            std::bitset<8> attr(attributes);
+            
+            bool yFlip = attr.test(6);
+            bool xFlip = attr.test(5);
+            
+            int scanline = MEM->readMemory(0xFF44);
+            
+            int ysize = 8;
+            if(u_8x16)
+                ysize = 16;
+            
+            if((scanline >= yPos) && (scanline < (yPos + ysize)))
+            {
+                int line = scanline - yPos;
+                
+                if(yFlip)
+                {
+                    line -= ysize;
+                    line *= -1;
+                }
+                
+                line *= 2;
+                
+                uWORD dataaddr = (0x8000 + (tilelocation * 16)) + line;
+                uBYTE data1 = MEM->readMemory(dataaddr);
+                uBYTE data2 = MEM->readMemory(dataaddr + 1);
+                
+                for(int tilepixel =7 ; tilepixel >= 0; tilepixel--)
+                {
+                    int colorbit = tilepixel;
+                    
+                    if(xFlip)
+                    {
+                        colorbit -= 7;
+                        colorbit *= -1;
+                    }
+                    
+                    std::bitset<8> d2(data2);
+                    std::bitset<8> d1(data1);
+                    int ColorEncoding = d2.test(colorbit);
+                    
+                    ColorEncoding <<= 1;
+                    
+                    ColorEncoding |= d1.test(colorbit);
+                    
+                    uWORD coloradr;
+                    if(attr.test(4))
+                        coloradr = 0xFF49;
+                    else
+                        coloradr = 0xFF48;
+                    
+                    int R = 0x0;
+                    int G = 0x0;
+                    int B = 0x0;
+                    
+                    std::bitset<2> Color_00(MEM->readMemory(coloradr) & 0x03);
+                    std::bitset<2> Color_01(MEM->readMemory(coloradr) & 0x0C);
+                    std::bitset<2> Color_10(MEM->readMemory(coloradr) & 0x30);
+                    std::bitset<2> Color_11(MEM->readMemory(coloradr) & 0xC0);
+                    
+                    //Determine actual color for pixel via Color Pallete register
+                    switch(ColorEncoding)
+                    {
+                        case 0x00:
+                            if(Color_00.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
+                            else if(Color_00.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
+                            else if(Color_00.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
+                            else if(Color_00.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                            break;
+                        case 0x01:
+                            if(Color_01.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
+                            else if(Color_01.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
+                            else if(Color_01.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
+                            else if(Color_01.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                            break;
+                        case 0x10:
+                            if(Color_10.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
+                            else if(Color_10.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
+                            else if(Color_10.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
+                            else if(Color_10.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                            break;
+                        case 0x11:
+                            if(Color_11.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
+                            else if(Color_11.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
+                            else if(Color_11.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
+                            else if(Color_11.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                            break;
+                    }
+                    
+                    if(R == 255 && G == 255 && B == 255)
+                        continue;
+                    
+                    int xPix = 0 - tilepixel;
+                    
+                    xPix += 7;
+                    
+                    int pixel = xPos+xPix;
+                    
+                    if((scanline<0) || (scanline>143) || (pixel <0) || (pixel > 159))
+                        continue;
+                    
+                    SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
+                    SDL_RenderFillRect(renderer, &pixels[pixel][scanline]);
+                    SDL_RenderDrawRect(renderer, &pixels[pixel][scanline]);
+                }
+            }
+        }
     }
     
     void PPU::setLCDStatus()
@@ -388,13 +501,6 @@ namespace FuuGB
         if(!LCDC.test(7))
             return;
         
-        for(int i = 0; i < NATIVE_SIZE_X; i++)
-        {
-            for(int j = 0; j < NATIVE_SIZE_Y; j++)
-            {
-                SDL_RenderDrawRect(renderer, &pixels[i][j]);
-            }
-        }
         SDL_RenderPresent(renderer);
     }
 }

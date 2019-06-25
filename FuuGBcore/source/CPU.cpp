@@ -68,14 +68,13 @@ namespace FuuGB
 
 	int CPU::executeNextOpCode()
 	{
-		if (PC == 0x66)
-            std::printf("");
 		timer_update_cnt = 0;
 		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
 		printf("[CPU]: Executing next OpCode @PC=%x: %x\n", PC-1,byte);
-        printf("[Value at 0xFF44] = %x\n", memory->DMA_read(0xFF44));
+        if(PC-1 == 0x28)
+            printf("");
 		switch (byte)
 		{
 		case NOP:
@@ -3359,6 +3358,7 @@ namespace FuuGB
 		default:
 			break;
 		}
+        delete temp;
 		return timer_update_cnt;
 	}
 

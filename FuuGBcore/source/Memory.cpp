@@ -82,7 +82,7 @@ namespace FuuGB
 		}
 		else if ((addr >= 0x8000) && (addr < 0xA000)) //Video RAM
 		{
-
+            M_MEM[addr] = data;
 		}
 		else if ((addr >= 0xA000) && (addr < 0xC000)) //Switchable Ram Bank
 		{
