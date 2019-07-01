@@ -108,7 +108,6 @@ namespace FuuGB
         if(scanline_counter <= 0) //Time to render new frame
         {
             currentScanLine = MEM->DMA_read(0xFF44);
-            MEM->DMA_write(0xFF44, MEM->DMA_read(0xFF44)+1);
             
             scanline_counter = 456;
             
@@ -118,6 +117,8 @@ namespace FuuGB
                 MEM->DMA_write(0xFF44, 0x00);
             else
                 this->DrawScanLine();
+            
+            MEM->DMA_write(0xFF44, MEM->DMA_read(0xFF44)+1);
         }
 	}
     
@@ -157,11 +158,14 @@ namespace FuuGB
         
         //Determine the Tile data set to be used
         if(LCDC.test(4))
+        {
             BGW_Data_Ptr = 0x8000;
+            unsignedAdr = true;
+        }
         else
         {
             BGW_Data_Ptr = 0x8800;
-            unsignedAdr = true;
+            unsignedAdr = false;
         }
         
         //Determine Win Map Address
@@ -229,6 +233,9 @@ namespace FuuGB
             uBYTE line = (Tile_ypos % 8) * 2;
             uBYTE data1 = MEM->readMemory(tileLocation + line);
             uBYTE data2 = MEM->readMemory(tileLocation + line + 1);
+           
+            if(data1 != 0x00 || data2 != 0x00)
+                printf("");
             
             //Determine The color encoding for the current pixel
             int ColorBit = xPos % 8;

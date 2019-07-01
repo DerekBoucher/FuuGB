@@ -73,7 +73,7 @@ namespace FuuGB
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
 		printf("[CPU]: Executing next OpCode @PC=%x: %x\n", PC-1,byte);
-        if(PC-1 == 0x28)
+        if(PC-1 == 0x95)
             printf("");
 		switch (byte)
 		{
@@ -1319,8 +1319,8 @@ namespace FuuGB
 
 		case POP_BC:
 			//12 Clock Cycles
-			BC.hi = memory->readMemory(SP++);
 			BC.lo = memory->readMemory(SP++);
+			BC.hi = memory->readMemory(SP++);
 			timer_update_cnt += 12;
 			break;
 
