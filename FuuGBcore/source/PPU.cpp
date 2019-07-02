@@ -194,7 +194,7 @@ namespace FuuGB
             Tile_ypos = MEM->readMemory(0xFF44) - WinY;
         
         //Determine the Row of the tile on which the scanline is on
-        uBYTE Tile_Row = (Tile_ypos/8)*32;
+        uBYTE Tile_Row = ((Tile_ypos/8)*32);
         
         //Render the Scanline
         for(int pixel = 0;pixel < 160; pixel++)
@@ -217,6 +217,7 @@ namespace FuuGB
             
             //Obtain the Tile identifier number from the BG MAP
             uWORD tileAdr = BG_Map_Ptr + tileCol + Tile_Row;
+            
             if(unsignedAdr)
                 tilenum = (uBYTE)MEM->readMemory(tileAdr);
             else
