@@ -136,119 +136,111 @@ namespace FuuGB
     void PPU::RenderTiles()
     {
         std::bitset<8> LCDC(MEM->DMA_read(0xFF40));
-        uWORD BGW_Data_Ptr = 0x0;
-        uWORD BG_Map_Ptr = 0x0;
+        uWORD Tile_Data_Ptr = 0x0;
+        uWORD Tile_Map_Ptr = 0x0;
+        uWORD Win_Map_Ptr = 0x0;
         
-        //Determine The X-Y Coordinates to draw from the BG-Window tile map
+        bool WinEnabled = false;
+        bool unsigned_ID = false;
+        
+        //Determine The offsets to use when retrieving the Tile Identifiers from
+        //Tile Map address space.
         uBYTE ScrollX = MEM->readMemory(0xFF43);
         uBYTE ScrollY = MEM->readMemory(0xFF42);
         uBYTE WinX = MEM->readMemory(0xFF4B) - 7;
         uBYTE WinY = MEM->readMemory(0xFF4A);
         
-        bool winInRenderTarget = false;
-        bool unsignedAdr = false;
-        //Determine if Window is to be rendered (It's Y-Coordinate is less than currentscanline
-        if(LCDC.test(5))
-        {
-            if(WinY <= MEM->readMemory(0xFF44))
-            {
-                winInRenderTarget = true;
-            }
-        }
         
-        //Determine the Tile data set to be used
+        //Determine Address of Tile Data depending on the LCDC bit 4
         if(LCDC.test(4))
         {
-            BGW_Data_Ptr = 0x8000;
-            unsignedAdr = true;
+            Tile_Data_Ptr = 0x8000;
+            unsigned_ID = false;
         }
         else
         {
-            BGW_Data_Ptr = 0x8800;
-            unsignedAdr = false;
+            Tile_Data_Ptr = 0x8800;
+            unsigned_ID = true;
         }
         
-        //Determine Win Map Address
-        if(winInRenderTarget)
+        //Determine the Address of the Tile Mapping For BG & Window
+        if(LCDC.test(3))
+            Tile_Map_Ptr = 0x9C00;
+        else
+            Tile_Map_Ptr = 0x9800;
+        
+        //Determine if the window is to be rendered
+        //The window has is rendered above the background
+        if(LCDC.test(5))
+            WinEnabled = true;
+        else
+            WinEnabled = false;
+        
+        //If Window is to be rendered, determine its Maping ptr in memory
+        if(WinEnabled)
         {
             if(LCDC.test(6))
-                BG_Map_Ptr = 0x9C00;
+                Win_Map_Ptr = 0x9C00;
             else
-                BG_Map_Ptr = 0x9800;
-        }
-        else
-        {
-        //Determine BG Map Address
-            if(LCDC.test(3))
-                BG_Map_Ptr = 0x9C00;
-            else
-                BG_Map_Ptr = 0x9800;
+                Win_Map_Ptr = 0x9800;
         }
         
-        //Determine the Y-Pos of the tile that the current scan line is on
-        //Also differentiate if the tile is a window tile or BG tile
-        uBYTE Tile_ypos = 0x00;
-        if(!winInRenderTarget)
-            Tile_ypos = ScrollY + MEM->readMemory(0xFF44);
-        else
-            Tile_ypos = MEM->readMemory(0xFF44) - WinY;
+        //Determine the current scanline we are on
+        int current_Scanline = MEM->readMemory(0xFF44);
+    
         
-        //Determine the Row of the tile on which the scanline is on
-        uBYTE Tile_Row = ((Tile_ypos/8)*32);
-        
-        //Render the Scanline
+        //Start Rendering the scanline
         for(int pixel = 0;pixel < 160; pixel++)
         {
-            uBYTE xPos = pixel + ScrollX;
-            
-            //If Window is currently in the scanline, translate to window address space
-            if(winInRenderTarget)
+            if(WinEnabled)
             {
-                //Check if xPos is >= Winx
-                if(xPos >= WinX)
-                {
-                    xPos = pixel - WinX;
-                }
+                //To do
             }
             
-            //Determine in which of the 32 horizontal tiles where xPos lies
-            uWORD tileCol = xPos/8;
-            sWORD tilenum;
+            //Determine the address for the tile identifier
+            uWORD current_Tile_Map_Adr = Tile_Map_Ptr + ScrollX + ((ScrollY+current_Scanline)*32) + (pixel/8);
             
-            //Obtain the Tile identifier number from the BG MAP
-            uWORD tileAdr = BG_Map_Ptr + tileCol + Tile_Row;
-            
-            if(unsignedAdr)
-                tilenum = (uBYTE)MEM->readMemory(tileAdr);
+            //Determine the Tile ID
+            sBYTE sTile_ID;
+            uBYTE uTile_ID;
+            if(unsigned_ID)
+                sTile_ID = MEM->readMemory(current_Tile_Map_Adr);
             else
-                tilenum = (sBYTE)MEM->readMemory(tileAdr);
+                uTile_ID = MEM->readMemory(current_Tile_Map_Adr);
             
-            //Determine Tile Location in the actual data tables
-            uWORD tileLocation = BGW_Data_Ptr;
-            if(unsignedAdr)
-                tileLocation += tilenum*16;
+            //Determine the current pixel data from the tile data
+            uBYTE Tile_Line = (current_Scanline % 8) * 2; //Each line is 2 bytes
+            uWORD current_uTile_Data_adr;
+            sWORD current_sTile_Data_adr;
+            uBYTE data1, data2;
+            if(unsigned_ID)
+            {
+                current_uTile_Data_adr = Tile_Data_Ptr + (uTile_ID)*16;
+                data1 = MEM->readMemory(current_uTile_Data_adr+Tile_Line);
+                data2 = MEM->readMemory(current_uTile_Data_adr+Tile_Line+1);
+            }
             else
-                tileLocation += (tilenum+128)*16; //Since the identifier is unsigned, must add a 128 offset
+            {
+                current_sTile_Data_adr = Tile_Data_Ptr + (sTile_ID)*16;
+                data1 = MEM->readMemory(current_uTile_Data_adr+Tile_Line);
+                data2 = MEM->readMemory(current_uTile_Data_adr+Tile_Line+1);
+            }
             
-            //Determine which vertical line of the tile we are on
-            uBYTE line = (Tile_ypos % 8) * 2;
-            uBYTE data1 = MEM->readMemory(tileLocation + line);
-            uBYTE data2 = MEM->readMemory(tileLocation + line + 1);
-           
-            if(data1 != 0x00 || data2 != 0x00)
-                printf("");
-            
-            //Determine The color encoding for the current pixel
-            int ColorBit = xPos % 8;
-            ColorBit -= 7;
-            ColorBit *= -1;
+            uBYTE currentBitPosition = pixel % 8;
             
             std::bitset<8> d1(data1);
             std::bitset<8> d2(data2);
             
-            int ColorEncoding = d2.test(ColorBit);
-            ColorEncoding <<= 1;
-            ColorEncoding |= d1.test(ColorBit);
+            std::bitset<2> ColorCode;
+            if(d2.test(currentBitPosition))
+                ColorCode.set(1);
+            else
+                ColorCode.reset(1);
+            
+            if(d1.test(currentBitPosition))
+                ColorCode.set(0);
+            else
+                ColorCode.reset(0);
             
             int R = 0x0;
             int G = 0x0;
@@ -260,7 +252,7 @@ namespace FuuGB
             std::bitset<2> Color_11(MEM->readMemory(0xFF47) & 0xC0);
             
             //Determine actual color for pixel via Color Pallete register
-            switch(ColorEncoding)
+            switch(ColorCode.to_ulong())
             {
                 case 0x00:
                     if(Color_00.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
@@ -288,14 +280,12 @@ namespace FuuGB
                     break;
             }
             
-            currentScanLine = MEM->readMemory(0xFF44);
-            
-            if(currentScanLine < 0 || currentScanLine > 143 || pixel < 0 || pixel > 159)
+            if(current_Scanline < 0 || current_Scanline > 143 || pixel < 0 || pixel > 159)
                 continue;
             
             SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
-            SDL_RenderFillRect(renderer, &pixels[pixel][currentScanLine]);
-            SDL_RenderDrawRect(renderer, &pixels[pixel][currentScanLine]);
+            SDL_RenderFillRect(renderer, &pixels[pixel][current_Scanline]);
+            SDL_RenderDrawRect(renderer, &pixels[pixel][current_Scanline]);
         }
     }
     
