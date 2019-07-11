@@ -209,21 +209,21 @@ namespace FuuGB
                 uTile_ID = MEM->readMemory(current_Tile_Map_Adr);
             
             //Determine the current pixel data from the tile data
-            uBYTE Tile_Line = (current_Scanline % 8) * 2; //Each line is 2 bytes
+            uBYTE Tile_Line_offset = (current_Scanline % 8) * 2; //Each line is 2 bytes
             uWORD current_uTile_Data_adr;
             sWORD current_sTile_Data_adr;
             uBYTE data1, data2;
             if(unsigned_ID)
             {
                 current_uTile_Data_adr = Tile_Data_Ptr + (uTile_ID)*16;
-                data1 = MEM->readMemory(current_uTile_Data_adr+Tile_Line);
-                data2 = MEM->readMemory(current_uTile_Data_adr+Tile_Line+1);
+                data1 = MEM->readMemory(current_uTile_Data_adr+Tile_Line_offset);
+                data2 = MEM->readMemory(current_uTile_Data_adr+Tile_Line_offset+1);
             }
             else
             {
                 current_sTile_Data_adr = Tile_Data_Ptr + (sTile_ID)*16;
-                data1 = MEM->readMemory(current_uTile_Data_adr+Tile_Line);
-                data2 = MEM->readMemory(current_uTile_Data_adr+Tile_Line+1);
+                data1 = MEM->readMemory(current_uTile_Data_adr+Tile_Line_offset);
+                data2 = MEM->readMemory(current_uTile_Data_adr+Tile_Line_offset+1);
             }
             
             uBYTE currentBitPosition = pixel % 8;
