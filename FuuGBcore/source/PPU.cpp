@@ -113,9 +113,12 @@ namespace FuuGB
             
             if(currentScanLine == 144)//V-Blank
                 MEM->RequestInterupt(0);
-            else if(currentScanLine > 153)
-                MEM->DMA_write(0xFF44, 0x00);
-            else
+			else if (currentScanLine > 153)
+			{
+				MEM->DMA_write(0xFF44, 0x00);
+				return;
+			}
+            else if(currentScanLine < 144)
                 this->DrawScanLine();
             
             MEM->DMA_write(0xFF44, MEM->DMA_read(0xFF44)+1);
@@ -155,12 +158,12 @@ namespace FuuGB
         if(LCDC.test(4))
         {
             Tile_Data_Ptr = 0x8000;
-            unsigned_ID = false;
+            unsigned_ID = true;
         }
         else
         {
             Tile_Data_Ptr = 0x8800;
-            unsigned_ID = true;
+            unsigned_ID = false;
         }
         
         //Determine the Address of the Tile Mapping For BG & Window
@@ -187,7 +190,8 @@ namespace FuuGB
         
         //Determine the current scanline we are on
         int current_Scanline = MEM->readMemory(0xFF44);
-    
+		uBYTE yPos = ScrollY + current_Scanline;
+		uWORD Tile_Row = (yPos / 8) * 32;
         
         //Start Rendering the scanline
         for(int pixel = 0;pixel < 160; pixel++)
@@ -197,16 +201,19 @@ namespace FuuGB
                 //To do
             }
             
+			uBYTE xPos = pixel + ScrollX;
+			uBYTE Tile_Col = xPos / 8;
+
             //Determine the address for the tile identifier
-            uWORD current_Tile_Map_Adr = Tile_Map_Ptr + ScrollX + ((ScrollY+current_Scanline)*32) + (pixel/8);
+			uWORD current_Tile_Map_Adr = Tile_Map_Ptr + Tile_Col + Tile_Row;
             
             //Determine the Tile ID
             sBYTE sTile_ID;
             uBYTE uTile_ID;
             if(unsigned_ID)
-                sTile_ID = MEM->readMemory(current_Tile_Map_Adr);
-            else
                 uTile_ID = MEM->readMemory(current_Tile_Map_Adr);
+            else
+                sTile_ID = MEM->readMemory(current_Tile_Map_Adr);
             
             //Determine the current pixel data from the tile data
             uBYTE Tile_Line_offset = (current_Scanline % 8) * 2; //Each line is 2 bytes
@@ -226,7 +233,7 @@ namespace FuuGB
                 data2 = MEM->readMemory(current_uTile_Data_adr+Tile_Line_offset+1);
             }
             
-            uBYTE currentBitPosition = pixel % 8;
+            int currentBitPosition = ((pixel % 8) - 7)* -1;
             
             std::bitset<8> d1(data1);
             std::bitset<8> d2(data2);
@@ -278,6 +285,8 @@ namespace FuuGB
                     else if(Color_11.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
                     else if(Color_11.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
                     break;
+				default:
+					break;
             }
             
             if(current_Scanline < 0 || current_Scanline > 143 || pixel < 0 || pixel > 159)
