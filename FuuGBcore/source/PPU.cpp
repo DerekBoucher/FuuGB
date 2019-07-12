@@ -36,6 +36,7 @@ namespace FuuGB
         currentScanLine = 1;
         scanline_counter = 456;
 		FUUGB_PPU_LOG("PPU Initialized.");
+		test = 0x64;
 	}
 
 	PPU::~PPU()
@@ -43,6 +44,9 @@ namespace FuuGB
 		//_ppuTHR->join();
 		//ppuCond.notify_all();
 		//delete _ppuTHR;
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+		SDL_RenderClear(renderer);
+		SDL_RenderPresent(renderer);
 		SDL_DestroyRenderer(this->renderer);
 		FUUGB_PPU_LOG("PPU Destroyed.");
 	}
@@ -192,7 +196,10 @@ namespace FuuGB
         int current_Scanline = MEM->readMemory(0xFF44);
 		uBYTE yPos = ScrollY + current_Scanline;
 		uWORD Tile_Row = (yPos / 8) * 32;
-        
+		if (ScrollY < 0x2f)
+		{
+			test--;
+		}
         //Start Rendering the scanline
         for(int pixel = 0;pixel < 160; pixel++)
         {
@@ -252,11 +259,11 @@ namespace FuuGB
             int R = 0x0;
             int G = 0x0;
             int B = 0x0;
-            
+
             std::bitset<2> Color_00(MEM->readMemory(0xFF47) & 0x03);
-            std::bitset<2> Color_01(MEM->readMemory(0xFF47) & 0x0C);
-            std::bitset<2> Color_10(MEM->readMemory(0xFF47) & 0x30);
-            std::bitset<2> Color_11(MEM->readMemory(0xFF47) & 0xC0);
+            std::bitset<2> Color_01((MEM->readMemory(0xFF47)>>2) & 0x03);
+            std::bitset<2> Color_10((MEM->readMemory(0xFF47)>>4) & 0x03);
+            std::bitset<2> Color_11((MEM->readMemory(0xFF47)>>6) & 0x03);
             
             //Determine actual color for pixel via Color Pallete register
             switch(ColorCode.to_ulong())

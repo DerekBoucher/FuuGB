@@ -46,7 +46,7 @@ namespace FuuGB
         void RenderTiles();
         void RenderSprites();
         void setLCDStatus();
-        
+		int		test;
     
         void clock();
     };
