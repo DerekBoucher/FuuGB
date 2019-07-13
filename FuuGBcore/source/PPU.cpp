@@ -31,7 +31,6 @@ namespace FuuGB
 				pixels[i][j].y = j * SCALE_FACTOR;
 			}
 		}
-		//_ppuTHR = new std::thread(&PPU::clock, this);
 		OAM_Pointer = 0x8800;
         currentScanLine = 1;
         scanline_counter = 456;
@@ -41,9 +40,6 @@ namespace FuuGB
 
 	PPU::~PPU()
 	{
-		//_ppuTHR->join();
-		//ppuCond.notify_all();
-		//delete _ppuTHR;
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(renderer);
 		SDL_RenderPresent(renderer);
@@ -87,8 +83,6 @@ namespace FuuGB
 			const int frameDelay = 1000 / FPS;
 			Uint32 framestart;
 			framestart = SDL_GetTicks();
-			//if (LCDC.test(7))
-				//updateGraphics();
 			frametime = SDL_GetTicks() - framestart;
 			if (frameDelay > frametime)
 			{
@@ -194,12 +188,8 @@ namespace FuuGB
         
         //Determine the current scanline we are on
         int current_Scanline = MEM->readMemory(0xFF44);
-		uBYTE yPos = ScrollY + current_Scanline;
-		uWORD Tile_Row = (yPos / 8) * 32;
-		if (ScrollY < 0x2f)
-		{
-			test--;
-		}
+		uWORD yPos = ScrollY + current_Scanline - 0x40;
+		uWORD Tile_Row = ((uBYTE)(yPos / 8))* 32;
         //Start Rendering the scanline
         for(int pixel = 0;pixel < 160; pixel++)
         {
@@ -208,8 +198,8 @@ namespace FuuGB
                 //To do
             }
             
-			uBYTE xPos = pixel + ScrollX;
-			uBYTE Tile_Col = xPos / 8;
+			uWORD xPos = pixel + ScrollX;
+			uWORD Tile_Col = xPos / 8;
 
             //Determine the address for the tile identifier
 			uWORD current_Tile_Map_Adr = Tile_Map_Ptr + Tile_Col + Tile_Row;
@@ -223,7 +213,7 @@ namespace FuuGB
                 sTile_ID = MEM->readMemory(current_Tile_Map_Adr);
             
             //Determine the current pixel data from the tile data
-            uBYTE Tile_Line_offset = (current_Scanline % 8) * 2; //Each line is 2 bytes
+            uBYTE Tile_Line_offset = (yPos % 8) * 2; //Each line is 2 bytes
             uWORD current_uTile_Data_adr;
             sWORD current_sTile_Data_adr;
             uBYTE data1, data2;
@@ -236,8 +226,8 @@ namespace FuuGB
             else
             {
                 current_sTile_Data_adr = Tile_Data_Ptr + (sTile_ID)*16;
-                data1 = MEM->readMemory(current_uTile_Data_adr+Tile_Line_offset);
-                data2 = MEM->readMemory(current_uTile_Data_adr+Tile_Line_offset+1);
+                data1 = MEM->readMemory(current_sTile_Data_adr+Tile_Line_offset);
+                data2 = MEM->readMemory(current_sTile_Data_adr+Tile_Line_offset+1);
             }
             
             int currentBitPosition = ((pixel % 8) - 7)* -1;
@@ -266,31 +256,33 @@ namespace FuuGB
             std::bitset<2> Color_11((MEM->readMemory(0xFF47)>>6) & 0x03);
             
             //Determine actual color for pixel via Color Pallete register
+			if (ColorCode.to_ulong() != 0x00)
+				printf("");
             switch(ColorCode.to_ulong())
             {
                 case 0x00:
                     if(Color_00.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_00.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                    else if(Color_00.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
-                    else if(Color_00.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                    else if(Color_00.to_ulong() == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_00.to_ulong() == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_00.to_ulong() == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 case 0x01:
                     if(Color_01.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_01.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                    else if(Color_01.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
-                    else if(Color_01.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                    else if(Color_01.to_ulong() == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_01.to_ulong() == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_01.to_ulong() == 0x3) { R = 0; G = 0; B = 0; }
                     break;
-                case 0x10:
+                case 0x02:
                     if(Color_10.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_10.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                    else if(Color_10.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
-                    else if(Color_10.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                    else if(Color_10.to_ulong() == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_10.to_ulong() == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_10.to_ulong() == 0x3) { R = 0; G = 0; B = 0; }
                     break;
-                case 0x11:
+                case 0x03:
                     if(Color_11.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_11.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                    else if(Color_11.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
-                    else if(Color_11.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                    else if(Color_11.to_ulong() == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_11.to_ulong() == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_11.to_ulong() == 0x3) { R = 0; G = 0; B = 0; }
                     break;
 				default:
 					break;
@@ -378,9 +370,9 @@ namespace FuuGB
                     int B = 0x0;
                     
                     std::bitset<2> Color_00(MEM->readMemory(coloradr) & 0x03);
-                    std::bitset<2> Color_01(MEM->readMemory(coloradr) & 0x0C);
-                    std::bitset<2> Color_10(MEM->readMemory(coloradr) & 0x30);
-                    std::bitset<2> Color_11(MEM->readMemory(coloradr) & 0xC0);
+                    std::bitset<2> Color_01((MEM->readMemory(coloradr) >> 2) & 0x03);
+                    std::bitset<2> Color_10((MEM->readMemory(coloradr) >> 4) & 0x03);
+                    std::bitset<2> Color_11((MEM->readMemory(coloradr) >> 6) & 0x03);
                     
                     //Determine actual color for pixel via Color Pallete register
                     switch(ColorEncoding)
