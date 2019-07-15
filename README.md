@@ -1,5 +1,9 @@
 # FuuGBemu
-Cross platform C/C++ GameBoy and GameBoy Color emulator using SDL2 framework.
+Cross platform C/C++ GameBoy emulator using SDL2 framework.
+
+Algorithm for the PPU and Memory Management are taken from http://www.codeslinger.co.uk/pages/projects/gameboy.html
+
+All credit goes to codeslinger!
 
 Early Alpha Development
 
@@ -12,7 +16,7 @@ Build Script System provided by Premake5 : https://github.com/premake/premake-co
     
     MAC OS X
     **Only supports building with Xcode.
-        3_1. From the Terminal, enter "premake5 xcode4".
+        3_1. From the Terminal, enter "premake5 xcode4" (or "./premake5 xcode4" if the command is not recognized).
         3_2. Open the generated .xcodeproj file.
         3_3. Build the project in Xcode.
 

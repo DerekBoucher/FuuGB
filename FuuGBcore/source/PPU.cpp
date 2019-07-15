@@ -189,7 +189,7 @@ namespace FuuGB
         //Determine the current scanline we are on
         int current_Scanline = MEM->readMemory(0xFF44);
 		uWORD yPos = ScrollY + current_Scanline - 0x40;
-		uWORD Tile_Row = ((uBYTE)(yPos / 8))* 32;
+		uWORD Tile_Row = (yPos / 8)* 32;
         //Start Rendering the scanline
         for(int pixel = 0;pixel < 160; pixel++)
         {
@@ -230,7 +230,7 @@ namespace FuuGB
                 data2 = MEM->readMemory(current_sTile_Data_adr+Tile_Line_offset+1);
             }
             
-            int currentBitPosition = ((pixel % 8) - 7)* -1;
+            int currentBitPosition = (((pixel % 8) - 7)* -1);
             
             std::bitset<8> d1(data1);
             std::bitset<8> d2(data2);
@@ -256,8 +256,6 @@ namespace FuuGB
             std::bitset<2> Color_11((MEM->readMemory(0xFF47)>>6) & 0x03);
             
             //Determine actual color for pixel via Color Pallete register
-			if (ColorCode.to_ulong() != 0x00)
-				printf("");
             switch(ColorCode.to_ulong())
             {
                 case 0x00:
