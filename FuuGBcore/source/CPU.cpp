@@ -73,7 +73,7 @@ namespace FuuGB
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
 		printf("[CPU]: Executing next OpCode @PC=%x: %x\n", PC-1,byte);
-        if(PC-1 == 0x86)
+        if(PC-1 == 0x99)
             printf("");
 		if (memory->readMemory(0xFF44) == 144)
 			printf("");
@@ -3728,8 +3728,6 @@ namespace FuuGB
 
 			if (withCarry && oldCarry)
 				reg = reg | 0x01;
-			else if (MSB)
-				reg = reg | 0x01;
 		}
 		else //Right
 		{
@@ -3744,8 +3742,6 @@ namespace FuuGB
 			reg = reg >> 1;
 
 			if (withCarry && oldCarry)
-				reg = reg | 0x80;
-			else if (LSB)
 				reg = reg | 0x80;
 		}
 
