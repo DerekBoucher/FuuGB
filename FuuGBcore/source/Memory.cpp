@@ -24,8 +24,6 @@ namespace FuuGB
 		for (int i = 0x100; i < 0x8000; ++i)
 			M_MEM[i] = cart->ROM[i];
 
-		_memoryRunning = true;
-		//_ramTHR = new std::thread(&Memory::ramClock, this);
 		FUUGB_MEM_LOG("RAM Initialized.");
 		bootRomClosed = false;
         timer_counter = 0;
@@ -33,9 +31,7 @@ namespace FuuGB
 
 	Memory::~Memory()
 	{
-		//_ramTHR->join();
-		//ramCond.notify_all();
-		//delete _ramTHR;
+
 		delete[] M_MEM;
 		delete cart;
 		FUUGB_MEM_LOG("RAM Destroyed.");
@@ -53,18 +49,10 @@ namespace FuuGB
 
 	void Memory::ramClock()
 	{
-		while (_memoryRunning)
-		{
-			if (M_MEM[0xFF50] == 0x01)
-				closeBootRom();
-			SLEEP_CLOCK_CYCLE();
-			ramCond.notify_all();
-		}
 	}
 
 	void Memory::stop()
 	{
-		this->_memoryRunning = false;
 	}
 
 	void Memory::writeMemory(uWORD addr, uBYTE data)
@@ -122,6 +110,18 @@ namespace FuuGB
         {
             M_MEM[addr] = 0;
         }
+		else if (addr == 0xFF40)
+		{
+			if (M_MEM[0xFF44] >= 144 && M_MEM[0xFF44] < 154 || M_MEM[0xFF44] == 0x0)
+				M_MEM[addr] = data;
+		}
+		else if (addr == 0xFF41)
+		{
+			data = data & 0xF8; //first 3 LS bits are Read only
+			uBYTE temp = M_MEM[addr] & 0x07;
+			data |= temp;
+			M_MEM[addr] = data;
+		}
         else if(addr == 0xFF44)
         {
             M_MEM[addr] = 0;
@@ -156,11 +156,18 @@ namespace FuuGB
 
 	void Memory::changeROMBank(uWORD addr, uBYTE data)
 	{
+		uBYTE original = cart->currentRomBank;
+		if (cart->ROMonly)
+			return;
 		if (cart->MBC1)
 		{
 			cart->currentRomBank = data & 0x1F;
 
-			if (cart->currentRomBank == 0x0 || 0x20 || 0x40 || 0x60)
+
+			if (cart->currentRomBank == 0x00 ||
+				cart->currentRomBank == 0x20 ||
+				cart->currentRomBank == 0x40 ||
+				cart->currentRomBank == 0x60)
 				cart->currentRomBank += 0x01;
 		}
 		else if (cart->MBC2)
@@ -169,7 +176,10 @@ namespace FuuGB
 			{
 				cart->currentRomBank = data & 0x0F;
 
-				if (cart->currentRomBank == 0x0 || 0x20 || 0x40 || 0x60)
+				if (cart->currentRomBank == 0x00 ||
+					cart->currentRomBank == 0x20 ||
+					cart->currentRomBank == 0x40 ||
+					cart->currentRomBank == 0x60)
 					cart->currentRomBank += 0x01;
 			}
 		}
@@ -177,9 +187,13 @@ namespace FuuGB
 		{
 			cart->currentRomBank = data & 0x7F;
 
-			if (cart->currentRomBank == 0x0 || 0x20 || 0x40 || 0x60)
+			if (cart->currentRomBank == 0x00 ||
+				cart->currentRomBank == 0x20 ||
+				cart->currentRomBank == 0x40 ||
+				cart->currentRomBank == 0x60)
 				cart->currentRomBank += 0x01;
 		}
+		if(original != cart->currentRomBank)
 		for (int i = 0x4000; i < 0x8000; ++i)
 			M_MEM[i] = cart->ROM[i*(cart->currentRomBank)];
 	}

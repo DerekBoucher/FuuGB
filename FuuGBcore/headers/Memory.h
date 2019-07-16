@@ -54,7 +54,6 @@ namespace FuuGB
         FILE*                   bootROM;
         std::thread*            _ramTHR;
         bool                    CycleDone;
-        bool                    _memoryRunning;
 		bool					bootRomClosed;
         void                    DMA_Transfer(uBYTE);
 	
