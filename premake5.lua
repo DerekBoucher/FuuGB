@@ -192,12 +192,9 @@ workspace "FuuGBemu"
             }
             postbuildcommands
             {
-                "{COPY} bin/Release-macosx-x64/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib"
-            }
-            postbuildcommands
-            {
-                "{COPY} bin/Debug-macosx-x64/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib",
-                "{COPY} FuuGBcore/external/SDL2/MacOS/SDL2.framework bin/Release-macos-x64/FuuSandbox/SDL2.framework"
+                "{COPY} ../bin/Release-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib",
+                "{COPY} ../FuuGBcore/external/SDL2/MacOS/SDL2.framework ../bin/Release-macosx-x86_64/FuuSandbox/SDL2.framework",
+                "{COPY} ../FuuGBcore/external/boot/DMG_ROM.bin ../bin/Release-macosx-x86_64/FuuSandbox/DMG_ROM.bin"
             }
 
 		filter "system:windows"

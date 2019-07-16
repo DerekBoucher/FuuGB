@@ -25,7 +25,7 @@ namespace FuuGB
 			M_MEM[i] = cart->ROM[i];
 
 		_memoryRunning = true;
-		_ramTHR = new std::thread(&Memory::ramClock, this);
+		//_ramTHR = new std::thread(&Memory::ramClock, this);
 		FUUGB_MEM_LOG("RAM Initialized.");
 		bootRomClosed = false;
         timer_counter = 0;
@@ -33,9 +33,9 @@ namespace FuuGB
 
 	Memory::~Memory()
 	{
-		_ramTHR->join();
-		ramCond.notify_all();
-		delete _ramTHR;
+		//_ramTHR->join();
+		//ramCond.notify_all();
+		//delete _ramTHR;
 		delete[] M_MEM;
 		delete cart;
 		FUUGB_MEM_LOG("RAM Destroyed.");
@@ -129,6 +129,11 @@ namespace FuuGB
         else if(addr == 0xFF46)
         {
             DMA_Transfer(data);
+        }
+        else if(addr == 0xFF50)
+        {
+            M_MEM[addr] = data;
+            closeBootRom();
         }
 		else
 			M_MEM[addr] = data;

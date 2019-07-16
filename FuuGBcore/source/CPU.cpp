@@ -73,7 +73,7 @@ namespace FuuGB
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
 		printf("[CPU]: Executing next OpCode @PC=%x: %x\n", PC-1,byte);
-        if(PC-1 == 0x99)
+        if(PC-1 == 0x6d && memory->readMemory(0xFF50) == 0x01)
             printf("");
 		if (memory->readMemory(0xFF44) == 144)
 			printf("");

@@ -188,7 +188,7 @@ namespace FuuGB
         
         //Determine the current scanline we are on
         int current_Scanline = MEM->readMemory(0xFF44);
-		uWORD yPos = ScrollY + current_Scanline - 0x40;
+		uWORD yPos = ScrollY + current_Scanline;
 		uWORD Tile_Row = (yPos / 8)* 32;
         //Start Rendering the scanline
         for(int pixel = 0;pixel < 160; pixel++)
