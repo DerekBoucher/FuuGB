@@ -80,6 +80,7 @@ namespace FuuGB
 		std::thread*    _cpuTHR;
 		bool            _cpuRunning;
 		bool			_cpuPaused;
+		bool			IME;
 		std::bitset<sizeof(uBYTE)*8>* FlagBits;
 		std::bitset<sizeof(uBYTE)*8>* AluBits;
 		int				timer_update_cnt;

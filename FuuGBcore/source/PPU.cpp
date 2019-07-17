@@ -290,8 +290,8 @@ namespace FuuGB
                 continue;
             
             SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
-            SDL_RenderFillRect(renderer, &pixels[pixel][current_Scanline]);
-            SDL_RenderDrawRect(renderer, &pixels[pixel][current_Scanline]);
+            SDL_RenderFillRect(renderer, &pixels[pixel][current_Scanline-1]);
+            SDL_RenderDrawRect(renderer, &pixels[pixel][current_Scanline-1]);
         }
     }
     

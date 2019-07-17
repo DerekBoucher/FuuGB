@@ -32,6 +32,7 @@ namespace FuuGB
 		_cpuRunning = true;
 		_cpuPaused = false;
         _cpuHalted = false;
+		IME = false;
 		//_cpuTHR = new std::thread(&CPU::clock, this);
 		FlagBits = new std::bitset<sizeof(uBYTE)*8>(&AF.lo);
 		AluBits = new std::bitset<sizeof(uBYTE)*8>(&AF.hi);
@@ -859,8 +860,11 @@ namespace FuuGB
 
 		case HALT:
 			//4 Clock Cycles
-            _cpuHalted = true;
-			halt();
+			if (IME)
+			{
+				_cpuHalted = true;
+				halt();
+			}
 			timer_update_cnt += 4;
 			break;
 
@@ -3116,8 +3120,7 @@ namespace FuuGB
 			temp->lo = memory->readMemory(SP++);
 			temp->hi = memory->readMemory(SP++);
 			PC = temp->data;
-			byte = 0xFF;
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, byte);
+			IME = true;
 			timer_update_cnt += 16;
 			break;
 
@@ -3284,8 +3287,7 @@ namespace FuuGB
 
 		case DISABLE_INT:
 			//4 Clock Cycles
-			byte = 0x00;
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, byte);
+			IME = false;
 			timer_update_cnt += 4;
 			break;
 
@@ -3334,8 +3336,7 @@ namespace FuuGB
 
 		case ENABLE_INT:
 			//4 Clock Cycles
-			byte = 0xFF;
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, byte);
+			IME = true;
 			timer_update_cnt += 4;
 			break;
 
@@ -3880,60 +3881,59 @@ namespace FuuGB
 
 	void CPU::checkInterupts()
 	{
-		std::bitset<8> IME(memory->DMA_read(INTERUPT_EN_REGISTER_ADR));
+
+		if (!IME)
+			return;
+
+		std::bitset<8> IE(memory->DMA_read(INTERUPT_EN_REGISTER_ADR));
 		std::bitset<8> IF(memory->DMA_read(INTERUPT_FLAG_REG));
 		Register Temp;
 
-		if (IF[0] && IME[0]) //V-Blank
+		if (IF[0] && IE[0]) //V-Blank
 		{
-			IME.reset();
+			IME = false;
             IF.reset(0);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			memory->writeMemory(INTERUPT_EN_REGISTER_ADR, (uBYTE)IME.to_ulong());
 			Temp.data = PC;
 			memory->DMA_write(--SP, Temp.hi);
 			memory->DMA_write(--SP, Temp.lo);
 			PC = VBLANK_INT;
 		}
-		else if (IF[1] && IME[1]) // LCDC
+		else if (IF[1] && IE[1]) // LCDC
 		{
-			IME.reset();
+			IME = false;
             IF.reset(1);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, (uBYTE)IME.to_ulong());
 			Temp.data = PC;
 			memory->DMA_write(--SP, Temp.hi);
 			memory->DMA_write(--SP, Temp.lo);
 			PC = LCDC_INT;
 		}
-		else if (IF[2] && IME[2]) // Timer Overflow
+		else if (IF[2] && IE[2]) // Timer Overflow
 		{
-			IME.reset();
+			IME = false;
             IF.reset(2);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, (uBYTE)IME.to_ulong());
 			Temp.data = PC;
 			memory->DMA_write(--SP, Temp.hi);
 			memory->DMA_write(--SP, Temp.lo);
 			PC = TIMER_OVER_INT;
 		}
-		else if (IF[3] && IME[3]) // Serial I/O Complete
+		else if (IF[3] && IE[3]) // Serial I/O Complete
 		{
-			IME.reset();
+			IME = false;
             IF.reset(3);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, (uBYTE)IME.to_ulong());
 			Temp.data = PC;
 			memory->DMA_write(--SP, Temp.hi);
 			memory->DMA_write(--SP, Temp.lo);
 			PC = SER_TRF_INT;
 		}
-		else if (IF[4] && IME[4]) //Pin 10 - 13 hi to lo (Control Input)
+		else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
 		{
-			IME.reset();
+			IME = false;
             IF.reset(4);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			memory->DMA_write(INTERUPT_EN_REGISTER_ADR, (uBYTE)IME.to_ulong());
 			Temp.data = PC;
 			memory->DMA_write(--SP, Temp.hi);
 			memory->DMA_write(--SP, Temp.lo);
@@ -3989,25 +3989,25 @@ namespace FuuGB
     
 	void CPU::halt()
 	{
-		std::bitset<8> IME(memory->DMA_read(INTERUPT_EN_REGISTER_ADR));
+		std::bitset<8> IE(memory->DMA_read(INTERUPT_EN_REGISTER_ADR));
 		std::bitset<8> IF(memory->DMA_read(INTERUPT_FLAG_REG));
-			if (IF[0] && IME[0]) //V-Blank
+			if (IF[0] && IE[0]) //V-Blank
 			{
                 _cpuHalted = false;
 			}
-			else if (IF[1] && IME[1]) // LCDC
+			else if (IF[1] && IE[1]) // LCDC
 			{
 				_cpuHalted = false;
 			}
-			else if (IF[2] && IME[2]) // Timer Overflow
+			else if (IF[2] && IE[2]) // Timer Overflow
 			{
 				_cpuHalted = false;
 			}
-			else if (IF[3] && IME[3]) // Serial I/O Complete
+			else if (IF[3] && IE[3]) // Serial I/O Complete
 			{
 				_cpuHalted = false;
 			}
-			else if (IF[4] && IME[4]) //Pin 10 - 13 hi to lo (Control Input)
+			else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
 			{
 				_cpuHalted = false;
 			}

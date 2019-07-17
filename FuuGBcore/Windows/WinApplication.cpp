@@ -96,7 +96,7 @@ namespace FuuGB
 
 		char* path = new char[255];
 		sprintf(path, "%ws", ofn.lpstrFile);
-
+		printf("Loading ROM: %s\n", path);
 		return path;
 	}
 
