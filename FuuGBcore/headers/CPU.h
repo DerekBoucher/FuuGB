@@ -50,6 +50,8 @@ namespace FuuGB
 		void checkInterupts();
 		void updateTimers(int);
 		int executeNextOpCode();
+        bool _cpuHalted;
+        void halt();
         
 	private:
 		union Register
@@ -635,7 +637,6 @@ namespace FuuGB
 		void test_bit(int pos, uBYTE reg);
 		void reset_bit(int pos, uBYTE & reg);
 		void set_bit(int pos, uBYTE & reg);
-		void halt();
         void updateDivider(int);
 	};
 }

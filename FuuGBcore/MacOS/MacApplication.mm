@@ -40,6 +40,7 @@ namespace FuuGB
             Gameboy* gameBoy = nullptr;
             
             CocoaWindow* MacWindow = [[CocoaWindow alloc] init];
+            MacWindow->MacEvent->gb_ref = gameBoy;
             [MacWindow configureWindow:NativeWindowInfo];
             
             while(FUUGB_RUNNING)
@@ -57,6 +58,7 @@ namespace FuuGB
                                           new Cartridge(MacWindow->MacEvent->inputBuffer));
                     fclose(MacWindow->MacEvent->inputBuffer);
                     MacWindow->MacEvent->inputBuffer = NULL;
+                    MacWindow->MacEvent->gb_ref = gameBoy;
                 }
                 
                 switch(FUUGB_EVENT.type)

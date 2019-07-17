@@ -42,6 +42,7 @@ namespace FuuGB
 			int cyclesthisupdate = 0;
 			while (cyclesthisupdate <= MAXCYCLES)
 			{
+                int cycles = 0;
 				if (globalPause)
 				{
 					std::unique_lock<std::mutex> pauseLock(Shared::mu_GB);
@@ -49,11 +50,15 @@ namespace FuuGB
 					pauseLock.unlock();
 					globalPause = false;
 				}
-				int cycles = cpu->executeNextOpCode();
+                if(cpu->_cpuHalted)
+                    cpu->halt();
+                else
+                    cycles = cpu->executeNextOpCode();
                 cyclesthisupdate += cycles;
 				cpu->updateTimers(cycles);
                 ppu->updateGraphics(cycles);
-				cpu->checkInterupts();
+                if(!cpu->_cpuHalted)
+                    cpu->checkInterupts();
 			}
             ppu->renderscreen();
 		}

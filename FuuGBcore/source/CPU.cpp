@@ -31,6 +31,7 @@ namespace FuuGB
         
 		_cpuRunning = true;
 		_cpuPaused = false;
+        _cpuHalted = false;
 		//_cpuTHR = new std::thread(&CPU::clock, this);
 		FlagBits = new std::bitset<sizeof(uBYTE)*8>(&AF.lo);
 		AluBits = new std::bitset<sizeof(uBYTE)*8>(&AF.hi);
@@ -858,6 +859,7 @@ namespace FuuGB
 
 		case HALT:
 			//4 Clock Cycles
+            _cpuHalted = true;
 			halt();
 			timer_update_cnt += 4;
 			break;
@@ -3989,30 +3991,26 @@ namespace FuuGB
 	{
 		std::bitset<8> IME(memory->DMA_read(INTERUPT_EN_REGISTER_ADR));
 		std::bitset<8> IF(memory->DMA_read(INTERUPT_FLAG_REG));
-		bool interuptHasOccured = false;
-		while (!interuptHasOccured)
-		{
 			if (IF[0] && IME[0]) //V-Blank
 			{
-				interuptHasOccured = true;
+                _cpuHalted = false;
 			}
 			else if (IF[1] && IME[1]) // LCDC
 			{
-				interuptHasOccured = true;
+				_cpuHalted = false;
 			}
 			else if (IF[2] && IME[2]) // Timer Overflow
 			{
-				interuptHasOccured = true;
+				_cpuHalted = false;
 			}
 			else if (IF[3] && IME[3]) // Serial I/O Complete
 			{
-				interuptHasOccured = true;
+				_cpuHalted = false;
 			}
 			else if (IF[4] && IME[4]) //Pin 10 - 13 hi to lo (Control Input)
 			{
-				interuptHasOccured = true;
+				_cpuHalted = false;
 			}
-		}
 	}
     
     

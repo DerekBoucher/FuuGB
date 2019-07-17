@@ -15,7 +15,6 @@
     self = [super init];
     MacEvent = [[MacEventHandler alloc] init];
     return self;
-    
 }
 
 - (void)configureWindow:(SDL_SysWMinfo*)Handle

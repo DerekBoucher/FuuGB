@@ -20,6 +20,8 @@
 
 - (IBAction)OnClick_LOADROM:(id)sender
 {
+    if(gb_ref != NULL)
+        gb_ref->Pause();
     NSOpenPanel* OpenFileDialog = [NSOpenPanel openPanel];
     [OpenFileDialog setCanChooseFiles:true];
     [OpenFileDialog setAllowsMultipleSelection:false];
@@ -31,6 +33,8 @@
         self->inputBuffer = fopen([[self->filePath path]UTF8String], "r");
     }
     [OpenFileDialog close];
+    if(gb_ref != NULL)
+        gb_ref->Resume();
 }
 
 @end
