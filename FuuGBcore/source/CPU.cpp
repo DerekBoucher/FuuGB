@@ -3885,8 +3885,8 @@ namespace FuuGB
 		if (!IME)
 			return;
 
-		std::bitset<8> IE(memory->DMA_read(INTERUPT_EN_REGISTER_ADR));
-		std::bitset<8> IF(memory->DMA_read(INTERUPT_FLAG_REG));
+		std::bitset<8> IE(memory->readMemory(INTERUPT_EN_REGISTER_ADR));
+		std::bitset<8> IF(memory->readMemory(INTERUPT_FLAG_REG));
 		Register Temp;
 
 		if (IF[0] && IE[0]) //V-Blank

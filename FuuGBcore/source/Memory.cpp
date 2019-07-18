@@ -23,6 +23,9 @@ namespace FuuGB
 
 		for (int i = 0x100; i < 0x8000; ++i)
 			M_MEM[i] = cart->ROM[i];
+        
+        for(int i = 0xA000; i < 0xC000; ++i)
+            M_MEM[i] = cart->ROM[i];
 
 		FUUGB_MEM_LOG("RAM Initialized.");
 		bootRomClosed = false;
@@ -112,7 +115,7 @@ namespace FuuGB
         }
 		else if (addr == 0xFF40)
 		{
-			if (M_MEM[0xFF44] >= 144 && M_MEM[0xFF44] < 154 || M_MEM[0xFF44] == 0x0)
+			if ((M_MEM[0xFF44] >= 144 && M_MEM[0xFF44] < 154) || M_MEM[0xFF44] == 0x0)
 				M_MEM[addr] = data;
 		}
 		else if (addr == 0xFF41)
