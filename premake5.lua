@@ -17,7 +17,8 @@ workspace "FuuGBemu"
 		{
 			"FuuGBcore/headers",
 			"FuuGBcore/external/spdlog/include",
-			"FuuGBcore/external/pch"
+			"FuuGBcore/external/pch",
+			"FuuGBcore/external/ImGUI"
         }
         
         files
@@ -26,7 +27,9 @@ workspace "FuuGBemu"
             "%{prj.name}/source/**.cpp",
             "%{prj.name}/*.h",
 			"%{prj.name}/external/pch/*.h",
-			"%{prj.name}/external/pch/*.cpp"
+			"%{prj.name}/external/pch/*.cpp",
+			"%{prj.name}/external/ImGUI/*.h",
+			"%{prj.name}/external/ImGUI/*.cpp"
         }
 
         filter "system:macosx"
@@ -85,7 +88,8 @@ workspace "FuuGBemu"
             links
 			{
 				"SDL2",
-				"SDL2main"
+				"SDL2main",
+				"opengl32"
 			}
 			libdirs
 			{
