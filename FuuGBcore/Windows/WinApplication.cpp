@@ -13,23 +13,21 @@ namespace FuuGB
 	void WinApplication::run()
 	{
 		FUUGB_INIT();
-		SDL_Window* _SDLwindow = SDL_CreateWindow("FuuGBemu",
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
-			160*SCALE_FACTOR,
-			144*SCALE_FACTOR,
-			0);
 		SDL_SysWMinfo* NativeWindowInfo = new SDL_SysWMinfo;
+
+		SDL_Window* _SDLwindow;
+		_SDLwindow = SDL_CreateWindow("FuuGBemu",
+			SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED,
+			160 * SCALE_FACTOR,
+			144 * SCALE_FACTOR,
+			0);
 		SDL_GetWindowWMInfo(_SDLwindow, NativeWindowInfo);
-
-		Gameboy* gameBoy = nullptr;
-
 		FUUGB_WINDOW_CONFIG(_SDLwindow);
-
+		Gameboy* gameBoy = nullptr;
 		while (FUUGB_RUNNING)
 		{
 			FUUGB_POLL_EVENT();
-
 			switch (FUUGB_EVENT.type)
 			{
 			case SDL_QUIT:
