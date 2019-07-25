@@ -14,7 +14,6 @@ namespace FuuGB
 	PPU::PPU(SDL_Window* windowRef, Memory* mem)
 	{
 		MEM = mem;
-		_ppuRunning = true;
 		renderer = SDL_GetRenderer(windowRef);
 		if (renderer == NULL)
 			renderer = SDL_CreateRenderer(windowRef, -1, SDL_RENDERER_ACCELERATED);
@@ -31,11 +30,9 @@ namespace FuuGB
 				pixels[i][j].y = j * SCALE_FACTOR;
 			}
 		}
-		OAM_Pointer = 0x8800;
         currentScanLine = 1;
         scanline_counter = 456;
 		FUUGB_PPU_LOG("PPU Initialized.");
-		test = 0x64;
 	}
 
 	PPU::~PPU()
@@ -47,49 +44,6 @@ namespace FuuGB
 		FUUGB_PPU_LOG("PPU Destroyed.");
 	}
 
-	void PPU::stop()
-	{
-		_ppuRunning = false;
-	}
-
-	void PPU::clock() //Obsolete - Not in use currently
-	{
-		while (_ppuRunning)
-		{
-			std::bitset<8> LCDC(MEM->DMA_read(0xFF40));
-			std::bitset<8> STAT(MEM->DMA_read(0xFF41));
-			std::bitset<8> SCY(MEM->DMA_read(0xFF42));
-			std::bitset<8> SCX(MEM->DMA_read(0xFF43));
-			std::bitset<8> LY(MEM->DMA_read(0xFF44));
-			std::bitset<8> LYC(MEM->DMA_read(0xFF45));
-			std::bitset<8> DMA(MEM->DMA_read(0xFF46));
-			std::bitset<8> OBP0(MEM->DMA_read(0xFF48));
-			std::bitset<8> OBP1(MEM->DMA_read(0xFF49));
-			std::bitset<8> WY(MEM->DMA_read(0xFF4A));
-			std::bitset<8> WX(MEM->DMA_read(0xFF4B));
-
-			if (LCDC.test(4))
-				BGW_Pointer = 0x8000;
-			else
-				BGW_Pointer = 0x8800;
-
-			if (LCDC.test(3))
-				BG_Map_Pointer = 0x9C00;
-			else
-				BG_Map_Pointer = 0x9800;
-
-			int frametime;
-			const int FPS = 60;
-			const int frameDelay = 1000 / FPS;
-			Uint32 framestart;
-			framestart = SDL_GetTicks();
-			frametime = SDL_GetTicks() - framestart;
-			if (frameDelay > frametime)
-			{
-				SDL_Delay(frameDelay - frametime);
-			}
-		}
-	}
 
 	void PPU::updateGraphics(int cycles)
 	{
@@ -187,18 +141,26 @@ namespace FuuGB
         }
         
         //Determine the current scanline we are on
-        int current_Scanline = MEM->readMemory(0xFF44);
-		uWORD yPos = ScrollY + current_Scanline;
+        currentScanLine = MEM->readMemory(0xFF44);
+		uWORD yPos;
+		if (!WinEnabled)
+			yPos = ScrollY + currentScanLine;
+		else
+			yPos = currentScanLine - WinY;
+
 		uWORD Tile_Row = (yPos / 8)* 32;
         //Start Rendering the scanline
         for(int pixel = 0;pixel < 160; pixel++)
         {
+			uWORD xPos = pixel + ScrollX;
             if(WinEnabled)
             {
-                //To do
+				if (pixel >= WinX)
+				{
+					xPos = pixel - WinX;
+				}
             }
-            
-			uWORD xPos = pixel + ScrollX;
+
 			uWORD Tile_Col = xPos / 8;
 
             //Determine the address for the tile identifier
@@ -286,12 +248,12 @@ namespace FuuGB
 					break;
             }
             
-            if(current_Scanline < 0 || current_Scanline > 143 || pixel < 0 || pixel > 159)
+            if(currentScanLine < 0 || currentScanLine > 143 || pixel < 0 || pixel > 159)
                 continue;
             
             SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
-            SDL_RenderFillRect(renderer, &pixels[pixel][current_Scanline]);
-            SDL_RenderDrawRect(renderer, &pixels[pixel][current_Scanline]);
+            SDL_RenderFillRect(renderer, &pixels[pixel][currentScanLine]);
+            SDL_RenderDrawRect(renderer, &pixels[pixel][currentScanLine]);
         }
     }
     
@@ -317,15 +279,15 @@ namespace FuuGB
             bool yFlip = attr.test(6);
             bool xFlip = attr.test(5);
             
-            int scanline = MEM->readMemory(0xFF44);
+            currentScanLine = MEM->readMemory(0xFF44);
             
             int ysize = 8;
             if(u_8x16)
                 ysize = 16;
             
-            if((scanline >= yPos) && (scanline < (yPos + ysize)))
+            if((currentScanLine >= yPos) && (currentScanLine < (yPos + ysize)))
             {
-                int line = scanline - yPos;
+                int line = currentScanLine - yPos;
                 
                 if(yFlip)
                 {
@@ -410,12 +372,12 @@ namespace FuuGB
                     
                     int pixel = xPos+xPix;
                     
-                    if((scanline<0) || (scanline>143) || (pixel <0) || (pixel > 159))
+                    if((currentScanLine <0) || (currentScanLine >143) || (pixel <0) || (pixel > 159))
                         continue;
                     
                     SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
-                    SDL_RenderFillRect(renderer, &pixels[pixel][scanline]);
-                    SDL_RenderDrawRect(renderer, &pixels[pixel][scanline]);
+                    SDL_RenderFillRect(renderer, &pixels[pixel][currentScanLine]);
+                    SDL_RenderDrawRect(renderer, &pixels[pixel][currentScanLine]);
                 }
             }
         }

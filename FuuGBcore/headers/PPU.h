@@ -25,7 +25,6 @@ namespace FuuGB
     public:
         PPU(SDL_Window* windowPtr, Memory* mem);
         virtual ~PPU();
-        void stop();
         void DrawScanLine();
 		SDL_Renderer*               renderer;
         void renderscreen();
@@ -33,22 +32,13 @@ namespace FuuGB
     
     private:
         SDL_Rect pixels[NATIVE_SIZE_X][NATIVE_SIZE_Y];
-        std::thread*                _ppuTHR;
-        std::condition_variable     ppuCond;
-        std::mutex                  key;
-        bool                        _ppuRunning;
 		Memory*						MEM;
-		uWORD						BGW_Pointer;
-		uWORD						OAM_Pointer;
 		uWORD						BG_Map_Pointer;
         int                         currentScanLine;
         int                         scanline_counter;
         void RenderTiles();
         void RenderSprites();
         void setLCDStatus();
-		int		test;
-    
-        void clock();
     };
 }
 #endif /* PPU_h */

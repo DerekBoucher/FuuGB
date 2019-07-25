@@ -23,11 +23,8 @@ namespace FuuGB
 
 		for (int i = 0x100; i < 0x8000; ++i)
 			M_MEM[i] = cart->ROM[i];
-        
-        for(int i = 0xA000; i < 0xC000; ++i)
-            M_MEM[i] = cart->ROM[i];
 
-		FUUGB_MEM_LOG("RAM Initialized.");
+		FUUGB_MEM_LOG("MEMORY Initialized.");
 		bootRomClosed = false;
         timer_counter = 0;
 	}
@@ -37,7 +34,7 @@ namespace FuuGB
 
 		delete[] M_MEM;
 		delete cart;
-		FUUGB_MEM_LOG("RAM Destroyed.");
+		FUUGB_MEM_LOG("MEMORY Destroyed.");
 	}
 
 	void Memory::closeBootRom()

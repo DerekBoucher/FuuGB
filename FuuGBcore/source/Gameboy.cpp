@@ -24,7 +24,6 @@ namespace FuuGB
 	Gameboy::~Gameboy()
 	{
 		running = false;
-		ppu->stop();
 		memory->stop();
 		cpu->stop();
 		_gameboyTHR->join();

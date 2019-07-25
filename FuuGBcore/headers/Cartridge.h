@@ -29,6 +29,7 @@ namespace FuuGB
 		uBYTE		ramBank_cnt;
 		uBYTE		currentRamBank;
 		uBYTE		currentRomBank;
+		uWORD		RAM_Bank_Base_MBC1;
 		bool		extRamEnabled;
 		bool		mode; //false = 16Mbit/8kB mode, else 4Mbit/32kB mode
     };
