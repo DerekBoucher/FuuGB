@@ -1,3 +1,6 @@
 [submodule "FuuGBcore/external/spdlog"]
 	path = FuuGBcore/external/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "FuuGBcore/external/ImGUI"]
+	path = FuuGBcore/external/ImGUI
+	url = https://github.com/ocornut/imgui
