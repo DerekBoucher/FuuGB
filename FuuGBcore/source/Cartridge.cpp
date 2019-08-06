@@ -20,186 +20,188 @@ namespace FuuGB
 		switch (ROM[0x147])
 		{
 		case 0x00:
-			ROMonly = true;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
+			ROMM = true;
 			break;
 		case 0x01:
-			ROMonly = true;
-			RAM = false;
 			MBC1 = true;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
 			break;
 		case 0x02:
-			ROMonly = true;
-			RAM = true;
 			MBC1 = true;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
+			RAM = true;
 			break;
 		case 0x03:
-			ROMonly = true;
-			RAM = true;
 			MBC1 = true;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
+			RAM = true;
+			BATTERY = true;
 			break;
 		case 0x05:
-			ROMonly = true;
-			RAM = false;
-			MBC1 = false;
 			MBC2 = true;
-			MBC3 = false;
-			MBC5 = false;
 			break;
 		case 0x06:
-			ROMonly = true;
-			RAM = false;
-			MBC1 = false;
 			MBC2 = true;
-			MBC3 = false;
-			MBC5 = false;
+			BATTERY = true;
 			break;
 		case 0x08:
-			ROMonly = true;
+			ROMM = true;
 			RAM = true;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
 			break;
 		case 0x09:
-			ROMonly = true;
+			ROMM = true;
 			RAM = true;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
+			BATTERY = true;
 			break;
 		case 0x0B:
-			ROMonly = true;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
+			//Not Supported
+			exit(-7);
 			break;
 		case 0x0C:
-			ROMonly = true;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
+			//Not Supported
+			exit(-7);
 			break;
 		case 0x0D:
-			ROMonly = true;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
+			//Not Supported
+			exit(-7);
+			break;
+		case 0x0F:
+			MBC3 = true;
+			TIMER = true;
+			BATTERY = true;
+			break;
+		case 0x10:
+			MBC3 = true;
+			TIMER = true;
+			BATTERY = true;
+			RAM = true;
+			break;
+		case 0x11:
+			MBC3 = true;
 			break;
 		case 0x12:
-			ROMonly = true;
-			RAM = true;
-			MBC1 = false;
-			MBC2 = false;
 			MBC3 = true;
-			MBC5 = false;
+			RAM = true;
 			break;
 		case 0x13:
-			ROMonly = true;
-			RAM = true;
-			MBC1 = false;
-			MBC2 = false;
 			MBC3 = true;
-			MBC5 = false;
+			RAM = true;
+			BATTERY = true;
+			break;
+		case 0x15:
+			MBC4 = true;
+			break;
+		case 0x16:
+			MBC4 = true;
+			RAM = true;
+			break;
+		case 0x17:
+			MBC4 = true;
+			RAM = true;
+			BATTERY = true;
 			break;
 		case 0x19:
-			ROMonly = true;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
 			MBC5 = true;
 			break;
 		case 0x1A:
-			ROMonly = true;
-			RAM = true;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
 			MBC5 = true;
+			RAM = true;
 			break;
 		case 0x1B:
-			ROMonly = true;
-			RAM = true;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
 			MBC5 = true;
+			RAM = true;
+			BATTERY = true;
 			break;
 		case 0x1C:
-			ROMonly = true;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
 			MBC5 = true;
+			RUMBLE = true;
 			break;
 		case 0x1D:
-			ROMonly = true;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
 			MBC5 = true;
+			RUMBLE = true;
+			RAM = true;
 			break;
 		case 0x1E:
-			ROMonly = true;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
 			MBC5 = true;
+			RUMBLE = true;
+			RAM = true;
+			BATTERY = true;
 			break;
-		case 0x1F:
-			ROMonly = false;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
+		case 0xFC:
+			//Not Supported
+			exit(-7);
 			break;
 		case 0xFD:
-			ROMonly = false;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
+			//Not Supported
+			exit(-7);
 			break;
 		case 0xFE:
-			ROMonly = false;
-			RAM = false;
-			MBC1 = false;
-			MBC2 = false;
-			MBC3 = false;
-			MBC5 = false;
+			//Not Supported
+			exit(-7);
+			break;
+		case 0xFF:
+			//Not Supported
+			exit(-7);
 			break;
 		default:
 			break;
 		}
 
-		ramBank_cnt = ROM[0x148];
+		switch (ROM[0x148])
+		{
+		case 0x00:
+			ROM_BANK_CNT = 0;
+			break;
+		case 0x01:
+			ROM_BANK_CNT = 4;
+			break;
+		case 0x02:
+			ROM_BANK_CNT = 8;
+			break;
+		case 0x03:
+			ROM_BANK_CNT = 16;
+			break;
+		case 0x04:
+			ROM_BANK_CNT = 32;
+			break;
+		case 0x05:
+			ROM_BANK_CNT = 64;
+			break;
+		case 0x06:
+			ROM_BANK_CNT = 128;
+			break;
+		case 0x07:
+			ROM_BANK_CNT = 256;
+			break;
+		case 0x52:
+			ROM_BANK_CNT = 72;
+			break;
+		case 0x53:
+			ROM_BANK_CNT = 80;
+			break;
+		case 0x54:
+			ROM_BANK_CNT = 96;
+			break;
+		default:
+			//Invalid Value
+			exit(-8);
+			break;
+		}
+
+		switch (ROM[0x149])
+		{
+		case 0x00:
+			RAM_SIZE = 2;
+			RAM_BANK_CNT = 0;
+			break;
+		case 0x01:
+			RAM_SIZE = 8;
+			RAM_BANK_CNT = 0;
+		case 0x03:
+			RAM_SIZE = 32;
+			RAM_BANK_CNT = 4;
+		default:
+			//Invalid Value
+			exit(-9);
+			break;
+		}
 		extRamEnabled = false;
 		mode = false;
 	}

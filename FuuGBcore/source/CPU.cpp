@@ -74,6 +74,8 @@ namespace FuuGB
 		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
+		if (PC == 0xFF)
+			printf("");
 		switch (byte)
 		{
 		case NOP:

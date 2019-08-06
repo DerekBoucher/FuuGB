@@ -56,6 +56,7 @@ namespace FuuGB
         bool                    CycleDone;
 		bool					bootRomClosed;
         void                    DMA_Transfer(uBYTE);
+		uBYTE					dummy = 0x00;
 	
     
         void ramClock();

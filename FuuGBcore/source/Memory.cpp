@@ -70,7 +70,11 @@ namespace FuuGB
 		}
 		else if ((addr >= 0x8000) && (addr < 0xA000)) //Video RAM
 		{
-            M_MEM[addr] = data;
+			std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
+			uBYTE mode = STAT.to_ulong();
+
+			if(mode == 0 || mode == 1 || mode == 2)
+				M_MEM[addr] = data;
 		}
 		else if ((addr >= 0xA000) && (addr < 0xC000)) //Switchable Ram Bank
 		{
@@ -88,6 +92,14 @@ namespace FuuGB
 		{
 			M_MEM[addr] = data;
 			M_MEM[addr - ECHO_RAM_OFFSET] = data;
+		}
+		else if ((addr >= 0xFE00) && (addr < 0xFE9F)) //OAM RAM
+		{
+			std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
+			uBYTE mode = STAT.to_ulong();
+
+			if (mode == 0 || mode == 1)
+				M_MEM[addr] = data;
 		}
         else if(addr == 0xFF07) //Timer Controller
         {
@@ -112,8 +124,8 @@ namespace FuuGB
         }
 		else if (addr == 0xFF40)
 		{
-			if ((M_MEM[0xFF44] >= 144 && M_MEM[0xFF44] < 154) || M_MEM[0xFF44] == 0x0)
-				M_MEM[addr] = data;
+			M_MEM[addr] = data;
+			M_MEM[addr] |= 0x80;
 		}
 		else if (addr == 0xFF41)
 		{
@@ -141,7 +153,28 @@ namespace FuuGB
 
 	uBYTE& Memory::readMemory(uWORD addr)
 	{
-		return M_MEM[addr];
+		if (addr >= 0xA000 & addr < 0xC000)
+		{
+			if (cart->extRamEnabled)
+				return M_MEM[addr];
+			else
+				return dummy;
+		}
+		else if ((addr >= 0x8000) && (addr < 0x9FFF))
+		{
+			std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
+			uBYTE mode = STAT.to_ulong();
+
+			if (mode == 0 || mode == 1 || mode == 2)
+				return M_MEM[addr];
+			else
+			{
+				dummy = 0xff;
+				return dummy;
+			}
+		}
+		else
+			return M_MEM[addr];
 	}
 
 	uBYTE& Memory::DMA_read(uWORD addr) //Mainly used for PPU and Interupts
@@ -157,7 +190,7 @@ namespace FuuGB
 	void Memory::changeROMBank(uWORD addr, uBYTE data)
 	{
 		uBYTE original = cart->currentRomBank;
-		if (cart->ROMonly)
+		if (cart->ROMM)
 			return;
 		if (cart->MBC1)
 		{
@@ -194,8 +227,8 @@ namespace FuuGB
 				cart->currentRomBank += 0x01;
 		}
 		if(original != cart->currentRomBank)
-		for (int i = 0x4000; i < 0x8000; ++i)
-			M_MEM[i] = cart->ROM[i*(cart->currentRomBank)];
+			for (int i = 0x4000; i < 0x8000; ++i)
+				M_MEM[i] = cart->ROM[i*(cart->currentRomBank)];
 	}
 
 	void Memory::toggleRAM(uWORD addr, uBYTE data)
