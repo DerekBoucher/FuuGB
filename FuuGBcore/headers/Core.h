@@ -41,7 +41,7 @@ namespace FuuGB
 {
     struct Shared
     {
-        static const int ScaleFactor = 4;
+        static const int ScaleFactor = 1;
         static bool RUNNING;
 		static std::condition_variable cv_GB;
 		static std::mutex mu_GB;

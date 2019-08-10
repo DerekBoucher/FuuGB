@@ -83,7 +83,7 @@ namespace FuuGB
 				M_MEM[addr] = data;
 			}
 		}
-		else if ((addr >= 0xC000) && (addr < 0xE000))//Internal RAM
+		else if ((addr >= 0xC000) && (addr < 0xE000)) //Internal RAM
 		{
 			M_MEM[addr] = data;
 			M_MEM[addr + ECHO_RAM_OFFSET] = data;
@@ -124,8 +124,16 @@ namespace FuuGB
         }
 		else if (addr == 0xFF40)
 		{
-			M_MEM[addr] = data;
-			M_MEM[addr] |= 0x80;
+            std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
+            std::bitset<8> d(data);
+            uBYTE mode = STAT.to_ulong();
+            if(!d.test(7))
+            {
+                if(mode == 1)
+                    M_MEM[addr] = data;
+            }
+            else
+                M_MEM[addr] = data;
 		}
 		else if (addr == 0xFF41)
 		{
@@ -153,14 +161,14 @@ namespace FuuGB
 
 	uBYTE& Memory::readMemory(uWORD addr)
 	{
-		if (addr >= 0xA000 & addr < 0xC000)
+        if (addr >= 0xA000 & addr < 0xC000)
 		{
 			if (cart->extRamEnabled)
 				return M_MEM[addr];
 			else
 				return dummy;
 		}
-		else if ((addr >= 0x8000) && (addr < 0x9FFF))
+		else if ((addr >= 0x8000) && (addr < 0xA000))
 		{
 			std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
 			uBYTE mode = STAT.to_ulong();
@@ -173,7 +181,20 @@ namespace FuuGB
 				return dummy;
 			}
 		}
-		else
+		else if((addr >= 0xFE00) && (addr < 0xFEA0))
+        {
+            std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
+            uBYTE mode = STAT.to_ulong();
+            
+            if (mode == 0 || mode == 1)
+                return M_MEM[addr];
+            else
+            {
+                dummy = 0xff;
+                return dummy;
+            }
+        }
+        else
 			return M_MEM[addr];
 	}
 
