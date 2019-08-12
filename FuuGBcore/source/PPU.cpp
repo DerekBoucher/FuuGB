@@ -11,8 +11,9 @@
 
 namespace FuuGB
 {
-	PPU::PPU(SDL_Window* windowRef, Memory* mem)
+	PPU::PPU(SDL_Window* windowRef, Memory* mem, bool extended)
 	{
+		ext = extended;
 		MEM = mem;
 		renderer = SDL_GetRenderer(windowRef);
 		if (renderer == NULL)
@@ -28,6 +29,17 @@ namespace FuuGB
 				pixels[i][j].w = SCALE_FACTOR;
 				pixels[i][j].x = i * SCALE_FACTOR;
 				pixels[i][j].y = j * SCALE_FACTOR;
+			}
+		}
+
+		for (int i = 0; i < EXT_SIZE_X; ++i)
+		{
+			for (int j = 0; j < EXT_SIZE_Y; ++j)
+			{
+				ext_Pixels[i][j].h = SCALE_FACTOR;
+				ext_Pixels[i][j].w = SCALE_FACTOR;
+				ext_Pixels[i][j].x = i * SCALE_FACTOR;
+				ext_Pixels[i][j].y = j * SCALE_FACTOR;
 			}
 		}
         currentScanLine = 1;

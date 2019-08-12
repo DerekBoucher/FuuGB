@@ -15,7 +15,7 @@ namespace FuuGB
 	{
 		running = true;
 		this->memory = new Memory(cart);
-		this->ppu = new PPU(windowPtr, this->memory);
+		this->ppu = new PPU(windowPtr, this->memory, false);
 		this->cpu = new CPU(this->memory);
 		globalPause = false;
 		_gameboyTHR = new std::thread(&Gameboy::Run, this);

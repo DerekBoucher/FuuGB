@@ -12,6 +12,7 @@ namespace FuuGB
 {
 	void WinApplication::run()
 	{
+		bool extDisp = false;
 		FUUGB_INIT();
 		SDL_SysWMinfo* NativeWindowInfo = new SDL_SysWMinfo;
 
@@ -53,9 +54,10 @@ namespace FuuGB
 							gameBoy->Resume();
 							delete gameBoy;
 						}
-
 						gameBoy = new Gameboy(_SDLwindow, ROM);
-
+						break;
+					case ID_EXT_DISPLAY:
+					
 						break;
 					case ID_EXIT:
 						FUUGB_RUNNING = false;

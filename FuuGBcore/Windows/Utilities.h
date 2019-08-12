@@ -18,8 +18,10 @@ namespace FuuGB
 #define ID_ABOUT 2
 #define ID_EXIT 3
 #define ID_CONTROLS 4
+#define ID_EXT_DISPLAY 5
     static HMENU hHelp;
     static HMENU hEdit;
+	static HMENU hOptions;
     static HMENU hFile;
     static HMENU hMenuBar;
     
@@ -53,16 +55,20 @@ namespace FuuGB
         hMenuBar = CreateMenu();
         hFile = CreateMenu();
         hEdit = CreateMenu();
+		hOptions = CreateMenu();
         hHelp = CreateMenu();
 
         AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hFile, L"File");
         AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hEdit, L"Edit");
+		AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hOptions, L"Options");
         AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hHelp, L"Help");
         
         AppendMenu(hFile, MF_STRING, ID_LOADROM, L"Load ROM");
         AppendMenu(hFile, MF_STRING, ID_EXIT, L"Exit");
         
         AppendMenu(hEdit, MF_STRING, ID_CONTROLS, L"Configure Controls");
+
+		AppendMenu(hOptions, MF_STRING, ID_EXT_DISPLAY, L"Extend Display");
         
         AppendMenu(hHelp, MF_STRING, ID_ABOUT, L"About");
         

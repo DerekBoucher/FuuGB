@@ -166,7 +166,10 @@ namespace FuuGB
 			if (cart->extRamEnabled)
 				return M_MEM[addr];
 			else
+			{
+				dummy = 0xff;
 				return dummy;
+			}
 		}
 		else if ((addr >= 0x8000) && (addr < 0xA000))
 		{

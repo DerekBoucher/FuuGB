@@ -74,7 +74,7 @@ namespace FuuGB
 		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
-		if (PC == 0xFF)
+		if (PC - 1 == 0xFF)
 			printf("");
 		switch (byte)
 		{
@@ -3832,25 +3832,22 @@ namespace FuuGB
 
 	void CPU::Flag_set(int flag)
 	{
-        delete FlagBits;
-        FlagBits = new std::bitset<8>(AF.lo);
-		FlagBits->set(flag);
-		AF.lo = (uBYTE)FlagBits->to_ulong();
+		std::bitset<8> FlagBits(AF.lo);
+		FlagBits.set(flag);
+		AF.lo = FlagBits.to_ulong();
 	}
 
 	void CPU::Flag_reset(int flag)
 	{
-        delete FlagBits;
-        FlagBits = new std::bitset<8>(AF.lo);
-		FlagBits->reset(flag);
-		AF.lo = (uBYTE)FlagBits->to_ulong();
+		std::bitset<8> FlagBits(AF.lo);
+		FlagBits.reset(flag);
+		AF.lo = FlagBits.to_ulong();
 	}
 
 	bool CPU::Flag_test(int flag)
 	{
-        delete FlagBits;
-        FlagBits = new std::bitset<8>(AF.lo);
-		return FlagBits->test(flag);
+		std::bitset<8> FlagBits(AF.lo);
+		return FlagBits.test(flag);
 	}
 
 	void CPU::test_bit(int pos, uBYTE reg)
