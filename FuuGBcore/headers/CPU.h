@@ -86,8 +86,6 @@ namespace FuuGB
 		int				timer_update_cnt;
         int             divider_register;
         int             divider_count;
-		uWORD			returnADR;
-		bool			doingINT = false;
 
 		enum opCode
 		{

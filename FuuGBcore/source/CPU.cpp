@@ -76,12 +76,6 @@ namespace FuuGB
 		Register* temp = new Register();
 		if (PC == 0xFF)
 			printf("");
-		if (PC == returnADR && doingINT)
-		{
-			returnADR = 0x0000;
-			doingINT = false;
-			IME = true;
-		}
 		switch (byte)
 		{
 		case NOP:
@@ -3898,61 +3892,57 @@ namespace FuuGB
 
 		std::bitset<8> IE(memory->readMemory(INTERUPT_EN_REGISTER_ADR));
 		std::bitset<8> IF(memory->readMemory(INTERUPT_FLAG_REG));
+		Register Temp;
 
 		if (IF[0] && IE[0]) //V-Blank
 		{
 			IME = false;
             IF.reset(0);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			returnADR = PC;
-			memory->DMA_write(--SP, (returnADR >> 4) & 0xFF);
-			memory->DMA_write(--SP, returnADR & 0xFF);
+			Temp.data = PC;
+			memory->DMA_write(--SP, Temp.hi);
+			memory->DMA_write(--SP, Temp.lo);
 			PC = VBLANK_INT;
-			doingINT = true;
 		}
 		else if (IF[1] && IE[1]) // LCDC
 		{
 			IME = false;
             IF.reset(1);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			returnADR = PC;
-			memory->DMA_write(--SP, (returnADR >> 4) & 0xFF);
-			memory->DMA_write(--SP, returnADR & 0xFF);
+			Temp.data = PC;
+			memory->DMA_write(--SP, Temp.hi);
+			memory->DMA_write(--SP, Temp.lo);
 			PC = LCDC_INT;
-			doingINT = true;
 		}
 		else if (IF[2] && IE[2]) // Timer Overflow
 		{
 			IME = false;
             IF.reset(2);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			returnADR = PC;
-			memory->DMA_write(--SP, (returnADR >> 4) & 0xFF);
-			memory->DMA_write(--SP, returnADR & 0xFF);
+			Temp.data = PC;
+			memory->DMA_write(--SP, Temp.hi);
+			memory->DMA_write(--SP, Temp.lo);
 			PC = TIMER_OVER_INT;
-			doingINT = true;
 		}
 		else if (IF[3] && IE[3]) // Serial I/O Complete
 		{
 			IME = false;
             IF.reset(3);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			returnADR = PC;
-			memory->DMA_write(--SP, (returnADR >> 4) & 0xFF);
-			memory->DMA_write(--SP, returnADR & 0xFF);
+			Temp.data = PC;
+			memory->DMA_write(--SP, Temp.hi);
+			memory->DMA_write(--SP, Temp.lo);
 			PC = SER_TRF_INT;
-			doingINT = true;
 		}
 		else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
 		{
 			IME = false;
             IF.reset(4);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			returnADR = PC;
-			memory->DMA_write(--SP, (returnADR >> 4) & 0xFF);
-			memory->DMA_write(--SP, returnADR & 0xFF);
+			Temp.data = PC;
+			memory->DMA_write(--SP, Temp.hi);
+			memory->DMA_write(--SP, Temp.lo);
 			PC = CONTROL_INT;
-			doingINT = true;
 		}
 	}
 
