@@ -74,8 +74,14 @@ namespace FuuGB
 		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
-		if (PC - 1 == 0xFF)
+		if (PC == 0xFF)
 			printf("");
+		if (PC == returnADR && doingINT)
+		{
+			returnADR = 0x0000;
+			doingINT = false;
+			IME = true;
+		}
 		switch (byte)
 		{
 		case NOP:
@@ -329,11 +335,8 @@ namespace FuuGB
 
 		case DAA:
 			//4 Clock Cycles
-			/*
-			
-			---------------------------------- TO-DO --------------------------------
-			
-			*/
+			adjustDAA(AF.hi);
+			timer_update_cnt += 4;
 			break;
 
 		case RJmp_ZERO:
@@ -3282,7 +3285,7 @@ namespace FuuGB
 
 		case POP_AF:
 			//12 Clock Cycles
-			AF.lo = memory->readMemory(SP++);
+			AF.lo = 0xF0 & memory->readMemory(SP++);
 			AF.hi = memory->readMemory(SP++);
 			timer_update_cnt += 12;
 			break;
@@ -3317,8 +3320,9 @@ namespace FuuGB
 
 		case LDHL_S_8IMM_SP_HL:
 			//12 Clock Cycles
-			add16BitRegister(HL.data, (SP + memory->readMemory(PC++)));
+			HL.data = SP + memory->readMemory(PC++);
 			CPU_FLAG_BIT_RESET(Z_FLAG);
+			CPU_FLAG_BIT_RESET(N_FLAG);
 			timer_update_cnt += 12;
 			break;
 
@@ -3361,6 +3365,14 @@ namespace FuuGB
 			break;
 		}
         delete temp;
+
+#ifdef FUUGB_DEBUG
+		if (memory->DMA_read(0xFF02) == 0x81)
+		{
+			printf("%c", memory->DMA_read(0xFF01));
+			memory->DMA_write(0xFF02, 0x00);
+		}
+#endif
 		return timer_update_cnt;
 	}
 
@@ -3886,57 +3898,61 @@ namespace FuuGB
 
 		std::bitset<8> IE(memory->readMemory(INTERUPT_EN_REGISTER_ADR));
 		std::bitset<8> IF(memory->readMemory(INTERUPT_FLAG_REG));
-		Register Temp;
 
 		if (IF[0] && IE[0]) //V-Blank
 		{
 			IME = false;
             IF.reset(0);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			Temp.data = PC;
-			memory->DMA_write(--SP, Temp.hi);
-			memory->DMA_write(--SP, Temp.lo);
+			returnADR = PC;
+			memory->DMA_write(--SP, (returnADR >> 4) & 0xFF);
+			memory->DMA_write(--SP, returnADR & 0xFF);
 			PC = VBLANK_INT;
+			doingINT = true;
 		}
 		else if (IF[1] && IE[1]) // LCDC
 		{
 			IME = false;
             IF.reset(1);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			Temp.data = PC;
-			memory->DMA_write(--SP, Temp.hi);
-			memory->DMA_write(--SP, Temp.lo);
+			returnADR = PC;
+			memory->DMA_write(--SP, (returnADR >> 4) & 0xFF);
+			memory->DMA_write(--SP, returnADR & 0xFF);
 			PC = LCDC_INT;
+			doingINT = true;
 		}
 		else if (IF[2] && IE[2]) // Timer Overflow
 		{
 			IME = false;
             IF.reset(2);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			Temp.data = PC;
-			memory->DMA_write(--SP, Temp.hi);
-			memory->DMA_write(--SP, Temp.lo);
+			returnADR = PC;
+			memory->DMA_write(--SP, (returnADR >> 4) & 0xFF);
+			memory->DMA_write(--SP, returnADR & 0xFF);
 			PC = TIMER_OVER_INT;
+			doingINT = true;
 		}
 		else if (IF[3] && IE[3]) // Serial I/O Complete
 		{
 			IME = false;
             IF.reset(3);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			Temp.data = PC;
-			memory->DMA_write(--SP, Temp.hi);
-			memory->DMA_write(--SP, Temp.lo);
+			returnADR = PC;
+			memory->DMA_write(--SP, (returnADR >> 4) & 0xFF);
+			memory->DMA_write(--SP, returnADR & 0xFF);
 			PC = SER_TRF_INT;
+			doingINT = true;
 		}
 		else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
 		{
 			IME = false;
             IF.reset(4);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			Temp.data = PC;
-			memory->DMA_write(--SP, Temp.hi);
-			memory->DMA_write(--SP, Temp.lo);
+			returnADR = PC;
+			memory->DMA_write(--SP, (returnADR >> 4) & 0xFF);
+			memory->DMA_write(--SP, returnADR & 0xFF);
 			PC = CONTROL_INT;
+			doingINT = true;
 		}
 	}
 
@@ -3985,6 +4001,39 @@ namespace FuuGB
             divider_count = 0;
         }
     }
+
+	void CPU::adjustDAA(uBYTE & reg)
+	{
+		if (!CPU_FLAG_BIT_TEST(N_FLAG))
+		{
+			if (CPU_FLAG_BIT_TEST(C_FLAG) || reg > 0x99)
+			{
+				reg += 0x60;
+				CPU_FLAG_BIT_SET(C_FLAG);
+			}
+			if (CPU_FLAG_BIT_TEST(H_FLAG) || (reg & 0x0F) > 0x09)
+			{
+				reg += 0x06;
+			}
+		}
+		else
+		{
+			if (CPU_FLAG_BIT_TEST(C_FLAG))
+			{
+				reg -= 0x60;
+			}
+			if (CPU_FLAG_BIT_TEST(H_FLAG))
+			{
+				reg -= 0x06;
+			}
+		}
+		if (reg == 0x00)
+			CPU_FLAG_BIT_SET(Z_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(Z_FLAG);
+
+		CPU_FLAG_BIT_RESET(H_FLAG);
+	}
     
 	void CPU::halt()
 	{

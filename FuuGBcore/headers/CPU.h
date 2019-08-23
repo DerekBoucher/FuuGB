@@ -86,6 +86,8 @@ namespace FuuGB
 		int				timer_update_cnt;
         int             divider_register;
         int             divider_count;
+		uWORD			returnADR;
+		bool			doingINT = false;
 
 		enum opCode
 		{
@@ -639,6 +641,7 @@ namespace FuuGB
 		void reset_bit(int pos, uBYTE & reg);
 		void set_bit(int pos, uBYTE & reg);
         void updateDivider(int);
+		void adjustDAA(uBYTE& reg);
 	};
 }
 

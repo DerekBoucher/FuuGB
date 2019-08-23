@@ -28,6 +28,10 @@ workspace "FuuGBemu"
 			"%{prj.name}/external/pch/*.h",
 			"%{prj.name}/external/pch/*.cpp"
         }
+		filter "configurations:Debug"
+			defines{
+				"FUUGB_DEBUG"
+			}
 
         filter "system:macosx"
             xcodebuildsettings { ["GCC_INPUT_FILETYPE"] = "sourcecode.cpp.objcpp" }
