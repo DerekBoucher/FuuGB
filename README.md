@@ -29,12 +29,12 @@ Build Script System provided by Premake5 : https://github.com/premake/premake-co
         **NOTE: Clean solution prior to rebuilding, or else some copied dll's will not be updated to
 			the new build version. (Only applicable for Windows)
 
-Current Progress:
+#Current Progress:
 
 -> Emulator is able to successfully get past the bootrom:
 ![](Images/Capture2.PNG)
 
-Current WIP:
+#Current WIP:
 
 -> Trying to fix the DAA opcode/Instruction
 ![](Images/Capture.PNG)
