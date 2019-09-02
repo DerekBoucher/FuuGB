@@ -32,3 +32,8 @@ Current Progress:
 
 -> Emulator is able to successfully get past the bootrom:
 ![](Images/Capture2.PNG)
+
+Current WIP:
+
+-> Trying to fix the DAA opcode/Instruction
+![](Images/Capture.PNG)
