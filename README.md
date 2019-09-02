@@ -27,7 +27,7 @@ Build Script System provided by Premake5 : https://github.com/premake/premake-co
         3_6. Build the project in Visual Studio.
         
         **NOTE: Clean solution prior to rebuilding, or else some copied dll's will not be updated to
-		the new build version. (Only applicable for Windows)
+			the new build version. (Only applicable for Windows)
 
 Current Progress:
 
