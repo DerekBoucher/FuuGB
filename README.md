@@ -30,5 +30,5 @@ Build Script System provided by Premake5 : https://github.com/premake/premake-co
 
 Current Progress:
 
-	-> Emulator is able to successfully get past the bootrom:
-	![](Images/Capture2.png)
+-> Emulator is able to successfully get past the bootrom:
+![](Images/Capture2.png)
