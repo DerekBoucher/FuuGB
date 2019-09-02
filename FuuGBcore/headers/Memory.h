@@ -41,10 +41,6 @@ namespace FuuGB
         void RequestInterupt(int code);
 
 		void changeRAMBank(uWORD addr, uBYTE data);
-		std::mutex              ramKey;
-		std::mutex              vramKey;
-		std::condition_variable ramCond;
-		std::condition_variable vramCond;
         int                     timer_counter;
         
     
@@ -52,7 +48,7 @@ namespace FuuGB
         uBYTE*                  M_MEM;
         Cartridge*              cart;
         FILE*                   bootROM;
-        std::thread*            _ramTHR;
+        std::thread*            _timerTHR;
         bool                    CycleDone;
 		bool					bootRomClosed;
         void                    DMA_Transfer(uBYTE);

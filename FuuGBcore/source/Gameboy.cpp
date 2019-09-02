@@ -49,8 +49,11 @@ namespace FuuGB
 					pauseLock.unlock();
 					globalPause = false;
 				}
-                if(cpu->_cpuHalted)
-                    cpu->halt();
+				if (cpu->_cpuHalted)
+				{
+					cpu->halt();
+					cycles = 4;
+				}
                 else
                     cycles = cpu->executeNextOpCode();
                 cyclesthisupdate += cycles;

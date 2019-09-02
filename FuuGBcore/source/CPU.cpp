@@ -74,7 +74,7 @@ namespace FuuGB
 		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
-		if (PC == 0xFF)
+		if (PC == 0x00FF)
 			printf("");
 		switch (byte)
 		{
@@ -385,6 +385,8 @@ namespace FuuGB
 		case NOT_A:
 			//4 Clock Cycles
 			AF.hi = ~AF.hi;
+			CPU_FLAG_BIT_SET(N_FLAG);
+			CPU_FLAG_BIT_SET(H_FLAG);
 			timer_update_cnt += 4;
 			break;
 
@@ -445,7 +447,7 @@ namespace FuuGB
 		case DEC_valHL:
 			//12 Clock Cycles
 			byte = memory->readMemory(HL.data);
-            if (!checkBorrowFromBit_Byte(5, byte, 0x01))
+            if (!checkBorrowFromBit_Byte(4, byte, 0x01))
                 CPU_FLAG_BIT_SET(H_FLAG);
             else
                 CPU_FLAG_BIT_RESET(H_FLAG);
@@ -863,11 +865,8 @@ namespace FuuGB
 
 		case HALT:
 			//4 Clock Cycles
-			if (IME)
-			{
-				_cpuHalted = true;
-				halt();
-			}
+			_cpuHalted = true;
+			halt();
 			timer_update_cnt += 4;
 			break;
 
@@ -3223,21 +3222,26 @@ namespace FuuGB
 			byte = memory->readMemory(PC++);
 			if (TestBitInByte(byte, 7))
 			{
-				if (!checkBorrowFromBit_Byte(5, SP, byte))
+				if (!checkBorrowFromBit_Word(12, SP, twoComp_Byte(byte)))
 					CPU_FLAG_BIT_SET(H_FLAG);
                 else
                     CPU_FLAG_BIT_RESET(H_FLAG);
+
+				if (SP < byte)
+					CPU_FLAG_BIT_SET(C_FLAG);
+				else
+					CPU_FLAG_BIT_RESET(C_FLAG);
                 
 				SP = SP - twoComp_Byte(byte);
 			}
 			else
 			{
-				if (checkCarryFromBit_Byte(4,SP,byte))
+				if (checkCarryFromBit_Word(12,SP,byte))
 					CPU_FLAG_BIT_SET(H_FLAG);
                 else
                     CPU_FLAG_BIT_RESET(H_FLAG);
                 
-				if (checkCarryFromBit_Word(7, SP, byte))
+				if (SP > 0xFFFF - byte)
 					CPU_FLAG_BIT_SET(C_FLAG);
 				else
 					CPU_FLAG_BIT_RESET(C_FLAG);
@@ -3245,9 +3249,6 @@ namespace FuuGB
 			}
 			CPU_FLAG_BIT_RESET(Z_FLAG);
 			CPU_FLAG_BIT_RESET(N_FLAG);
-			
-			
-			
 			timer_update_cnt += 16;
 			break;
 
@@ -3303,7 +3304,7 @@ namespace FuuGB
 		case PUSH_AF:
 			//16 clock cycles
 			memory->writeMemory(--SP, AF.hi);
-			memory->writeMemory(--SP, AF.lo);
+			memory->writeMemory(--SP, AF.lo & 0xF0);
 			timer_update_cnt += 16;
 			break;
 
@@ -3324,7 +3325,36 @@ namespace FuuGB
 
 		case LDHL_S_8IMM_SP_HL:
 			//12 Clock Cycles
-			HL.data = SP + memory->readMemory(PC++);
+			uBYTE TempByte;
+			TempByte = memory->readMemory(PC++);
+			if (TestBitInByte(TempByte,7))
+			{
+				if (!checkBorrowFromBit_Word(12, SP, twoComp_Byte(TempByte)))
+					CPU_FLAG_BIT_SET(H_FLAG);
+				else
+					CPU_FLAG_BIT_RESET(H_FLAG);
+
+				if (SP < twoComp_Word(TempByte))
+					CPU_FLAG_BIT_SET(C_FLAG);
+				else
+					CPU_FLAG_BIT_RESET(C_FLAG);
+
+				HL.data = SP - twoComp_Byte(TempByte);
+			}
+			else
+			{
+				if (checkCarryFromBit_Word(12, SP, TempByte))
+					CPU_FLAG_BIT_SET(H_FLAG);
+				else
+					CPU_FLAG_BIT_RESET(H_FLAG);
+
+				if (SP > 0xFFFF - TempByte)
+					CPU_FLAG_BIT_SET(C_FLAG);
+				else
+					CPU_FLAG_BIT_RESET(C_FLAG);
+
+				HL.data = SP + TempByte;
+			}
 			CPU_FLAG_BIT_RESET(Z_FLAG);
 			CPU_FLAG_BIT_RESET(N_FLAG);
 			timer_update_cnt += 12;
@@ -3392,7 +3422,6 @@ namespace FuuGB
 
 	void CPU::increment8BitRegister(uBYTE& reg)
 	{
-        
         if (checkCarryFromBit_Byte(4, reg, 0x01))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
@@ -3409,7 +3438,7 @@ namespace FuuGB
 
 	void CPU::decrement8BitRegister(uBYTE& reg)
 	{
-        if (!checkBorrowFromBit_Byte(5, reg, 0x01))
+        if (!checkBorrowFromBit_Byte(4, reg, 0x01))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3424,16 +3453,14 @@ namespace FuuGB
 
 	void CPU::decrement16BitRegister(uWORD& reg)
 	{
-		
 		--reg;
 	}
 
 	void CPU::add16BitRegister(uWORD& host, uWORD operand)
 	{
-		
 		CPU_FLAG_BIT_RESET(N_FLAG);
 
-		if (checkCarryFromBit_Word(11, host, operand))
+		if (checkCarryFromBit_Word(12, host, operand))
 			CPU_FLAG_BIT_SET(H_FLAG);
 		else
 			CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3516,78 +3543,58 @@ namespace FuuGB
     
     bool CPU::checkBorrowFromBit_Byte(int pos, uBYTE byte, uBYTE subtractedByte)
     {
-        std::bitset<8> host(byte);
-        std::bitset<8> sub(subtractedByte);
-        
-        for(int i = 0; i < pos; i++)
-        {
-            if(host[i] && sub[i])
-            {
-                host[i] = false;
-            }
-            
-            else if(host[i] && !sub[i])
-            {
-                host[i] = true;
-            }
-            
-            else if(!host[i] && !sub[i])
-            {
-                host[i] = false;
-            }
-            
-            else if(!host[i] && sub[i])
-            {
-                int j = 1;
-                while(!host[i+j])
-                {
-                    if(i+j >= pos)
-                        return false;
-                    else
-                        ++j;
-                }
-                
-                if(i+j == pos)
-                    return true;
-                
-                host[i+j] = false;
-                for(int z = i+j; z > i; --z)
-                    host[z-1] = true;
-            }
-        }
-        return false;
+		uBYTE mask;
+
+		switch (pos)
+		{
+		case 1: mask = 0x01; break;
+		case 2: mask = 0x03; break;
+		case 3: mask = 0x07; break;
+		case 4: mask = 0x0F; break;
+		case 5: mask = 0x1F; break;
+		case 6: mask = 0x3F; break;
+		case 7: mask = 0x7F; break;
+		}
+
+		std::bitset<8> a(byte & mask);
+		std::bitset<8> b(subtractedByte & mask);
+
+		if (a.to_ulong() < b.to_ulong())
+			return true;
+		else
+			return false;
     }
     
     bool CPU::checkBorrowFromBit_Word(int pos, uWORD word, uWORD subtractedWord)
     {
-        uWORD mask;
-        
-        switch(16 - pos)
-        {
-            case 1: mask    = 0x8000; break;
-            case 2: mask    = 0xC000; break;
-            case 3: mask    = 0xE000; break;
-            case 4: mask    = 0xF000; break;
-            case 5: mask    = 0xF800; break;
-            case 6: mask    = 0xFC00; break;
-            case 7: mask    = 0xFE00; break;
-            case 8: mask    = 0xFF00; break;
-            case 9: mask    = 0xFF80; break;
-            case 10: mask   = 0xFFC0; break;
-            case 11: mask   = 0xFFE0; break;
-            case 12: mask   = 0xFFF0; break;
-            case 13: mask   = 0xFFF8; break;
-            case 14: mask   = 0xFFFC; break;
-            case 15: mask   = 0xFFFE; break;
-        }
-        
-        std::bitset<8> a((word & mask) >> pos);
-        std::bitset<8> b((subtractedWord & mask) >> pos);
-        
-        if(a.to_ulong() < b.to_ulong())
-            return true;
-        else
-            return false;
+		uWORD mask;
+
+		switch (pos)
+		{
+		case 1: mask = 0x0001; break;
+		case 2: mask = 0x0003; break;
+		case 3: mask = 0x0007; break;
+		case 4: mask = 0x000F; break;
+		case 5: mask = 0x001F; break;
+		case 6: mask = 0x003F; break;
+		case 7: mask = 0x007F; break;
+		case 8: mask = 0x00FF; break;
+		case 9: mask = 0x01FF; break;
+		case 10: mask = 0x03FF; break;
+		case 11: mask = 0x07FF; break;
+		case 12: mask = 0x0FFF; break;
+		case 13: mask = 0x1FFF; break;
+		case 14: mask = 0x3FFF; break;
+		case 15: mask = 0x7FFF; break;
+		}
+
+		std::bitset<8> a(word & mask);
+		std::bitset<8> b(subtractedWord & mask);
+
+		if (a.to_ulong() < b.to_ulong())
+			return true;
+		else
+			return false;
     }
 
 	uBYTE CPU::twoComp_Byte(uBYTE byte)
@@ -3618,6 +3625,11 @@ namespace FuuGB
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);
+
+		if (host > 0xFF - operand)
+			CPU_FLAG_BIT_SET(C_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(C_FLAG);
         
 		host = host + operand;
 
@@ -3627,19 +3639,19 @@ namespace FuuGB
 			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
-
-		if (host > (0xFF - operand))
-			CPU_FLAG_BIT_SET(C_FLAG);
-		else
-			CPU_FLAG_BIT_RESET(C_FLAG);
 	}
 
 	void CPU::add8BitRegister(uBYTE& host, uBYTE operand, bool carry)
 	{
-        if (checkCarryFromBit_Byte(4, host, operand))
+        if (checkCarryFromBit_Byte(4, host, operand + carry))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);
+
+		if (host > (0xFF - carry - operand))
+			CPU_FLAG_BIT_SET(C_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(C_FLAG);
         
 		host = host + operand + carry;
 
@@ -3649,19 +3661,19 @@ namespace FuuGB
 			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
-
-		if (host > (0xFF - carry - operand))
-			CPU_FLAG_BIT_SET(C_FLAG);
-		else
-			CPU_FLAG_BIT_RESET(C_FLAG);
 	}
 
 	void CPU::sub8BitRegister(uBYTE& host, uBYTE operand)
 	{
-        if (!checkBorrowFromBit_Byte(5, host, operand))
+        if (!checkBorrowFromBit_Byte(4, host, operand))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);
+
+		if (host < operand)
+			CPU_FLAG_BIT_SET(C_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(C_FLAG);
         
 		host = host - operand;
 
@@ -3671,19 +3683,19 @@ namespace FuuGB
 			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_SET(N_FLAG);
-
-		if (host < operand)
-			CPU_FLAG_BIT_SET(C_FLAG);
-		else
-			CPU_FLAG_BIT_RESET(C_FLAG);
 	}
 
 	void CPU::sub8BitRegister(uBYTE& host, uBYTE operand, bool carry)
 	{
-        if (!checkBorrowFromBit_Byte(5, host, operand))
+        if (!checkBorrowFromBit_Byte(4, host, operand + carry))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);
+
+		if (host < (operand + carry))
+			CPU_FLAG_BIT_SET(C_FLAG);
+		else
+			CPU_FLAG_BIT_RESET(C_FLAG);
         
 		host = host - operand - carry;
 
@@ -3693,11 +3705,6 @@ namespace FuuGB
 			CPU_FLAG_BIT_RESET(Z_FLAG);
 
 		CPU_FLAG_BIT_SET(N_FLAG);
-
-		if (host < (operand + carry))
-			CPU_FLAG_BIT_SET(C_FLAG);
-		else
-			CPU_FLAG_BIT_RESET(C_FLAG);
 	}
 
 	void CPU::and8BitRegister(uBYTE& host, uBYTE operand)
@@ -3751,7 +3758,7 @@ namespace FuuGB
 
 		CPU_FLAG_BIT_SET(N_FLAG);
         
-        if (!checkBorrowFromBit_Byte(5, host, operand))
+        if (!checkBorrowFromBit_Byte(4, host, operand))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3775,11 +3782,14 @@ namespace FuuGB
 			else
 				CPU_FLAG_BIT_RESET(C_FLAG);
 
-
 			reg = reg << 1;
 
 			if (withCarry && oldCarry)
 				reg = reg | 0x01;
+			else if (!withCarry)
+			{
+				reg |= MSB;
+			}
 		}
 		else //Right
 		{
@@ -3795,6 +3805,13 @@ namespace FuuGB
 
 			if (withCarry && oldCarry)
 				reg = reg | 0x80;
+			else if (!withCarry)
+			{
+				if (LSB)
+					reg |= 0x80;
+				else
+					reg |= 0x00;
+			}
 		}
 
 		CPU_FLAG_BIT_RESET(N_FLAG);
@@ -3826,6 +3843,7 @@ namespace FuuGB
 		}
 		else //Right
 		{
+			bool oldMSB = BitField[7];
 			if (BitField[0])
 				CPU_FLAG_BIT_SET(C_FLAG);
 			else
@@ -3838,6 +3856,9 @@ namespace FuuGB
 
 			if (!keepMSB)
 				BitField[7] = false;
+			else
+				BitField[7] = oldMSB;
+
 		}
 
 		reg = BitField.to_ulong();
@@ -4040,29 +4061,28 @@ namespace FuuGB
 
 	void CPU::adjustDAA(uBYTE & reg)
 	{
+		if (reg == 0x0A)
+			printf("");
 		if (!CPU_FLAG_BIT_TEST(N_FLAG))
 		{
-			if (CPU_FLAG_BIT_TEST(C_FLAG) || reg > 0x99)
+			if (CPU_FLAG_BIT_TEST(C_FLAG) || reg > 0x9F)
 			{
 				reg += 0x60;
 				CPU_FLAG_BIT_SET(C_FLAG);
 			}
+
 			if (CPU_FLAG_BIT_TEST(H_FLAG) || (reg & 0x0F) > 0x09)
-			{
 				reg += 0x06;
-			}
 		}
 		else
 		{
 			if (CPU_FLAG_BIT_TEST(C_FLAG))
-			{
 				reg -= 0x60;
-			}
+
 			if (CPU_FLAG_BIT_TEST(H_FLAG))
-			{
 				reg -= 0x06;
-			}
 		}
+
 		if (reg == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
 		else
