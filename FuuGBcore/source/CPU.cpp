@@ -33,7 +33,6 @@ namespace FuuGB
 		_cpuPaused = false;
         _cpuHalted = false;
 		IME = false;
-		//_cpuTHR = new std::thread(&CPU::clock, this);
 		FlagBits = new std::bitset<sizeof(uBYTE)*8>(&AF.lo);
 		AluBits = new std::bitset<sizeof(uBYTE)*8>(&AF.hi);
 		
@@ -42,8 +41,6 @@ namespace FuuGB
 
 	CPU::~CPU()
 	{
-		//_cpuTHR->join();
-		//delete _cpuTHR;
 		FUUGB_CPU_LOG("CPU Destroyed.");
 	}
 
@@ -1424,7 +1421,6 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
-				
 				PC = temp->data;
 				timer_update_cnt += 16;
 			}
@@ -3027,7 +3023,6 @@ namespace FuuGB
 
 		case RET_NOCARRY:
 			//20/8 Clock Cycles
-			
 			if (!CPU_FLAG_BIT_TEST(C_FLAG))
 			{
 				temp->lo = memory->readMemory(SP++);
@@ -3083,7 +3078,6 @@ namespace FuuGB
 			//16 clock cycles
 			memory->writeMemory(--SP, DE.hi);
 			memory->writeMemory(--SP, DE.lo);
-			
 			timer_update_cnt += 16;
 			break;
 
@@ -3099,13 +3093,11 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp2.hi);
 			memory->writeMemory(--SP, temp2.lo);
 			PC = 0x0010;
-			
 			timer_update_cnt += 16;
 			break;
 
 		case RET_CARRY:
 			//20/8 Clock Cycles
-			
 			if (CPU_FLAG_BIT_TEST(C_FLAG))
 			{
 				temp->lo = memory->readMemory(SP++);
@@ -3132,7 +3124,6 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (CPU_FLAG_BIT_TEST(C_FLAG))
 			{
-				
 				PC = temp->data;
 				timer_update_cnt += 16;
 			}
@@ -3146,7 +3137,6 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (CPU_FLAG_BIT_TEST(C_FLAG))
 			{
-				
 				Register temp2;
 				temp2.data = PC;
 				memory->writeMemory(--SP, temp2.hi);
@@ -3170,7 +3160,6 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp2.hi);
 			memory->writeMemory(--SP, temp2.lo);
 			PC = 0x0018;
-			
 			timer_update_cnt += 16;
 			break;
 
@@ -3236,7 +3225,7 @@ namespace FuuGB
 			}
 			else
 			{
-				if (checkCarryFromBit_Word(12,SP,byte))
+				if (!checkCarryFromBit_Word(12,SP,byte))
 					CPU_FLAG_BIT_SET(H_FLAG);
                 else
                     CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3834,12 +3823,7 @@ namespace FuuGB
 			else
 				CPU_FLAG_BIT_RESET(C_FLAG);
 
-			for (int i = 7; i > 1; --i)
-			{
-				BitField.set(i, BitField[i - 1]);
-			}
-
-			BitField[0] = false;
+            reg = reg << 1;
 		}
 		else //Right
 		{
@@ -3849,19 +3833,11 @@ namespace FuuGB
 			else
 				CPU_FLAG_BIT_RESET(C_FLAG);
 
-			for (int i = 1; i < BitField.size() - 1; ++i)
-			{
-				BitField.set(i, BitField[i + 1]);
-			}
+            reg = reg >> 1;
 
-			if (!keepMSB)
-				BitField[7] = false;
-			else
-				BitField[7] = oldMSB;
-
+			if (keepMSB && oldMSB)
+                reg |= 0x80;
 		}
-
-		reg = BitField.to_ulong();
 
 		if (reg == 0x00)
 			CPU_FLAG_BIT_SET(Z_FLAG);
@@ -4061,11 +4037,9 @@ namespace FuuGB
 
 	void CPU::adjustDAA(uBYTE & reg)
 	{
-		if (reg == 0x0A)
-			printf("");
 		if (!CPU_FLAG_BIT_TEST(N_FLAG))
 		{
-			if (CPU_FLAG_BIT_TEST(C_FLAG) || reg > 0x9F)
+			if (CPU_FLAG_BIT_TEST(C_FLAG) || reg > 0x99)
 			{
 				reg += 0x60;
 				CPU_FLAG_BIT_SET(C_FLAG);
