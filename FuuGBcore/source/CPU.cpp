@@ -422,41 +422,13 @@ namespace FuuGB
 
 		case INC_valHL:
 			//12 Clock Cycles
-			byte = memory->readMemory(HL.data);
-                
-            if (checkCarryFromBit_Byte(4, byte, 0x01))
-                CPU_FLAG_BIT_SET(H_FLAG);
-            else
-                CPU_FLAG_BIT_RESET(H_FLAG);
-                
-			++byte;
-			if (byte == 0x00)
-				CPU_FLAG_BIT_SET(Z_FLAG);
-			else
-				CPU_FLAG_BIT_RESET(Z_FLAG);
-
-			CPU_FLAG_BIT_RESET(N_FLAG);
-
-			memory->writeMemory(HL.data, byte);
+			increment8BitRegister(memory->readMemory(HL.data));
 			timer_update_cnt += 12;
 			break;
 			
 		case DEC_valHL:
 			//12 Clock Cycles
-			byte = memory->readMemory(HL.data);
-            if (!checkBorrowFromBit_Byte(4, byte, 0x01))
-                CPU_FLAG_BIT_SET(H_FLAG);
-            else
-                CPU_FLAG_BIT_RESET(H_FLAG);
-			--byte;
-			if (byte == 0x00)
-				CPU_FLAG_BIT_SET(Z_FLAG);
-			else
-				CPU_FLAG_BIT_RESET(Z_FLAG);
-
-			CPU_FLAG_BIT_SET(N_FLAG);
-
-			memory->writeMemory(HL.data, byte);
+			decrement8BitRegister(memory->readMemory(HL.data));
 			timer_update_cnt += 12;
 			break;
 
@@ -1306,7 +1278,6 @@ namespace FuuGB
 
 		case RET_NOT_ZERO:
 			//20/8 Clock Cycles
-			
 			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
 				temp->lo = memory->readMemory(SP++);
@@ -1331,8 +1302,7 @@ namespace FuuGB
 			temp->lo = memory->readMemory(PC++);
 			temp->hi = memory->readMemory(PC++);
 			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
-			{
-				
+			{	
 				PC = temp->data;
 				timer_update_cnt += 16;
 			}
@@ -1355,7 +1325,6 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (!CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
-				
 				Register temp2;
 				temp2.data = PC;
 				memory->writeMemory(--SP, temp2.hi);
@@ -1393,7 +1362,6 @@ namespace FuuGB
 
 		case RET_ZERO:
 			//8 Clock Cycles if cc false else 20 clock cycles
-			
 			if (CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
 				temp->lo = memory->readMemory(SP++);
@@ -1627,49 +1595,49 @@ namespace FuuGB
 
 			case SLA_B:
 				//4 clock cycles
-				shiftReg(true, false, BC.hi);
+				shiftReg(true, true, BC.hi);
 				timer_update_cnt += 4;
 				break;
 
 			case SLA_C:
 				//4 clock cycles
-				shiftReg(true, false, BC.lo);
+				shiftReg(true, true, BC.lo);
 				timer_update_cnt += 4;
 				break;
 
 			case SLA_D:
 				//4 clock cycles
-				shiftReg(true, false, DE.hi);
+				shiftReg(true, true, DE.hi);
 				timer_update_cnt += 4;
 				break;
 
 			case SLA_E:
 				//4 clock cycles
-				shiftReg(true, false, DE.lo);
+				shiftReg(true, true, DE.lo);
 				timer_update_cnt += 4;
 				break;
 
 			case SLA_H:
 				//4 clock cycles
-				shiftReg(true, false, HL.hi);
+				shiftReg(true, true, HL.hi);
 				timer_update_cnt += 4;
 				break;
 
 			case SLA_L:
 				//4 clock cycles
-				shiftReg(true, false, HL.lo);
+				shiftReg(true, true, HL.lo);
 				timer_update_cnt += 4;
 				break;
 
 			case SLA_adrHL:
 				//8 Clock Cycles
-				shiftReg(true, false, memory->readMemory(HL.data));
+				shiftReg(true, true, memory->readMemory(HL.data));
 				timer_update_cnt += 8;
 				break;
 
 			case SLA_A:
 				//8 Clock Cycles
-				shiftReg(true, false, AF.hi);
+				shiftReg(true, true, AF.hi);
 				timer_update_cnt += 4;
 				break;
 
@@ -2980,7 +2948,6 @@ namespace FuuGB
 			temp->hi = memory->readMemory(PC++);
 			if (CPU_FLAG_BIT_TEST(Z_FLAG))
 			{
-				
 				Register temp2;
 				temp2.data = PC;
 				memory->writeMemory(--SP, temp2.hi);
@@ -2996,12 +2963,13 @@ namespace FuuGB
 			//24 Clock Cycles
 			temp->lo = memory->readMemory(PC++);
 			temp->hi = memory->readMemory(PC++);
-			
-			Register temp2;
-			temp2.data = PC;
-			memory->writeMemory(--SP, temp2.hi);
-			memory->writeMemory(--SP, temp2.lo);
-			PC = temp->data;
+			{
+				Register temp2;
+				temp2.data = PC;
+				memory->writeMemory(--SP, temp2.hi);
+				memory->writeMemory(--SP, temp2.lo);
+				PC = temp->data;
+			}
 			timer_update_cnt += 24;
 			break;
 
@@ -3014,8 +2982,8 @@ namespace FuuGB
 		case RST_8:
 			//16 Clock Cycles
 			temp->data = PC;
-			memory->writeMemory(--SP, temp2.hi);
-			memory->writeMemory(--SP, temp2.lo);
+			memory->writeMemory(--SP, temp->hi);
+			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0008;
 			
 			timer_update_cnt += 16;
@@ -3047,8 +3015,7 @@ namespace FuuGB
 			temp->lo = memory->readMemory(PC++);
 			temp->hi = memory->readMemory(PC++);
 			if (!CPU_FLAG_BIT_TEST(C_FLAG))
-			{
-				
+			{	
 				PC = temp->data;
 				timer_update_cnt += 16;
 			}
@@ -3061,8 +3028,7 @@ namespace FuuGB
 			temp->lo = memory->readMemory(PC++);
 			temp->hi = memory->readMemory(PC++);
 			if (!CPU_FLAG_BIT_TEST(C_FLAG))
-			{
-				
+			{	
 				Register temp2;
 				temp2.data = PC;
 				memory->writeMemory(--SP, temp2.hi);
@@ -3090,8 +3056,8 @@ namespace FuuGB
 		case RST_10:
 			//16 Clock Cycles
 			temp->data = PC;
-			memory->writeMemory(--SP, temp2.hi);
-			memory->writeMemory(--SP, temp2.lo);
+			memory->writeMemory(--SP, temp->hi);
+			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0010;
 			timer_update_cnt += 16;
 			break;
@@ -3157,8 +3123,8 @@ namespace FuuGB
 		case RST_18:
 			//16 Clock Cycles
 			temp->data = PC;
-			memory->writeMemory(--SP, temp2.hi);
-			memory->writeMemory(--SP, temp2.lo);
+			memory->writeMemory(--SP, temp->hi);
+			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0018;
 			timer_update_cnt += 16;
 			break;
@@ -3199,8 +3165,8 @@ namespace FuuGB
 		case RST_20:
 			//16 Clock Cycles
 			temp->data = PC;
-			memory->writeMemory(--SP, temp2.hi);
-			memory->writeMemory(--SP, temp2.lo);
+			memory->writeMemory(--SP, temp->hi);
+			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0020;
 			
 			timer_update_cnt += 16;
@@ -3264,8 +3230,8 @@ namespace FuuGB
 		case RST_28:
 			//16 Clock Cycles
 			temp->data = PC;
-			memory->writeMemory(--SP, temp2.hi);
-			memory->writeMemory(--SP, temp2.lo);
+			memory->writeMemory(--SP, temp->hi);
+			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0028;
 			
 			timer_update_cnt += 16;
@@ -3293,7 +3259,7 @@ namespace FuuGB
 		case PUSH_AF:
 			//16 clock cycles
 			memory->writeMemory(--SP, AF.hi);
-			memory->writeMemory(--SP, AF.lo & 0xF0);
+			memory->writeMemory(--SP, AF.lo);
 			timer_update_cnt += 16;
 			break;
 
@@ -3306,8 +3272,8 @@ namespace FuuGB
 		case RST_30:
 			//16 Clock Cycles
 			temp->data = PC;
-			memory->writeMemory(--SP, temp2.hi);
-			memory->writeMemory(--SP, temp2.lo);
+			memory->writeMemory(--SP, temp->hi);
+			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0030;
 			timer_update_cnt += 16;
 			break;
@@ -3378,8 +3344,8 @@ namespace FuuGB
 		case RST_38:
 			//16 Clock Cycles
 			temp->data = PC;
-			memory->writeMemory(--SP, temp2.hi);
-			memory->writeMemory(--SP, temp2.lo);
+			memory->writeMemory(--SP, temp->hi);
+			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0038;
 			timer_update_cnt += 16;
 			break;
@@ -3818,12 +3784,22 @@ namespace FuuGB
 		std::bitset<8> BitField(reg);
 		if (direction) //left
 		{
+			bool oldMSB = BitField[7];
+
 			if (BitField[7])
 				CPU_FLAG_BIT_SET(C_FLAG);
 			else
 				CPU_FLAG_BIT_RESET(C_FLAG);
 
             reg = reg << 1;
+
+			if (keepMSB)
+			{
+				if (oldMSB)
+					reg |= 0x80;
+				else
+					reg &= 0x7F;
+			}
 		}
 		else //Right
 		{
@@ -3835,8 +3811,13 @@ namespace FuuGB
 
             reg = reg >> 1;
 
-			if (keepMSB && oldMSB)
-                reg |= 0x80;
+			if (keepMSB)
+			{
+				if (oldMSB)
+					reg |= 0x80;
+				else
+					reg &= 0x7F;
+			}
 		}
 
 		if (reg == 0x00)

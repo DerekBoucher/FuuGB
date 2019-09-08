@@ -424,52 +424,53 @@ namespace FuuGB
             STAT.reset(0);
             reqInt = STAT.test(5);
         }
-        else
+		else
+		{
+			int mode2BOUND = 456 - 80;
+			int mode3BOUND = mode2BOUND - 172;
+
+			//Mode 2
+			if (scanline_counter >= mode2BOUND)
+			{
+				mode = 2;
+				STAT.set(1);
+				STAT.reset(0);
+				reqInt = STAT.test(5);
+			}
+			else if (scanline_counter >= mode3BOUND)
+			{
+				mode = 3;
+				STAT.set(1);
+				STAT.set(0);
+			}
+			else
+			{
+				mode = 0;
+				STAT.reset(1);
+				STAT.reset(0);
+				reqInt = STAT.test(3);
+			}
+		}
+            
+		if(reqInt && (mode != currentMode))
         {
-            int mode2BOUND = 456 - 80;
-            int mode3BOUND = mode2BOUND - 172;
+            MEM->RequestInterupt(1);
+        }
             
-            //Mode 2
-            if(scanline_counter >= mode2BOUND)
-            {
-                mode = 2;
-                STAT.set(1);
-                STAT.reset(0);
-                reqInt = STAT.test(5);
-            }
-            else if(scanline_counter >= mode3BOUND)
-            {
-                mode = 3;
-                STAT.set(1);
-                STAT.set(0);
-            }
-            else
-            {
-                mode = 0;
-                STAT.reset(1);
-                STAT.reset(0);
-                reqInt = STAT.test(3);
-            }
-            
-            if(reqInt && (mode != currentMode))
+        if(MEM->readMemory(0xFF44) == MEM->readMemory(0xFF45))
+        {
+            STAT.set(2);
+            if(STAT.test(6))
             {
                 MEM->RequestInterupt(1);
             }
-            
-            if(MEM->readMemory(0xFF44) == MEM->readMemory(0xFF45))
-            {
-                STAT.set(2);
-                if(STAT.test(6))
-                {
-                    MEM->RequestInterupt(1);
-                }
-            }
-            else
-            {
-                STAT.reset(2);
-            }
-            MEM->writeMemory(0xFF41, (uBYTE)STAT.to_ulong());
         }
+        else
+        {
+            STAT.reset(2);
+        }
+
+		MEM->writeMemory(0xFF41, (uBYTE)STAT.to_ulong());
     }
     
     void PPU::renderscreen()

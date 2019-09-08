@@ -199,7 +199,7 @@ namespace FuuGB
 			RAM_BANK_CNT = 4;
 		default:
 			//Invalid Value
-			exit(-9);
+			//exit(-9);
 			break;
 		}
 		extRamEnabled = false;

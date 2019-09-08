@@ -23,27 +23,20 @@ namespace FuuGB
     public:
         Memory(Cartridge*);
         virtual ~Memory();
+
 		void closeBootRom();
-        void stop();
         void writeMemory(uWORD, uBYTE);
-        uBYTE& readMemory(uWORD);
-
-		uBYTE & DMA_read(uWORD addr);
-
 		void DMA_write(uWORD addr, uBYTE data);
-
 		void changeROMBank(uWORD addr, uBYTE data);
-
 		void toggleRAM(uWORD addr, uBYTE data);
-
 		void changeMode(uBYTE data);
-        
         void RequestInterupt(int code);
-
 		void changeRAMBank(uWORD addr, uBYTE data);
-        int                     timer_counter;
-        
-    
+		uBYTE& readMemory(uWORD);
+		uBYTE& DMA_read(uWORD addr);
+
+	public:
+		int                     timer_counter;
     private:
         uBYTE*                  M_MEM;
         Cartridge*              cart;
@@ -53,9 +46,6 @@ namespace FuuGB
 		bool					bootRomClosed;
         void                    DMA_Transfer(uBYTE);
 		uBYTE					dummy = 0x00;
-	
-    
-        void ramClock();
     };
 }
 #endif /* Memory_h */

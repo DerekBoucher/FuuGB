@@ -77,6 +77,7 @@ namespace FuuGB
 
 		Memory*         memory;
 		Cartridge*      gameCart;
+		std::thread*    _cpuTHR;
 		bool            _cpuRunning;
 		bool			_cpuPaused;
 		bool			IME;
