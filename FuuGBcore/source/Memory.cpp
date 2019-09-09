@@ -67,7 +67,7 @@ namespace FuuGB
 			std::bitset<8> LCD_Enable(M_MEM[0xFF40]);
 			uBYTE mode = STAT.to_ulong();
 
-			if(mode == 0 || mode == 1 || mode == 2 || !LCD_Enable[7])
+			//if(mode == 0 || mode == 1 || mode == 2 || !LCD_Enable[7])
 				M_MEM[addr] = data;
 		}
 		else if ((addr >= 0xA000) && (addr < 0xC000)) //Switchable Ram Bank
@@ -92,7 +92,7 @@ namespace FuuGB
 			std::bitset<8> LCD_Enable(M_MEM[0xFF40]);
 			uBYTE mode = STAT.to_ulong();
 
-			if (mode == 0 || mode == 1 || !LCD_Enable[7])
+			//if (mode == 0 || mode == 1 || !LCD_Enable[7])
 				M_MEM[addr] = data;
 		}
         else if(addr == 0xFF07) //Timer Controller

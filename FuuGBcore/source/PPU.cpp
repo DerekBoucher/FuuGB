@@ -407,7 +407,7 @@ namespace FuuGB
             MEM->DMA_write(0xFF44, 0x00);
             status &= 252;
             status |= 0x01;
-            MEM->writeMemory(0xFF41, status);
+            MEM->DMA_write(0xFF41, status);
             return;
         }
         
@@ -437,6 +437,7 @@ namespace FuuGB
 				STAT.reset(0);
 				reqInt = STAT.test(5);
 			}
+			//Mode 3
 			else if (scanline_counter >= mode3BOUND)
 			{
 				mode = 3;
@@ -470,7 +471,7 @@ namespace FuuGB
             STAT.reset(2);
         }
 
-		MEM->writeMemory(0xFF41, (uBYTE)STAT.to_ulong());
+		MEM->DMA_write(0xFF41, (uBYTE)STAT.to_ulong());
     }
     
     void PPU::renderscreen()
