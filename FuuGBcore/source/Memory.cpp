@@ -63,12 +63,7 @@ namespace FuuGB
 		}
 		else if ((addr >= 0x8000) && (addr < 0xA000)) //Video RAM
 		{
-			std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
-			std::bitset<8> LCD_Enable(M_MEM[0xFF40]);
-			uBYTE mode = STAT.to_ulong();
-
-			//if(mode == 0 || mode == 1 || mode == 2 || !LCD_Enable[7])
-				M_MEM[addr] = data;
+            M_MEM[addr] = data;
 		}
 		else if ((addr >= 0xA000) && (addr < 0xC000)) //Switchable Ram Bank
 		{
@@ -88,12 +83,7 @@ namespace FuuGB
 		}
 		else if ((addr >= 0xFE00) && (addr < 0xFE9F)) //OAM RAM
 		{
-			std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
-			std::bitset<8> LCD_Enable(M_MEM[0xFF40]);
-			uBYTE mode = STAT.to_ulong();
-
-			//if (mode == 0 || mode == 1 || !LCD_Enable[7])
-				M_MEM[addr] = data;
+            M_MEM[addr] = data;
 		}
         else if(addr == 0xFF07) //Timer Controller
         {
@@ -154,20 +144,10 @@ namespace FuuGB
 	}
 
 	uBYTE& Memory::readMemory(uWORD addr)
-	{
-		if ((addr >= 0x8000) && (addr < 0xA000))
-		{
-			std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
-			uBYTE mode = STAT.to_ulong();
-
-			if (mode == 0 || mode == 1 || mode == 2)
-				return M_MEM[addr];
-			else
-			{
-				dummy = 0xff;
-				return dummy;
-			}
-		}
+    {
+        if((addr >= 0x8000) && (addr < 0xA000))
+            return M_MEM[addr];
+        
         else if (addr >= 0xA000 & addr < 0xC000)
 		{
 			if (cart->extRamEnabled)
@@ -180,19 +160,10 @@ namespace FuuGB
 		}
 		else if((addr >= 0xFE00) && (addr < 0xFEA0))
         {
-            std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
-            uBYTE mode = STAT.to_ulong();
-            
-            if (mode == 0 || mode == 1)
-                return M_MEM[addr];
-            else
-            {
-                dummy = 0xff;
-                return dummy;
-            }
+            return M_MEM[addr];
         }
         else
-			return M_MEM[addr];
+            return M_MEM[addr];
 	}
 
 	uBYTE& Memory::DMA_read(uWORD addr) //Mainly used for PPU and Interupts
