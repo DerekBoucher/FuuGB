@@ -1,10 +1,4 @@
-//
-//  CocoaWindow.m
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-04.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
+#ifdef FUUGB_SYSTEM_MACOS
 
 #import "CocoaWindow.h"
 
@@ -33,3 +27,5 @@
     [Handle->info.cocoa.window.menu insertItem:FILE_menuitem atIndex:1];
 }
 @end
+
+#endif

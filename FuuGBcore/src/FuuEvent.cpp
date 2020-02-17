@@ -1,16 +1,9 @@
-//
-//  FuuEvent.cpp
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-20.
-//
-
 #include "Fuupch.h"
 #include "FuuEvent.h"
 
 namespace FuuGB
 {
-    SDL_Event FUUGB_EVENT;
+    SDL_Event event;
     bool FUUGB_RUNNING;
     
     void FuuEvent::poll_Event()

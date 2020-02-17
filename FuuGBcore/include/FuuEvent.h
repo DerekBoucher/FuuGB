@@ -1,14 +1,7 @@
-//
-//  FuuEvent.h
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-20.
-//
-
 #ifndef FuuEvent_h
 #define FuuEvent_h
+
 #include "Core.h"
-#include "Logger.h"
 
 namespace FuuGB
 {

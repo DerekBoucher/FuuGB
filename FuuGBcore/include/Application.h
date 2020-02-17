@@ -1,10 +1,3 @@
-//
-//  Application.h
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-19.
-//
-
 /*
  *  Class Application
  *
@@ -14,9 +7,10 @@
  *              run() method to effectively have the application context run within the dynamic
  *              library.
  */
+
 #ifndef Application_h
 #define Application_h
-#include "Logger.h"
+
 #include "FuuEvent.h"
 
 namespace FuuGB

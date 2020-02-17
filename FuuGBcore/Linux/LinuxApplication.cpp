@@ -1,9 +1,4 @@
-//
-//  LinuxApplication.cpp
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-20.
-//
+#ifdef FUUGB_SYSTEM_LINUX
 
 #include "Fuupch.h"
 #include "LinuxApplication.h"
@@ -50,3 +45,5 @@ namespace FuuGB
 		FUUGB_QUIT();
     }
 }
+
+#endif

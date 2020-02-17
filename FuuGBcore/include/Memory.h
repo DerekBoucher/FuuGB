@@ -1,16 +1,8 @@
-//
-//  Memory.h
-//  FuuGBemu
-//
-//  Created by Derek Boucher on 2019-02-10.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
-
 #ifndef Memory_h
 #define Memory_h
+
 #include "Core.h"
 #include "Cartridge.h"
-#include "Logger.h"
 
 #define RAM_CLOCK_PERIOD_NS 952
 #define ECHO_RAM_OFFSET 0x2000
@@ -41,7 +33,6 @@ namespace FuuGB
         uBYTE*                  M_MEM;
         Cartridge*              cart;
         FILE*                   bootROM;
-        std::thread*            _timerTHR;
         bool                    CycleDone;
 		bool					bootRomClosed;
         void                    DMA_Transfer(uBYTE);

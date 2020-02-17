@@ -1,10 +1,4 @@
-//
-//  MacEventHandler.m
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-04.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
+#ifdef FUUGB_SYSTEM_MACOS
 
 #import "MacEventHandler.h"
 
@@ -38,3 +32,5 @@
 }
 
 @end
+
+#endif

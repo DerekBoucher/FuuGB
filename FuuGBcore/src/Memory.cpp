@@ -1,11 +1,3 @@
-//
-//  Memory.cpp
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-10.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
-
 #include "Fuupch.h"
 #include "Memory.h"
 
@@ -24,9 +16,8 @@ namespace FuuGB
 		for (int i = 0x100; i < 0x8000; ++i)
 			M_MEM[i] = cart->ROM[i];
 
-		FUUGB_MEM_LOG("MEMORY Initialized.");
 		bootRomClosed = false;
-        timer_counter = 0;
+		timer_counter = 0;
 	}
 
 	Memory::~Memory()
@@ -34,7 +25,6 @@ namespace FuuGB
 
 		delete[] M_MEM;
 		delete cart;
-		FUUGB_MEM_LOG("MEMORY Destroyed.");
 	}
 
 	void Memory::closeBootRom()
@@ -63,7 +53,7 @@ namespace FuuGB
 		}
 		else if ((addr >= 0x8000) && (addr < 0xA000)) //Video RAM
 		{
-            M_MEM[addr] = data;
+			M_MEM[addr] = data;
 		}
 		else if ((addr >= 0xA000) && (addr < 0xC000)) //Switchable Ram Bank
 		{
@@ -83,41 +73,41 @@ namespace FuuGB
 		}
 		else if ((addr >= 0xFE00) && (addr < 0xFE9F)) //OAM RAM
 		{
-            M_MEM[addr] = data;
+			M_MEM[addr] = data;
 		}
-        else if(addr == 0xFF07) //Timer Controller
-        {
-            uBYTE currentfrequency = this->readMemory(addr) & 0x03;
-            M_MEM[addr] = data;
-            uBYTE newfreq = this->readMemory(addr) & 0x03;
-            if(currentfrequency != newfreq)
-            {
-                uBYTE frequency = this->readMemory(0xFF07) & 0x03;
-                switch(frequency)
-                {
-                    case 0: this->timer_counter = 1024; break;
-                    case 1: this->timer_counter = 16; break;
-                    case 2: this->timer_counter = 64; break;
-                    case 3: this->timer_counter = 256; break;
-                }
-            }
-        }
-        else if(addr == 0xFF04)
-        {
-            M_MEM[addr] = 0;
-        }
+		else if(addr == 0xFF07) //Timer Controller
+		{
+			uBYTE currentfrequency = this->readMemory(addr) & 0x03;
+			M_MEM[addr] = data;
+			uBYTE newfreq = this->readMemory(addr) & 0x03;
+			if(currentfrequency != newfreq)
+			{
+				uBYTE frequency = this->readMemory(0xFF07) & 0x03;
+				switch(frequency)
+				{
+					case 0: this->timer_counter = 1024; break;
+					case 1: this->timer_counter = 16; break;
+					case 2: this->timer_counter = 64; break;
+					case 3: this->timer_counter = 256; break;
+				}
+			}
+		}
+		else if(addr == 0xFF04)
+		{
+			M_MEM[addr] = 0;
+		}
 		else if (addr == 0xFF40)
 		{
-            std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
-            std::bitset<8> d(data);
-            uBYTE mode = STAT.to_ulong();
-            if(!d.test(7))
-            {
-                if(mode == 1)
-                    M_MEM[addr] = data;
-            }
-            else
-                M_MEM[addr] = data;
+			std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
+			std::bitset<8> d(data);
+			uBYTE mode = STAT.to_ulong();
+			if(!d.test(7))
+			{
+				if(mode == 1)
+					M_MEM[addr] = data;
+			}
+			else
+				M_MEM[addr] = data;
 		}
 		else if (addr == 0xFF41)
 		{
@@ -126,29 +116,29 @@ namespace FuuGB
 			data |= temp;
 			M_MEM[addr] = data;
 		}
-        else if(addr == 0xFF44)
-        {
-            M_MEM[addr] = 0;
-        }
-        else if(addr == 0xFF46)
-        {
-            DMA_Transfer(data);
-        }
-        else if(addr == 0xFF50)
-        {
-            M_MEM[addr] = data;
-            closeBootRom();
-        }
+		else if(addr == 0xFF44)
+		{
+			M_MEM[addr] = 0;
+		}
+		else if(addr == 0xFF46)
+		{
+			DMA_Transfer(data);
+		}
+		else if(addr == 0xFF50)
+		{
+			M_MEM[addr] = data;
+			closeBootRom();
+		}
 		else
 			M_MEM[addr] = data;
 	}
 
 	uBYTE& Memory::readMemory(uWORD addr)
-    {
-        if((addr >= 0x8000) && (addr < 0xA000))
-            return M_MEM[addr];
-        
-        else if (addr >= 0xA000 & addr < 0xC000)
+	{
+		if((addr >= 0x8000) && (addr < 0xA000))
+			return M_MEM[addr];
+		
+		else if (addr >= 0xA000 && addr < 0xC000)
 		{
 			if (cart->extRamEnabled)
 				return M_MEM[addr];
@@ -159,11 +149,11 @@ namespace FuuGB
 			}
 		}
 		else if((addr >= 0xFE00) && (addr < 0xFEA0))
-        {
-            return M_MEM[addr];
-        }
-        else
-            return M_MEM[addr];
+		{
+			return M_MEM[addr];
+		}
+		else
+			return M_MEM[addr];
 	}
 
 	uBYTE& Memory::DMA_read(uWORD addr) //Mainly used for PPU and Interupts
@@ -268,25 +258,25 @@ namespace FuuGB
 			}
 		}
 	}
-    
-    void Memory::RequestInterupt(int code)
-    {
-        std::bitset<8> IF(this->readMemory(0xFF0F));
-        
-        switch(code)
-        {
-            case 0: IF.set(0); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
-            case 1: IF.set(1); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
-            case 2: IF.set(2); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
-            case 3: IF.set(3); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
-            case 4: IF.set(4); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
-        }
-    }
-    
-    void Memory::DMA_Transfer(uBYTE data)
-    {
-        uWORD addr = data << 8;
-        for(int i = 0; i < 0xA0; i++)
-            this->writeMemory(0xFE00+i, this->readMemory(addr+i));
-    }
+	
+	void Memory::RequestInterupt(int code)
+	{
+		std::bitset<8> IF(this->readMemory(0xFF0F));
+		
+		switch(code)
+		{
+			case 0: IF.set(0); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
+			case 1: IF.set(1); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
+			case 2: IF.set(2); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
+			case 3: IF.set(3); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
+			case 4: IF.set(4); this->writeMemory(0xFF0F, (uBYTE)IF.to_ulong()); break;
+		}
+	}
+	
+	void Memory::DMA_Transfer(uBYTE data)
+	{
+		uWORD addr = data << 8;
+		for(int i = 0; i < 0xA0; i++)
+			this->writeMemory(0xFE00+i, this->readMemory(addr+i));
+	}
 }

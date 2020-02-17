@@ -1,10 +1,4 @@
-//
-//  MacEventHandler.h
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-04.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
+#ifdef FUUGB_SYSTEM_MACOS
 
 #include "Gameboy.h"
 NS_ASSUME_NONNULL_BEGIN
@@ -21,3 +15,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

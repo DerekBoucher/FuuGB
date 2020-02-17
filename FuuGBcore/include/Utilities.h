@@ -1,27 +1,23 @@
-//
-//  Utilities.h
-//  FuuGBemu
-//
-//  Created by Derek Boucher on 2019-02-04.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
+#ifdef FUUGB_SYSTEM_WINDOWS
 
 #ifndef Utilities_h
 #define Utilities_h
-#include "Fuupch.h"
 
-//Various application utilities
-namespace FuuGB
-{
-    //Namespace variables/Defines
 #define ID_LOADROM 1
 #define ID_ABOUT 2
 #define ID_EXIT 3
 #define ID_CONTROLS 4
 #define ID_EXT_DISPLAY 5
+
+#include "Fuupch.h"
+
+//Various application utilities
+namespace FuuGB
+{
+    //Namespace variables
     static HMENU hHelp;
     static HMENU hEdit;
-	static HMENU hOptions;
+    static HMENU hOptions;
     static HMENU hFile;
     static HMENU hMenuBar;
     
@@ -58,21 +54,24 @@ namespace FuuGB
 		hOptions = CreateMenu();
         hHelp = CreateMenu();
 
-        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hFile, L"File");
-        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hEdit, L"Edit");
-		AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hOptions, L"Options");
-        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hHelp, L"Help");
+        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hFile, "File");
+        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hEdit, "Edit");
+		AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hOptions, "Options");
+        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hHelp, "Help");
         
-        AppendMenu(hFile, MF_STRING, ID_LOADROM, L"Load ROM");
-        AppendMenu(hFile, MF_STRING, ID_EXIT, L"Exit");
+        AppendMenu(hFile, MF_STRING, ID_LOADROM, "Load ROM");
+        AppendMenu(hFile, MF_STRING, ID_EXIT, "Exit");
         
-        AppendMenu(hEdit, MF_STRING, ID_CONTROLS, L"Configure Controls");
+        AppendMenu(hEdit, MF_STRING, ID_CONTROLS, "Configure Controls");
 
-		AppendMenu(hOptions, MF_STRING, ID_EXT_DISPLAY, L"Extend Display");
+		AppendMenu(hOptions, MF_STRING, ID_EXT_DISPLAY, "Extend Display");
         
-        AppendMenu(hHelp, MF_STRING, ID_ABOUT, L"About");
+        AppendMenu(hHelp, MF_STRING, ID_ABOUT, "About");
         
         SetMenu(windowRef, hMenuBar);
     }
 };
+
 #endif /* Utilities_h */
+
+#endif

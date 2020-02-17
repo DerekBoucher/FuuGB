@@ -1,16 +1,10 @@
-//
-//  Core.h
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-19.
-//
-
 /*
  *  Header Core
  *
  *  Synposis:   Header containing various system core defines and macros.
  *              Referenced by almost all components of this library.
  */
+
 #ifndef Core_h
 #define Core_h
 
@@ -43,8 +37,8 @@ namespace FuuGB
     {
         static const int ScaleFactor = 4;
         static bool RUNNING;
-		static std::condition_variable cv_GB;
-		static std::mutex mu_GB;
+		static pthread_cond_t cv_GB;
+		static pthread_mutex_t mu_GB;
     };
 }
 

@@ -1,11 +1,3 @@
-//
-//  PPU.cpp
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-10.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
-
 #include "Fuupch.h"
 #include "PPU.h"
 
@@ -44,7 +36,6 @@ namespace FuuGB
 		}
         currentScanLine = 1;
         scanline_counter = 456;
-		FUUGB_PPU_LOG("PPU Initialized.");
 	}
 
 	PPU::~PPU()
@@ -53,7 +44,6 @@ namespace FuuGB
 		SDL_RenderClear(renderer);
 		SDL_RenderPresent(renderer);
 		SDL_DestroyRenderer(this->renderer);
-		FUUGB_PPU_LOG("PPU Destroyed.");
 	}
 
 

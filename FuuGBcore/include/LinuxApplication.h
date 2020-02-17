@@ -1,9 +1,4 @@
-//
-//  LinuxApplication.h
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-20.
-//
+#ifdef FUUGB_SYSTEM_LINUX
 
 #ifndef LinuxApplication_h
 #define LinuxApplication_h
@@ -22,4 +17,7 @@ namespace FuuGB
 		void run();
 	};
 }
+
 #endif /* LinuxApplication_h */
+
+#endif

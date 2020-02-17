@@ -1,19 +1,8 @@
-//
-//  CPU.cpp
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-10.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
-
 #include "Fuupch.h"
 #include "CPU.h"
 
 namespace FuuGB
 {
-	std::condition_variable Shared::cv_GB;
-	std::mutex Shared::mu_GB;
-
 	CPU::CPU(Memory* mem)
 	{
 		this->PC = 0x0000;
@@ -36,33 +25,15 @@ namespace FuuGB
 		FlagBits = new std::bitset<sizeof(uBYTE)*8>(&AF.lo);
 		AluBits = new std::bitset<sizeof(uBYTE)*8>(&AF.hi);
 		
-		FUUGB_CPU_LOG("CPU Initialized.");
 	}
 
 	CPU::~CPU()
 	{
-		FUUGB_CPU_LOG("CPU Destroyed.");
 	}
 
 	void CPU::Pause()
 	{
 		_cpuPaused = true;
-	}
-
-	void CPU::clock()
-	{
-		while (_cpuRunning)
-		{
-			if (_cpuPaused)
-			{
-				std::unique_lock<std::mutex> pauseLock(Shared::mu_GB);
-				Shared::cv_GB.wait(pauseLock);
-				pauseLock.unlock();
-				_cpuPaused = false;
-			}
-			executeNextOpCode();
-			checkInterupts();
-		}
 	}
 
 	int CPU::executeNextOpCode()
@@ -71,8 +42,7 @@ namespace FuuGB
 		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
-		if (PC == 0x00FF)
-			printf("");
+
 		switch (byte)
 		{
 		case NOP:
