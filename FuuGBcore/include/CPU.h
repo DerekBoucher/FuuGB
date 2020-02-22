@@ -67,7 +67,6 @@ namespace FuuGB
 		uWORD       PC;
 
 		Memory*         memory;
-		Cartridge*      gameCart;
 		bool            _cpuRunning;
 		bool			_cpuPaused;
 		bool			IME;

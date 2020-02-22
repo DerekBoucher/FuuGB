@@ -31,7 +31,6 @@
 #endif
 
 #ifdef FUUGB_SYSTEM_MACOS
-	#include <Cocoa/Cocoa.h>
 	#include <SDL2/SDL.h>
 	#include <SDL2/SDL_syswm.h>
 #endif

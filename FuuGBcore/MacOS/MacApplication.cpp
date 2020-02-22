@@ -1,11 +1,6 @@
 #ifdef FUUGB_SYSTEM_MACOS
 
-#include "Application.h"
-#include "System.h"
-#include "Gameboy.h"
-#include "CocoaWindow.h"
-#include "FuuEvent.h"
-
+#include "MacApplication.h"
 
 namespace FuuGB
 {
@@ -26,28 +21,10 @@ namespace FuuGB
         SDL_GetWindowWMInfo(_SDLwindow, NativeWindowInfo);
 
         Gameboy* gameBoy = nullptr;
-
-        CocoaWindow* MacWindow = [[CocoaWindow alloc] init];
-        MacWindow->MacEvent->gb_ref = gameBoy;
-        [MacWindow configureWindow:NativeWindowInfo];
         
         while(FUUGB_RUNNING)
         {
             FUUGB_POLL_EVENT();
-
-            if(MacWindow->MacEvent->inputBuffer != NULL)
-            {
-                if(gameBoy != nullptr)
-                {
-                    delete gameBoy;
-                    gameBoy = nullptr;
-                }
-                gameBoy = new Gameboy(_SDLwindow,
-                                        new Cartridge(MacWindow->MacEvent->inputBuffer));
-                fclose(MacWindow->MacEvent->inputBuffer);
-                MacWindow->MacEvent->inputBuffer = NULL;
-                MacWindow->MacEvent->gb_ref = gameBoy;
-            }
 
             switch(FUUGB_EVENT.type)
             {

@@ -6,7 +6,6 @@
 #include "Application.h"
 #include "System.h"
 #include "Gameboy.h"
-#include "..\MacOS\CocoaWindow.h"
 #include "FuuEvent.h"
 
 namespace FuuGB 
@@ -14,6 +13,8 @@ namespace FuuGB
     class FUUGB_API MacApplication : public Application
     {
     public:
+        MacApplication();
+        virtual ~MacApplication();
         void run();
     };
 }
