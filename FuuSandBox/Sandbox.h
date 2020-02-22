@@ -8,7 +8,7 @@ public:
 	{
 		
 	}
-	~Sandbox()
+	virtual ~Sandbox()
 	{
 		
 	}

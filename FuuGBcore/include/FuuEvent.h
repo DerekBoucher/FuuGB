@@ -5,13 +5,13 @@
 
 namespace FuuGB
 {
-    class FUUGB_API FuuEvent
-    {
-    public:
-        static void poll_Event();
-        static SDL_Event event;
-    };
-}
+class FUUGB_API FuuEvent
+{
+public:
+    static int poll_Event();
+    static SDL_Event event;
+};
+} // namespace FuuGB
 
 #define FUUGB_EVENT FuuGB::FuuEvent::event
 #define FUUGB_POLL_EVENT() FuuGB::FuuEvent::poll_Event()

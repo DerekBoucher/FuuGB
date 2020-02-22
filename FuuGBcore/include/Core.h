@@ -11,19 +11,19 @@
 #include "Fuupch.h"
 
 #ifdef FUUGB_SYSTEM_WINDOWS
-    #ifdef FUUGB_BUILD_DLL
-        #define FUUGB_API __declspec(dllexport)
-    #else
-        #define FUUGB_API __declspec(dllimport)
-    #endif
+#ifdef FUUGB_BUILD_DLL
+#define FUUGB_API __declspec(dllexport)
+#else
+#define FUUGB_API __declspec(dllimport)
+#endif
 #endif
 
 #ifdef FUUGB_SYSTEM_MACOS
-    #define FUUGB_API
+#define FUUGB_API
 #endif
 
 #ifdef FUUGB_SYSTEM_LINUX
-    #define FUUGB_API
+#define FUUGB_API
 #endif
 
 typedef unsigned char uBYTE;
@@ -33,14 +33,14 @@ typedef short sWORD;
 
 namespace FuuGB
 {
-    struct Shared
-    {
-        static const int ScaleFactor = 4;
-        static bool RUNNING;
-		static pthread_cond_t cv_GB;
-		static pthread_mutex_t mu_GB;
-    };
-}
+struct Shared
+{
+    static const int ScaleFactor = 4;
+    static bool RUNNING;
+    static pthread_cond_t cv_GB;
+    static pthread_mutex_t mu_GB;
+};
+} // namespace FuuGB
 
 #define FUUGB_RUNNING Shared::RUNNING
 #define SCALE_FACTOR FuuGB::Shared::ScaleFactor

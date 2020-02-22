@@ -11,3 +11,5 @@ bin-int/
 .vscode/
 *Makefile
 *.hint
+obj/
+build/

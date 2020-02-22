@@ -1,13 +1,14 @@
 #include "Fuupch.h"
 #include "FuuEvent.h"
 
+SDL_Event FuuGB::FuuEvent::event;
+
 namespace FuuGB
 {
-    SDL_Event event;
-    bool FUUGB_RUNNING;
-    
-    void FuuEvent::poll_Event()
-    {
-        SDL_PollEvent(&FUUGB_EVENT);
-    }
+bool FUUGB_RUNNING;
+
+int FuuEvent::poll_Event()
+{
+    return SDL_PollEvent(&FUUGB_EVENT);
 }
+} // namespace FuuGB
