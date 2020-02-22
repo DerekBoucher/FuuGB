@@ -9,7 +9,7 @@ workspace "FuuGBemu"
         location "FuuGBcore"
         kind "SharedLib"
         language "C++"
-        cppdialect "C++17"
+        cppdialect "C++11"
         targetdir ("bin/" .. outputdir .. "/%{prj.name}")
         objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 

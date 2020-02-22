@@ -37,6 +37,6 @@ namespace FuuGB
 }
 
 #define FUUGB_INIT() FuuGB::System::initSystems()
-#define FUUGB_QUIT() FuuGB:System::closeSystems()
+#define FUUGB_QUIT() FuuGB::System::closeSystems()
 
 #endif /* System_h */

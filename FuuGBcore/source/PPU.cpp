@@ -110,15 +110,15 @@ namespace FuuGB
         bool WinEnabled = false;
         bool unsigned_ID = false;
         
-        //Determine The offsets to use when retrieving the Tile Identifiers from
-        //Tile Map address space.
+        // Determine The offsets to use when retrieving the Tile Identifiers from
+        // Tile Map address space.
         uBYTE ScrollX = MEM->readMemory(0xFF43);
         uBYTE ScrollY = MEM->readMemory(0xFF42);
         uBYTE WinX = MEM->readMemory(0xFF4B) - 7;
         uBYTE WinY = MEM->readMemory(0xFF4A);
         
         
-        //Determine Address of Tile Data depending on the LCDC bit 4
+        // Determine Address of Tile Data depending on the LCDC bit 4
         if(LCDC.test(4))
         {
             Tile_Data_Ptr = 0x8000;
@@ -130,20 +130,20 @@ namespace FuuGB
             unsigned_ID = false;
         }
         
-        //Determine the Address of the Tile Mapping For BG & Window
+        // Determine the Address of the Tile Mapping For BG & Window
         if(LCDC.test(3))
             Tile_Map_Ptr = 0x9C00;
         else
             Tile_Map_Ptr = 0x9800;
         
-        //Determine if the window is to be rendered
-        //The window has is rendered above the background
+        // Determine if the window is to be rendered
+        // The window is rendered above the background
         if(LCDC.test(5))
             WinEnabled = true;
         else
             WinEnabled = false;
         
-        //If Window is to be rendered, determine its Maping ptr in memory
+        // If Window is to be rendered, determine its Maping ptr in memory
         if(WinEnabled)
         {
             if(LCDC.test(6))
@@ -152,7 +152,7 @@ namespace FuuGB
                 Win_Map_Ptr = 0x9800;
         }
         
-        //Determine the current scanline we are on
+        // Determine the current scanline we are on
         currentScanLine = MEM->readMemory(0xFF44);
 		uWORD yPos;
 		if (!WinEnabled)
@@ -160,8 +160,9 @@ namespace FuuGB
 		else
 			yPos = currentScanLine - WinY;
 
-		uWORD Tile_Row = (yPos / 8)* 32;
-        //Start Rendering the scanline
+		uWORD Tile_Row = (yPos / 8) * 32;
+        
+        // Start Rendering the scanline
         for(int pixel = 0;pixel < 160; pixel++)
         {
 			uWORD xPos = pixel + ScrollX;
@@ -281,8 +282,8 @@ namespace FuuGB
         for (int sprite = 0; sprite < 40; sprite++)
         {
             uBYTE index = sprite*4;
-            uBYTE yPos = MEM->readMemory(0xFE00 + index) - 16;
-            uBYTE xPos = MEM->readMemory(0xFE00 + index +1) - 8;
+            uBYTE yPos = MEM->readMemory(0xFE00 + index);
+            uBYTE xPos = MEM->readMemory(0xFE00 + index + 1);
             uBYTE tilelocation = MEM->readMemory(0xFFE0 + index + 2);
             uBYTE attributes = MEM->readMemory(0xFFE0 + index + 3);
             
@@ -352,26 +353,26 @@ namespace FuuGB
                         case 0x00:
                             if(Color_00.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
                             else if(Color_00.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_00.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
-                            else if(Color_00.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                            else if(Color_00.to_ulong() == 0x02) { R = 169; G = 169; B = 169; }
+                            else if(Color_00.to_ulong() == 0x03) { R = 0; G = 0; B = 0; }
                             break;
                         case 0x01:
                             if(Color_01.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
                             else if(Color_01.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_01.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
-                            else if(Color_01.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                            else if(Color_01.to_ulong() == 0x02) { R = 169; G = 169; B = 169; }
+                            else if(Color_01.to_ulong() == 0x03) { R = 0; G = 0; B = 0; }
                             break;
-                        case 0x10:
+                        case 0x02:
                             if(Color_10.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
                             else if(Color_10.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_10.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
-                            else if(Color_10.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                            else if(Color_10.to_ulong() == 0x02) { R = 169; G = 169; B = 169; }
+                            else if(Color_10.to_ulong() == 0x03) { R = 0; G = 0; B = 0; }
                             break;
-                        case 0x11:
+                        case 0x03:
                             if(Color_11.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
                             else if(Color_11.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_11.to_ulong() == 0x10) { R = 169; G = 169; B = 169; }
-                            else if(Color_11.to_ulong() == 0x11) { R = 0; G = 0; B = 0; }
+                            else if(Color_11.to_ulong() == 0x02) { R = 169; G = 169; B = 169; }
+                            else if(Color_11.to_ulong() == 0x03) { R = 0; G = 0; B = 0; }
                             break;
                     }
                     

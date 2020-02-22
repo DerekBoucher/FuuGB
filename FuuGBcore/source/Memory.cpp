@@ -47,18 +47,17 @@ namespace FuuGB
 		}
 	}
 
-
 	void Memory::writeMemory(uWORD addr, uBYTE data)
 	{
 		if (addr < 0x8000) //Cart area
 		{
-			if (addr >= 0x0000 && addr < 0x2000)
+			if ((addr >= 0x0000) && (addr < 0x2000))
 				toggleRAM(addr, data);
-			else if (addr >= 0x2000 && addr < 0x4000)
+			else if ((addr >= 0x2000) && (addr < 0x4000))
 				changeROMBank(addr, data);
-			else if (addr >= 0x4000 && addr < 0x6000)
+			else if ((addr >= 0x4000) && (addr < 0x6000))
 				changeRAMBank(addr, data);
-			else if (addr >= 0x6000 && addr < 0x8000)
+			else if ((addr >= 0x6000) && (addr < 0x8000))
 				changeMode(data);
 		}
 		else if ((addr >= 0x8000) && (addr < 0xA000)) //Video RAM
@@ -148,7 +147,7 @@ namespace FuuGB
         if((addr >= 0x8000) && (addr < 0xA000))
             return M_MEM[addr];
         
-        else if (addr >= 0xA000 & addr < 0xC000)
+        else if ((addr >= 0xA000) && (addr < 0xC000))
 		{
 			if (cart->extRamEnabled)
 				return M_MEM[addr];
@@ -157,6 +156,7 @@ namespace FuuGB
 				dummy = 0xff;
 				return dummy;
 			}
+            return M_MEM[addr];
 		}
 		else if((addr >= 0xFE00) && (addr < 0xFEA0))
         {

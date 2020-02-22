@@ -71,8 +71,7 @@ namespace FuuGB
 		uBYTE byte = memory->readMemory(PC++);
 		uBYTE SP_data = 0x0;
 		Register* temp = new Register();
-		if (PC == 0x00FF)
-			printf("");
+        
 		switch (byte)
 		{
 		case NOP:
@@ -921,6 +920,7 @@ namespace FuuGB
 			//4 Clock Cycles
 			add8BitRegister(AF.hi, HL.hi);
 			timer_update_cnt += 4;
+            break;
 
 		case ADD_L_A:
 			//4 Clock Cycles
@@ -1340,7 +1340,6 @@ namespace FuuGB
 			//16 clock cycles
 			memory->writeMemory(--SP, BC.hi);
 			memory->writeMemory(--SP, BC.lo);
-			
 			timer_update_cnt += 16;
 			break;
 
@@ -1353,7 +1352,6 @@ namespace FuuGB
 		case RST_0:
 			//16 Clock Cycles
 			temp->data = PC;
-			
 			memory->writeMemory(--SP, temp->hi);
 			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0000;
@@ -1366,7 +1364,6 @@ namespace FuuGB
 			{
 				temp->lo = memory->readMemory(SP++);
 				temp->hi = memory->readMemory(SP++);
-				
 				PC = temp->data;
 				timer_update_cnt += 20;
 			}
@@ -1378,7 +1375,6 @@ namespace FuuGB
 			//16 Clock Cycles
 			temp->lo = memory->readMemory(SP++);
 			temp->hi = memory->readMemory(SP++);
-			
 			PC = temp->data;
 			timer_update_cnt += 16;
 			break;
@@ -1399,7 +1395,8 @@ namespace FuuGB
 		case EXT_OP:
 			//4 Clock Cycles, this opcode is special, it allows for 16 bit opcodes
 			timer_update_cnt += 4;
-			switch (memory->readMemory(PC++))
+            byte = memory->readMemory(PC++);
+			switch (byte)
 			{
 			case RLC_B:
 				//4 clock Cycles
@@ -2940,7 +2937,7 @@ namespace FuuGB
 			default:
 				break;
 			}
-			break;
+            break;
 
 		case CALL_ZERO:
 			//24/12 Clock Cycles
@@ -2985,7 +2982,6 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp->hi);
 			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0008;
-			
 			timer_update_cnt += 16;
 			break;
 
@@ -2996,7 +2992,6 @@ namespace FuuGB
 				temp->lo = memory->readMemory(SP++);
 				temp->hi = memory->readMemory(SP++);
 				PC = temp->data;
-				
 				timer_update_cnt += 20;
 			}
 			else
@@ -3152,7 +3147,6 @@ namespace FuuGB
 			//16 clock cycles
 			memory->writeMemory(--SP, HL.hi);
 			memory->writeMemory(--SP, HL.lo);
-			
 			timer_update_cnt += 16;
 			break;
 
@@ -3168,7 +3162,6 @@ namespace FuuGB
 			memory->writeMemory(--SP, temp->hi);
 			memory->writeMemory(--SP, temp->lo);
 			PC = 0x0020;
-			
 			timer_update_cnt += 16;
 			break;
 
@@ -3196,7 +3189,7 @@ namespace FuuGB
                 else
                     CPU_FLAG_BIT_RESET(H_FLAG);
                 
-				if (SP > 0xFFFF - byte)
+				if (SP > (0xFFFF - byte))
 					CPU_FLAG_BIT_SET(C_FLAG);
 				else
 					CPU_FLAG_BIT_RESET(C_FLAG);
@@ -3303,7 +3296,7 @@ namespace FuuGB
 				else
 					CPU_FLAG_BIT_RESET(H_FLAG);
 
-				if (SP > 0xFFFF - TempByte)
+				if (SP > (0xFFFF - TempByte))
 					CPU_FLAG_BIT_SET(C_FLAG);
 				else
 					CPU_FLAG_BIT_RESET(C_FLAG);
@@ -3910,7 +3903,6 @@ namespace FuuGB
 
 	void CPU::checkInterupts()
 	{
-
 		if (!IME)
 			return;
 
