@@ -22,26 +22,40 @@ INCLUDE_PATH :=
 INCLUDE_PATH += -Iinclude
 INCLUDE_PATH += -I$(SAND_DIR)
 
+LIBS =-Wl,-Bstatic -lcomdlg32 -lpthread -lSDL2 -lSDL2main
+
 ifeq ($(OSFLAG),WIN)
 	INCLUDE_PATH += -I$(SDL_DIR)/Windows/SDL2-2.0.10/i686-w64-mingw32/include/SDL2
+	CXX = g++
+endif
+
+ifeq ($(OSFLAG),MACOS)
+	INCLUDE_PATH += -I$(SDL_DIR)/MacOS/SDL2.framework/Headers
 endif
 
 LIB_PATH :=
 ifeq ($(OSFLAG),WIN)
 	LIB_PATH += -L$(SDL_DIR)/Windows/SDL2-2.0.10/i686-w64-mingw32/lib
+	LIBS += -lsetupapi -lhid -lmingw32 -mwindows -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32  -loleaut32 -lshell32 -lversion -luuid
 endif
 
-CXX = g++
+ifeq ($(OSFLAG),MACOS)
+	LIB_PATH += -L$(SDL_DIR)/MacOS/SDL2.framework
+endif
 
-LIBS := -lcomdlg32 -lSDL2 -lpthread -lSDL2main -lole32 -loleaut32 -limm32 -lVersion -lGdi32 -lsetupapi -lhid -lWinmm
+
 LIB = FuuGBcore
 
-CXXFLAGS := -g
+CXXFLAGS := -g # For Debugging
 CXXFLAGS += $(INCLUDE_PATH) $(LIB_PATH)
 CXXFLAGS += -Wall
 
 ifeq ($(OSFLAG),WIN)
-	CXXFLAGS += -DFUUGB_SYSTEM_WINDOWS -DFUUGB_BUILD_DLL
+	CXXFLAGS += -DFUUGB_SYSTEM_WINDOWS
+endif
+
+ifeq ($(OSFLAG),MACOS)
+	CXXFLAGS += -DFUUGB_SYSTEM_MACOS
 endif
 
 LDFLAGS :=
