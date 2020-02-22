@@ -10,7 +10,6 @@
 #define Memory_h
 #include "Core.h"
 #include "Cartridge.h"
-#include "Logger.h"
 
 #define RAM_CLOCK_PERIOD_NS 952
 #define ECHO_RAM_OFFSET 0x2000

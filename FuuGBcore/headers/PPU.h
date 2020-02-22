@@ -10,7 +10,6 @@
 #define PPU_h
 
 #include "Core.h"
-#include "Logger.h"
 #include "Memory.h"
 
 #define NATIVE_SIZE_X   160

@@ -16,7 +16,6 @@
  */
 #ifndef Application_h
 #define Application_h
-#include "Logger.h"
 #include "FuuEvent.h"
 
 namespace FuuGB

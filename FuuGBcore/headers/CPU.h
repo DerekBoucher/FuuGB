@@ -11,7 +11,6 @@
 
 #include "Core.h"
 #include "Memory.h"
-#include "Logger.h"
 
 #define CPU_CLOCK_PERIOD_NS 239
 #define CLOCK_FREQUENCY 4194304

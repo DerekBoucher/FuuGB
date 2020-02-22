@@ -44,7 +44,6 @@ namespace FuuGB
 		}
         currentScanLine = 1;
         scanline_counter = 456;
-		FUUGB_PPU_LOG("PPU Initialized.");
 	}
 
 	PPU::~PPU()
@@ -53,7 +52,6 @@ namespace FuuGB
 		SDL_RenderClear(renderer);
 		SDL_RenderPresent(renderer);
 		SDL_DestroyRenderer(this->renderer);
-		FUUGB_PPU_LOG("PPU Destroyed.");
 	}
 
 

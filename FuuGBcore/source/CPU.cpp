@@ -35,13 +35,11 @@ namespace FuuGB
 		IME = false;
 		FlagBits = new std::bitset<sizeof(uBYTE)*8>(&AF.lo);
 		AluBits = new std::bitset<sizeof(uBYTE)*8>(&AF.hi);
-		
-		FUUGB_CPU_LOG("CPU Initialized.");
 	}
 
 	CPU::~CPU()
 	{
-		FUUGB_CPU_LOG("CPU Destroyed.");
+
 	}
 
 	void CPU::Pause()

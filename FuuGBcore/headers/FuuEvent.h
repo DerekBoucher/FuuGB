@@ -8,7 +8,6 @@
 #ifndef FuuEvent_h
 #define FuuEvent_h
 #include "Core.h"
-#include "Logger.h"
 
 namespace FuuGB
 {
