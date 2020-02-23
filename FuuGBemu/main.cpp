@@ -27,6 +27,7 @@ int main(int argc, char **argv)
 			}
 			execute();
 		}
+		FreeLibrary(hDll);
 	}
 	return 1;
 }
