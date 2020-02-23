@@ -20,7 +20,7 @@ endif
 
 $(BUILDDIR)/$(TARGET): $(SRCS)
 	@echo $(SAND_INCLUDE_PATH)
-	@$(CXX) $^ -o $@ $(CXXFLAGS) $(L) $(SAND_INCLUDE_PATH) $(SAND_LIB_PATH) -Bdynamic $(BUILDDIR)/FuuGBcore.$(LIBEXT) -rpath ./
+	@$(CXX) $^ -o $@ $(CXXFLAGS) $(L) $(SAND_INCLUDE_PATH) $(SAND_LIB_PATH) -Bdynamic $(BUILDDIR)/FuuGBcore.$(LIBEXT)
 
 .PHONY: clean
 clean:
