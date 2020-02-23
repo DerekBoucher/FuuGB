@@ -23,7 +23,7 @@ endif
 
 $(BUILDDIR)/$(LIB).$(LIBEXT): $(OBJS)
 	@mkdir -p $(BUILDDIR)
-	@$(CXX) $(CXXFLAGS) $(LIB_ACTION) -install_name ./FuuGBcore.dylib -o $@ $^ $(LIBS)
+	@$(CXX) $(CXXFLAGS) $(LIB_ACTION) -o $@ $^ $(LIBS)
 
 $(OBJS): $(SRCS)
 	@$(CXX) $(CXXFLAGS) -c $^
