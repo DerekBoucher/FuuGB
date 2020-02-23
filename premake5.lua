@@ -35,7 +35,6 @@ workspace "FuuGBemu"
 
         filter "system:macosx"
             xcodebuildsettings { ["GCC_INPUT_FILETYPE"] = "sourcecode.cpp.objcpp" }
-            pchheader "external/pch/Fuupch.h"
             defines
             {
                 "FUUGB_SYSTEM_MACOS"

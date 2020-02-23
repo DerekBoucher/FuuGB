@@ -1,11 +1,3 @@
-//
-//  CPU.cpp
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-10.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
-
 #include "Fuupch.h"
 #include "CPU.h"
 

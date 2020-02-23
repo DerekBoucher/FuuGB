@@ -4,12 +4,6 @@
 class Sandbox : public FUUGB_APP
 {
 public:
-    Sandbox()
-    {
-        
-    }
-    ~Sandbox()
-    {
-        
-    }
+    Sandbox(){}
+    ~Sandbox(){}
 };

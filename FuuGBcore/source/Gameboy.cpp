@@ -1,11 +1,3 @@
-/*
- * Gameboy.cpp
- *
- *  Created on: Dec 29, 2018
- *      Author: Derek Boucher
- *		ID:40015459
- */
-
 #include "Fuupch.h"
 #include "Gameboy.h"
 

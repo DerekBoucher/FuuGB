@@ -1,10 +1,3 @@
-//
-//  FuuEvent.h
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-20.
-//
-
 #ifndef FuuEvent_h
 #define FuuEvent_h
 #include "Core.h"
@@ -14,7 +7,7 @@ namespace FuuGB
     class FUUGB_API FuuEvent
     {
     public:
-        static void poll_Event();
+        static int poll_Event();
         static SDL_Event event;
     };
 }

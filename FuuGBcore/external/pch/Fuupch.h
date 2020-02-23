@@ -1,10 +1,3 @@
-//
-//  Fuupch.h
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-19.
-//
-
 /*
  *  Header Fuupch
  *
@@ -13,6 +6,13 @@
  */
 #ifndef Fuupch_h
 #define Fuupch_h
+
+#include <thread>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <bitset>
+#include <limits.h>
 
 #ifndef FUUGB_SYSTEM_MACOS
     #include <iostream>
@@ -31,19 +31,11 @@
 	#include <SDL2/SDL_syswm.h>
 #endif
 
-#include <thread>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <bitset>
-#include <limits.h>
-
 #ifdef FUUGB_SYSTEM_LINUX
     #include <condition_variable>
     #include <SDL2/SDL.h>
 	#include <SDL2/SDL_syswm.h>
 #endif
-
 
 #ifdef FUUGB_SYSTEM_WINDOWS
     #include <Windows.h>

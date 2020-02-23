@@ -1,11 +1,3 @@
-//
-//  CPU.h
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-10.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
-
 #ifndef CPU_h
 #define CPU_h
 
@@ -29,7 +21,7 @@
 #define VBLANK_INT 0x0040
 #define LCDC_INT 0x0048
 #define TIMER_OVER_INT 0x0050
-#define SER_TRF_INT 0x0058 //When transfer complete
+#define SER_TRF_INT 0x0058
 #define CONTROL_INT 0x0060
 
 #define Z_FLAG 7

@@ -1,11 +1,3 @@
-//
-//  Memory.h
-//  FuuGBemu
-//
-//  Created by Derek Boucher on 2019-02-10.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
-
 #ifndef Memory_h
 #define Memory_h
 #include "Core.h"

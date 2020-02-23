@@ -1,11 +1,3 @@
-//
-//  CocoaWindow.m
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-04.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
-
 #import "CocoaWindow.h"
 
 @implementation CocoaWindow

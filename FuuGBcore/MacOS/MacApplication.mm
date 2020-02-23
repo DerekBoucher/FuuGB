@@ -1,10 +1,3 @@
-//
-//  MacApplication.mm
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-21.
-//
-
 #include "Application.h"
 #include "System.h"
 #include "Gameboy.h"
@@ -45,24 +38,22 @@ namespace FuuGB
             
             while(FUUGB_RUNNING)
             {
-                FUUGB_POLL_EVENT();
-
-                if(MacWindow->MacEvent->inputBuffer != NULL)
+                while(FUUGB_POLL_EVENT())
                 {
-                    if(gameBoy != nullptr)
+                    if(MacWindow->MacEvent->inputBuffer != NULL)
                     {
-                        delete gameBoy;
-                        gameBoy = nullptr;
+                        if(gameBoy != nullptr)
+                        {
+                            delete gameBoy;
+                            gameBoy = nullptr;
+                        }
+                        gameBoy = new Gameboy(_SDLwindow, new Cartridge(MacWindow->MacEvent->inputBuffer));
+                        fclose(MacWindow->MacEvent->inputBuffer);
+                        MacWindow->MacEvent->inputBuffer = NULL;
+                        MacWindow->MacEvent->gb_ref = gameBoy;
                     }
-                    gameBoy = new Gameboy(_SDLwindow,
-                                          new Cartridge(MacWindow->MacEvent->inputBuffer));
-                    fclose(MacWindow->MacEvent->inputBuffer);
-                    MacWindow->MacEvent->inputBuffer = NULL;
-                    MacWindow->MacEvent->gb_ref = gameBoy;
-                }
-                
-                switch(FUUGB_EVENT.type)
-                {
+                    switch(FUUGB_EVENT.type)
+                    {
                     case SDL_QUIT:
                         FUUGB_RUNNING = false;
                         break;
@@ -70,9 +61,10 @@ namespace FuuGB
                         break;
                     default:
                         break;
+                    }
                 }
+                SDL_Delay(1);
             }
-            
             /*
              *  Shutdown System
              */

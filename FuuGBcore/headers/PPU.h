@@ -1,11 +1,3 @@
-//
-//  PPU.h
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-10.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
-
 #ifndef PPU_h
 #define PPU_h
 

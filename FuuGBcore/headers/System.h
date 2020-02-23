@@ -1,10 +1,3 @@
-//
-//  System.h
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-20.
-//
-
 #ifndef System_h
 #define System_h
 #include "Core.h"

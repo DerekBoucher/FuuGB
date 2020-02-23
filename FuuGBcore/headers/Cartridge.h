@@ -1,11 +1,3 @@
-//
-//  Cartridge.h
-//  GBemu
-//
-//  Created by Derek Boucher on 2019-02-10.
-//  Copyright © 2019 Derek Boucher. All rights reserved.
-//
-
 #ifndef Cartridge_h
 #define Cartridge_h
 
@@ -32,12 +24,12 @@ namespace FuuGB
 		bool		RUMBLE	= false;
 		int			ROM_BANK_CNT;
 		int			RAM_BANK_CNT;
-		int			RAM_SIZE; //In KBytes
+		int			RAM_SIZE;
 		uBYTE		currentRamBank;
 		uBYTE		currentRomBank;
 		uWORD		RAM_Bank_Base_MBC1;
 		bool		extRamEnabled;
-		bool		mode; //false = 16Mbit/8kB mode, else 4Mbit/32kB mode
+		bool		mode;
     };
 }
 #endif /* Cartridge_h */
