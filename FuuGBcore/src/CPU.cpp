@@ -12,6 +12,8 @@ CPU::CPU(Memory *mem)
 	this->DE = 0x0000;
 	this->HL = 0x0000;
 
+	temp = new Register();
+
 	memory = mem;
 
 	timer_update_cnt = 0;
@@ -38,9 +40,8 @@ void CPU::Pause()
 int CPU::executeNextOpCode()
 {
 	timer_update_cnt = 0;
-	uBYTE byte = memory->readMemory(PC++);
-	uBYTE SP_data = 0x0;
-	Register *temp = new Register();
+	byte = memory->readMemory(PC++);
+	SP_data = 0x0;
 
 	switch (byte)
 	{
@@ -3439,10 +3440,10 @@ bool CPU::checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte)
 		break;
 	}
 
-	std::bitset<8> a(byte & mask);
-	std::bitset<8> b(addedByte & mask);
+	std::bitset<8> a((byte & mask));
+	std::bitset<8> b((addedByte & mask));
 
-	if (a.to_ulong() + b.to_ulong() > mask)
+	if ((a.to_ulong() + b.to_ulong()) > mask)
 		return true;
 	else
 		return false;
@@ -3501,8 +3502,8 @@ bool CPU::checkCarryFromBit_Word(int pos, uWORD word, uWORD addedWord)
 		break;
 	}
 
-	std::bitset<8> a(word & mask);
-	std::bitset<8> b(addedWord & mask);
+	std::bitset<8> a((word & mask));
+	std::bitset<8> b((addedWord & mask));
 
 	if (a.to_ulong() + b.to_ulong() > mask)
 		return true;
@@ -3542,8 +3543,8 @@ bool CPU::checkBorrowFromBit_Byte(int pos, uBYTE byte, uBYTE subtractedByte)
 		break;
 	}
 
-	std::bitset<8> a(byte & mask);
-	std::bitset<8> b(subtractedByte & mask);
+	std::bitset<8> a((byte & mask));
+	std::bitset<8> b((subtractedByte & mask));
 
 	if (a.to_ulong() < b.to_ulong())
 		return true;
@@ -3602,10 +3603,13 @@ bool CPU::checkBorrowFromBit_Word(int pos, uWORD word, uWORD subtractedWord)
 	case 15:
 		mask = 0x7FFF;
 		break;
+	default:
+		mask = 0x0000;
+		break;
 	}
 
-	std::bitset<8> a(word & mask);
-	std::bitset<8> b(subtractedWord & mask);
+	std::bitset<8> a((word & mask));
+	std::bitset<8> b((subtractedWord & mask));
 
 	if (a.to_ulong() < b.to_ulong())
 		return true;
@@ -3642,7 +3646,7 @@ void CPU::add8BitRegister(uBYTE &host, uBYTE operand)
 	else
 		CPU_FLAG_BIT_RESET(H_FLAG);
 
-	if (host > 0xFF - operand)
+	if (host > (0xFF - operand))
 		CPU_FLAG_BIT_SET(C_FLAG);
 	else
 		CPU_FLAG_BIT_RESET(C_FLAG);
@@ -3725,7 +3729,7 @@ void CPU::sub8BitRegister(uBYTE &host, uBYTE operand, bool carry)
 
 void CPU::and8BitRegister(uBYTE &host, uBYTE operand)
 {
-	host = host & operand;
+	host = (host & operand);
 
 	if (host == 0x00)
 		CPU_FLAG_BIT_SET(Z_FLAG);
@@ -3739,7 +3743,7 @@ void CPU::and8BitRegister(uBYTE &host, uBYTE operand)
 
 void CPU::xor8BitRegister(uBYTE &host, uBYTE operand)
 {
-	host = host ^ operand;
+	host = (host ^ operand);
 
 	if (host == 0x00)
 		CPU_FLAG_BIT_SET(Z_FLAG);
@@ -3753,7 +3757,7 @@ void CPU::xor8BitRegister(uBYTE &host, uBYTE operand)
 
 void CPU::or8BitRegister(uBYTE &host, uBYTE operand)
 {
-	host = host | operand;
+	host = (host | operand);
 
 	if (host == 0x00)
 		CPU_FLAG_BIT_SET(Z_FLAG);
@@ -3798,10 +3802,10 @@ void CPU::rotateReg(bool direction, bool withCarry, uBYTE &reg)
 		else
 			CPU_FLAG_BIT_RESET(C_FLAG);
 
-		reg = reg << 1;
+		reg = (reg << 1);
 
 		if (withCarry && oldCarry)
-			reg = reg | 0x01;
+			reg = (reg | 0x01);
 		else if (!withCarry)
 		{
 			reg |= MSB;
@@ -3817,10 +3821,10 @@ void CPU::rotateReg(bool direction, bool withCarry, uBYTE &reg)
 		else
 			CPU_FLAG_BIT_RESET(C_FLAG);
 
-		reg = reg >> 1;
+		reg = (reg >> 1);
 
 		if (withCarry && oldCarry)
-			reg = reg | 0x80;
+			reg = (reg | 0x80);
 		else if (!withCarry)
 		{
 			if (LSB)
@@ -3851,7 +3855,7 @@ void CPU::shiftReg(bool direction, bool keepMSB, uBYTE &reg)
 		else
 			CPU_FLAG_BIT_RESET(C_FLAG);
 
-		reg = reg << 1;
+		reg = (reg << 1);
 
 		if (keepMSB)
 		{
@@ -3869,7 +3873,7 @@ void CPU::shiftReg(bool direction, bool keepMSB, uBYTE &reg)
 		else
 			CPU_FLAG_BIT_RESET(C_FLAG);
 
-		reg = reg >> 1;
+		reg = (reg >> 1);
 
 		if (keepMSB)
 		{
@@ -4076,7 +4080,7 @@ void CPU::updateDivider(int cycles)
 	divider_count += cycles;
 	if (divider_count >= 255)
 	{
-		memory->DMA_write(0xFF04, memory->DMA_read(0xFF04) + 1);
+		memory->DMA_write(0xFF04, (memory->DMA_read(0xFF04) + 1));
 		divider_count = 0;
 	}
 }
@@ -4085,13 +4089,13 @@ void CPU::adjustDAA(uBYTE &reg)
 {
 	if (!CPU_FLAG_BIT_TEST(N_FLAG))
 	{
-		if (CPU_FLAG_BIT_TEST(C_FLAG) || reg > 0x99)
+		if (CPU_FLAG_BIT_TEST(C_FLAG) || (reg > 0x99))
 		{
 			reg += 0x60;
 			CPU_FLAG_BIT_SET(C_FLAG);
 		}
 
-		if (CPU_FLAG_BIT_TEST(H_FLAG) || (reg & 0x0F) > 0x09)
+		if (CPU_FLAG_BIT_TEST(H_FLAG) || ((reg & 0x0F) > 0x09))
 			reg += 0x06;
 	}
 	else

@@ -7,19 +7,19 @@
 #include "Utilities.h"
 #include "System.h"
 #include "Gameboy.h"
-#include "FuuEvent.h"
 
 namespace FuuGB
 {
-	class FUUGB_API WinApplication : public Application
-	{
-	public:
-		void run();
-	private:
-		char* open_file(SDL_Window*);
-		Cartridge* getRom(char*, SDL_Window*);
-	};
-}
+class FUUGB_API WinApplication : public Application
+{
+public:
+	void run();
+
+private:
+	char *open_file(SDL_Window *);
+	Cartridge *getRom(char *, SDL_Window *);
+};
+} // namespace FuuGB
 
 #define FUUGB_WINDOW_CONFIG(...) FuuGB::ActivateMenu(FuuGB::getSDLWinHandle(__VA_ARGS__))
 #define FUUGB_WIN_EVENT FUUGB_EVENT.syswm.msg->msg.win.wParam

@@ -4,12 +4,14 @@ OBJ=
 SRCS = $(wildcard src/*.cpp)
 LIBEXT=
 LIB_ACTION=
+OBJ_MSVC=
 
 ifeq ($(OSFLAG),WIN)
 	SRCS+=$(wildcard Windows/*.cpp)
 	LIBEXT=dll
-	CXXFLAGS += -DFUUGB_BUILD_DLL
+	WINDEF=-DFUUGB_BUILD_DLL
 	OBJS = $(patsubst %.o, $(OBJDIR)/%.o, $(patsubst src/%.cpp, %.o, $(patsubst Windows/%.cpp, %.o, $(SRCS))))
+	OBJS_MSVC = $(patsubst %.obj, $(OBJDIR)/%.obj, $(patsubst src/%.cpp, %.obj, $(patsubst Windows/%.cpp, %.obj, $(SRCS))))
 	LIB_ACTION=-shared
 endif
 
@@ -22,18 +24,25 @@ ifeq ($(OSFLAG),MACOS)
 endif
 
 $(BUILDDIR)/$(LIB).$(LIBEXT): $(OBJS)
+	@echo ========== Linking FuuGBcore... ==========
 	@mkdir -p $(BUILDDIR)
-	@$(CXX) $(CXXFLAGS) $(LIB_ACTION) -o $@ $^ $(LIBS)
+	@$(CXX) $(CXXFLAGS) $(WINDEF) $(LIB_ACTION) -o $@ -O3 $^ $(LIBS)
 
 $(OBJS): $(SRCS)
-	@$(CXX) $(CXXFLAGS) -c $^
+	@echo ========== Compiling objects for FuuGBcore... ==========
+	@$(CXX) $(CXXFLAGS) $(WINDEF) -c -O3 $^
 	@mkdir -p $(OBJDIR)
 	@cp *.o $(OBJDIR)
 	@$(RM) -f *.o
 
-.PHONY: clean
+.PHONY: clean msvc
+
+msvc: $(SRCS)
+	@echo $(SRCS)
+	@CL /c $(SRCS) 
+
 clean:
-	@echo $(OBJS)
+	@echo ========== Cleaning FuuGBcore... ==========
 	@$(RM) -f *.o
 	@$(RM) -rf $(OBJDIR)
 	@$(RM) -rf $(BUILDDIR)

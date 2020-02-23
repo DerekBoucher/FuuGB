@@ -44,7 +44,7 @@ endif
 
 LIB = FuuGBcore
 
-CXXFLAGS := -g -Og
+CXXFLAGS :=
 CXXFLAGS += -std=c++11
 CXXFLAGS += $(INCLUDE_PATH) $(LIB_PATH)
 CXXFLAGS += -Wall
@@ -62,12 +62,20 @@ LDFLAGS :=
 
 export ROOT_DIR CXX CXXFLAGS LDFLAGS LIBS LIB INCLUDE_PATH LIB_PATH OSFLAG
 
-all:
-	@$(MAKE) -C FuuGBcore
-	@$(MAKE) -C FuuSandBox
+.PHONY: clean all msvc
+
+all: #GNU
+	@echo ========== making rule $@ ==========
+	@$(MAKE) --no-print-directory -C FuuGBcore
+	@$(MAKE) --no-print-directory -C FuuGBemu
 	@cp FuuGBcore/external/boot/DMG_ROM.bin $(BUILDDIR)/DMG_ROM.bin
 
-.PHONY: clean
+msvc:
+	@$(MAKE) --no-print-directory -C FuuGBcore msvc
+	#@$(MAKE) --no-print-directory -C FuuSandBox
+	#@cp FuuGBcore/external/boot/DMG_ROM.bin $(BUILDDIR)/DMG_ROM.bin
+
 clean:
-	@$(MAKE) -C FuuGBcore clean
-	@$(MAKE) -C FuuSandBox clean
+	@echo ========== Cleaning... ==========
+	@$(MAKE) --no-print-directory -C FuuGBcore clean
+	@$(MAKE) --no-print-directory -C FuuGBemu clean
