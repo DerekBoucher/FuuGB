@@ -3,6 +3,9 @@
 
 pthread_mutex_t FuuGB::Shared::mu_GB;
 pthread_cond_t FuuGB::Shared::cv_GB;
+const int MAXCYCLES = 69905;
+int cyclesthisupdate = 0;
+int cycles = 0;
 
 namespace FuuGB
 {
@@ -31,11 +34,10 @@ void *Gameboy::Run(void *arg)
 	Gameboy *gameboy = (Gameboy *)arg;
 	while (gameboy->running)
 	{
-		const int MAXCYCLES = 69905;
-		int cyclesthisupdate = 0;
+		cyclesthisupdate = 0;
 		while (cyclesthisupdate <= MAXCYCLES)
 		{
-			int cycles = 0;
+			cycles = 0;
 			if (gameboy->globalPause)
 			{
 				pthread_mutex_lock(&FuuGB::Shared::mu_GB);

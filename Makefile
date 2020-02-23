@@ -44,7 +44,7 @@ endif
 
 LIB = FuuGBcore
 
-CXXFLAGS :=
+CXXFLAGS := -g -Og
 CXXFLAGS += -std=c++11
 CXXFLAGS += $(INCLUDE_PATH) $(LIB_PATH)
 CXXFLAGS += -Wall
