@@ -1,10 +1,3 @@
-//
-//  WinApplication.cpp
-//  FuuGBcore
-//
-//  Created by Derek Boucher on 2019-04-20.
-//
-
 #include "Fuupch.h"
 #include "WinApplication.h"
 
@@ -28,46 +21,48 @@ namespace FuuGB
 		Gameboy* gameBoy = nullptr;
 		while (FUUGB_RUNNING)
 		{
-			FUUGB_POLL_EVENT();
-			switch (FUUGB_EVENT.type)
+			while (FUUGB_POLL_EVENT())
 			{
-			case SDL_QUIT:
-				FUUGB_RUNNING = false;
-				break;
-			case SDL_SYSWMEVENT:
-				if (FUUGB_EVENT.syswm.msg->msg.win.msg == WM_COMMAND)
+				switch (FUUGB_EVENT.type)
 				{
-					switch (FUUGB_WIN_EVENT)
+				case SDL_QUIT:
+					FUUGB_RUNNING = false;
+					break;
+				case SDL_SYSWMEVENT:
+					if (FUUGB_EVENT.syswm.msg->msg.win.msg == WM_COMMAND)
 					{
-					case ID_LOADROM:
-						Cartridge* ROM;
-						if (gameBoy != nullptr)
-							gameBoy->Pause();
-						ROM = FUUGB_LOAD_ROM();
-						if (ROM == NULL)
+						switch (FUUGB_WIN_EVENT)
 						{
-							gameBoy->Resume();
+						case ID_LOADROM:
+							if (gameBoy != nullptr)
+								gameBoy->Pause();
+							ROM = FUUGB_LOAD_ROM();
+							if (ROM == NULL)
+							{
+								gameBoy->Resume();
+								break;
+							}
+							if (gameBoy != nullptr)
+							{
+								gameBoy->Resume();
+								delete gameBoy;
+							}
+							gameBoy = new Gameboy(_SDLwindow, ROM);
+							break;
+						case ID_EXT_DISPLAY:
+
+							break;
+						case ID_EXIT:
+							FUUGB_RUNNING = false;
 							break;
 						}
-						if (gameBoy != nullptr)
-						{
-							gameBoy->Resume();
-							delete gameBoy;
-						}
-						gameBoy = new Gameboy(_SDLwindow, ROM);
-						break;
-					case ID_EXT_DISPLAY:
-					
-						break;
-					case ID_EXIT:
-						FUUGB_RUNNING = false;
-						break;
 					}
+					break;
+				default:
+					break;
 				}
-				break;
-			default:
-				break;
 			}
+			SDL_Delay(1);
 		}
 
 		/*

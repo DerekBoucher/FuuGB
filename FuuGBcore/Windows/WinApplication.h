@@ -23,6 +23,7 @@ namespace FuuGB
 	private:
 		char* open_file(SDL_Window*);
 		Cartridge* getRom(char*, SDL_Window*);
+		Cartridge* ROM;
 	};
 }
 #endif /* WinApplication_h */
