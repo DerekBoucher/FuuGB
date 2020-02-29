@@ -116,8 +116,8 @@ workspace "FuuGBemu"
 				"SDL2"
 			}
 
-    project "FuuSandbox"
-        location "FuuSandBox"
+    project "FuuGBemu"
+        location "FuuGBemu"
         kind "ConsoleApp"
         language "C++"
         cppdialect "C++17"
@@ -126,8 +126,8 @@ workspace "FuuGBemu"
 
         files
         {
-            "FuuSandBox/*.h",
-            "FuuSandBox/*.cpp"
+            "FuuGBemu/*.h",
+            "FuuGBemu/*.cpp"
         }
 
         includedirs
@@ -168,8 +168,8 @@ workspace "FuuGBemu"
             postbuildcommands
             {
                 "{COPY} ../bin/Debug-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib",
-                "{COPY} ../FuuGBcore/external/SDL2/MacOS/SDL2.framework ../bin/Debug-macosx-x86_64/FuuSandbox/SDL2.framework",
-                "{COPY} ../FuuGBcore/external/boot/DMG_ROM.bin ../bin/Debug-macosx-x86_64/FuuSandbox/DMG_ROM.bin"
+                "{COPY} ../FuuGBcore/external/SDL2/MacOS/SDL2.framework ../bin/Debug-macosx-x86_64/FuuGBemu/SDL2.framework",
+                "{COPY} ../FuuGBcore/external/boot/DMG_ROM.bin ../bin/Debug-macosx-x86_64/FuuGBemu/DMG_ROM.bin"
             }
 
         filter { "system:macosx" , "configurations:Release" }
@@ -197,8 +197,8 @@ workspace "FuuGBemu"
             postbuildcommands
             {
                 "{COPY} ../bin/Release-macosx-x86/FuuGBcore/libFuuGBcore.dylib /usr/local/lib/libFuuGBcore.dylib",
-                "{COPY} ../FuuGBcore/external/SDL2/MacOS/SDL2.framework ../bin/Release-macosx-x86_64/FuuSandbox/SDL2.framework",
-                "{COPY} ../FuuGBcore/external/boot/DMG_ROM.bin ../bin/Release-macosx-x86_64/FuuSandbox/DMG_ROM.bin"
+                "{COPY} ../FuuGBcore/external/SDL2/MacOS/SDL2.framework ../bin/Release-macosx-x86_64/FuuGBemu/SDL2.framework",
+                "{COPY} ../FuuGBcore/external/boot/DMG_ROM.bin ../bin/Release-macosx-x86_64/FuuGBemu/DMG_ROM.bin"
             }
 
 		filter "system:windows"
@@ -210,9 +210,9 @@ workspace "FuuGBemu"
             }
 			postbuildcommands
 			{
-				("copy ..\\bin\\" .. outputdir .. "\\FuuGBcore\\FuuGBcore.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\FuuGBcore.dll"),
-				("copy ..\\FuuGBcore\\external\\SDL2\\Windows\\SDL2-2.0.8\\lib\\x64\\SDL2.dll ..\\bin\\" .. outputdir .. "\\FuuSandbox\\SDL2.dll"),
-				("copy ..\\FuuGBcore\\external\\boot\\DMG_ROM.bin ..\\bin\\" .. outputdir .. "\\FuuSandbox\\DMG_ROM.bin")
+				("copy ..\\bin\\" .. outputdir .. "\\FuuGBcore\\FuuGBcore.dll ..\\bin\\" .. outputdir .. "\\FuuGBemu\\FuuGBcore.dll"),
+				("copy ..\\FuuGBcore\\external\\SDL2\\Windows\\SDL2-2.0.8\\lib\\x64\\SDL2.dll ..\\bin\\" .. outputdir .. "\\FuuGBemu\\SDL2.dll"),
+				("copy ..\\FuuGBcore\\external\\boot\\DMG_ROM.bin ..\\bin\\" .. outputdir .. "\\FuuGBemu\\DMG_ROM.bin")
 			}
 			includedirs
 			{
@@ -232,7 +232,7 @@ workspace "FuuGBemu"
 			{
 				"FuuGBcore/external/SDL2/Windows/SDL2-2.0.8/lib/x64"
             }
-			debugdir "bin\\$(Configuration)-windows-x86_64\\FuuSandbox"
+			debugdir "bin\\$(Configuration)-windows-x86_64\\FuuGBemu"
 
         filter "system:linux"
             defines
