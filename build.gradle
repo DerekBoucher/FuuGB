@@ -1,0 +1,98 @@
+/*
+    Gradle BuildScript for FuuGBemu
+    C++ Gameboy (DMG) Emulator
+    Author: Derek Boucher
+ */
+
+
+/*
+    Packages
+ */
+import org.gradle.internal.os.OperatingSystem
+
+/*
+    Required Plugins For FuuGBemu
+ */
+plugins {
+    id 'cpp-application'
+    id 'cpp-unit-test'
+}
+
+/*
+    Global Variables
+ */
+def sdl2Lib
+def sdl2Include
+
+/*
+    Determine Platform Specific Library Paths
+ */
+if (OperatingSystem.current().isWindows()) {
+    sdl2Lib = file(OperatingSystem.current().getStaticLibraryName('lib/SDL2/Windows/x64/SDL2'))
+    sdl2Include = file('lib/SDL2/Windows/include')
+}
+if (OperatingSystem.current().isMacOsX()) {
+    sdl2Lib = file(OperatingSystem.current().getStaticLibraryName('lib/SDL2/MacOsX/SDL2.framework/SDL2'))
+    sdl2Include = file('lib/SDL2/MacOsX/SDL2.framework/Headers')
+}
+
+/*
+    Application Block:
+        This block defines the platform and architecture of the built binary.
+        This block also passes any required platform specific libraries.
+ */
+application {
+
+    if (OperatingSystem.current().isWindows()) {
+        targetMachines.add(machines.windows.x86_64)
+    }
+    if (OperatingSystem.current().isLinux()) {
+        targetMachines.add(machines.linux.x86_64)
+    }
+    if (OperatingSystem.current().isMacOsX()) {
+        targetMachines.add(machines.macOS.x86_64)
+    }
+
+    binaries.whenElementFinalized { binary ->
+
+        /*
+            Compiler Options
+        */
+        binary.compileTask.get().configure {
+            includes.from(sdl2Include)
+            compilerArgs.addAll toolChain.map { toolChain -> 
+            if (toolChain in [ Gcc, Clang ]) {
+                return ['-Wall', '-O3']
+            } else if (toolChain in VisualCpp) {
+                return ['/MT','-DFUUGB_SYSTEM_WINDOWS', '-DUNICODE', '-DFUUGB_DEBUG']
+            }
+            return []
+            }
+        }
+
+        /*
+            Linker Options
+         */
+        if (OperatingSystem.current().isWindows()) {
+            binary.linkTask.get().configure {
+                libs.from(sdl2Lib)
+                linkerArgs.add('comdlg32.lib')
+                linkerArgs.add('user32.lib')
+            }
+        }
+    }
+
+    /*
+        Copy Over sdl2 dll and boot rom once done
+     */
+    copy {
+        if (OperatingSystem.current().isWindows()) {
+            from 'lib/SDL2/Windows/x64/SDL2.dll'
+            into 'build/exe/main/debug'
+
+            from 'lib/bootrom/DMG_ROM.bin'
+            into 'build/exe/main/debug'
+        }
+    }
+}
+

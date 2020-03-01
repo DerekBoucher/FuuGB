@@ -11,3 +11,11 @@ bin-int/
 .vscode/
 *Makefile
 *.hint
+.gradle/
+.gitattributes
+.project
+.settings/
+build/
+gradle/
+gradlew
+gradlew.bat
