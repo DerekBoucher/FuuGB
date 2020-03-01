@@ -52,9 +52,32 @@ application {
     if (OperatingSystem.current().isMacOsX()) {
         targetMachines.add(machines.macOS.x86_64)
     }
+    /*
+        Determine platform specific source sets
+    */
+    source {
+        /*
+            Common
+        */
+        from "src/main/cpp"
+
+        /*
+            Windows
+        */
+        if (OperatingSystem.current().isWindows()) {
+            from "src/main/Windows"
+        }
+
+        /*
+            MacOSX
+        */
+        if (OperatingSystem.current().isMacOsX()) {
+            from "src/main/MacOSX"
+        }
+
+    }
 
     binaries.whenElementFinalized { binary ->
-
         /*
             Compiler Options
         */

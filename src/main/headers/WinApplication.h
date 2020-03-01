@@ -4,6 +4,7 @@
 //
 //  Created by Derek Boucher on 2019-04-20.
 //
+#ifdef FUUGB_SYSTEM_WINDOWS
 
 #ifndef WinApplication_h
 #define WinApplication_h
@@ -33,3 +34,5 @@ namespace FuuGB
 #define FUUGB_WIN_HANDLE(...) FuuGB::getSDLWinHandle(__VA_ARGS__)
 #define FUUGB_LOAD_ROM() getRom(FILE_PATH, _SDLwindow)
 #define FILE_PATH open_file(_SDLwindow)
+
+#endif

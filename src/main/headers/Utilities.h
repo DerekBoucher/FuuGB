@@ -1,3 +1,5 @@
+#ifdef FUUGB_SYSTEM_WINDOWS
+
 #ifndef Utilities_h
 #define Utilities_h
 #define ID_LOADROM 1
@@ -24,3 +26,5 @@ namespace FuuGB {
 }
 
 #endif /* Utilities_h */
+
+#endif
