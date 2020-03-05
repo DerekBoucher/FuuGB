@@ -1,7 +1,6 @@
 #ifdef FUUGB_SYSTEM_MACOS
 
 #include "Gameboy.h"
-NS_ASSUME_NONNULL_BEGIN
 
 @interface MacEventHandler : NSObject
 {
@@ -13,7 +12,5 @@ NS_ASSUME_NONNULL_BEGIN
 -(IBAction)OnClick_LOADROM:(id)sender;
 
 @end
-
-NS_ASSUME_NONNULL_END
 
 #endif

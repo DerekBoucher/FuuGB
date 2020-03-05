@@ -7,7 +7,7 @@
 #define FuuGB_h
 
 #ifdef FUUGB_SYSTEM_MACOS
-    #include "MacApplication.mm"
+    #include "MacApplication.h"
     #define FUUGB_APP FuuGB::MacApplication
 #endif
 
