@@ -13,24 +13,29 @@ import org.gradle.internal.os.OperatingSystem
     Required Plugins For FuuGBemu
 */
 plugins {
-    id 'cpp-application'
-    id 'cpp-unit-test'
+    id 'cpp'
     id 'objective-cpp'
+    id 'cpp-unit-test'
 }
 
 /*
     Global Variables
  */
 def sdl2Lib
+def sdl2Include
+def sdl2Dll
 
 /*
     Determine Platform Specific Library Paths
  */
 if (OperatingSystem.current().isWindows()) {
     sdl2Lib = file(OperatingSystem.current().getStaticLibraryName('lib/SDL2/Windows/x64/SDL2'))
+    sdl2Dll = file(OperatingSystem.current().getSharedLibraryName('lib/SDL2/Windows/x64/SDL2'))
+    sdl2Include = 'lib/SDL2/Windows/include'
 }
 if (OperatingSystem.current().isMacOsX()) {
-    sdl2Lib = file(OperatingSystem.current().getStaticLibraryName('lib/SDL2/MacOsX/SDL2'))
+    sdl2Lib = file(OperatingSystem.current().getSharedLibraryName('lib/SDL2/MacOsX/SDL2'))
+    sdl2Include = 'lib/SDL2/MacOsX/include'
 }
 
 /*
@@ -39,19 +44,27 @@ if (OperatingSystem.current().isMacOsX()) {
         the platform specific source sets and binary types.
 */
 model {
+    platforms {
+        x64 {
+            architecture "x64"
+        }
+    }
     repositories {
         libs(PrebuiltLibraries) {
             SDL2 {
-                headers.srcDir 'lib/SDL2/MacOsX/include'
+                headers.srcDirs sdl2Include
+                binaries.withType(SharedLibraryBinary) {
+                    sharedLibraryFile = sdl2Dll
+                }
                 binaries.withType(StaticLibraryBinary) {
                     staticLibraryFile = sdl2Lib
                 }
             }
         }
     }
-
     components {
         FuuGBemu(NativeExecutableSpec) {
+            targetPlatform "x64"
             sources {
                 if (OperatingSystem.current().isMacOsX()) {
                     objcpp {
@@ -62,7 +75,7 @@ model {
                         exportedHeaders {
                             srcDirs "src/main/headers"
                         }
-                        lib library: "SDL2", linkage: "static"
+                        lib library: "SDL2", linkage: "shared"
                     }
                 }
                 if (OperatingSystem.current().isWindows()) {
@@ -74,6 +87,7 @@ model {
                         exportedHeaders {
                             srcDirs "src/main/headers"
                         }
+                        lib library: "SDL2", linkage: "static"
                     }
                 }
             }
@@ -86,14 +100,15 @@ model {
                     }
                     linker.args "-framework", "Cocoa"
                     linker.args "-framework", "AppKit"
-                    linker.args "-framework", "AudioToolbox"
-                    linker.args "-framework", "CoreAudio"
-                    linker.args "-framework", "CoreVideo"
-                    linker.args "-framework", "ForceFeedback"
-                    linker.args "-framework", "IOKit"
-                    linker.args "-framework", "Carbon"
-                    linker.args "-framework", "Metal"
-                    linker.args "-liconv"
+                }
+                if(OperatingSystem.current().isWindows()) {
+                    cppCompiler.define "FUUGB_SYSTEM_WINDOWS"
+                    cppCompiler.define "UNICODE"
+                    if (buildType == buildTypes.debug) {
+                        cppCompiler.define "FUUGB_DEBUG", "/O3"
+                    }
+                    linker.args "comdlg32.lib"
+                    linker.args "user32.lib"
                 }
             }
         }
