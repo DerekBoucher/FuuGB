@@ -105,8 +105,9 @@ model {
                     cppCompiler.define "FUUGB_SYSTEM_WINDOWS"
                     cppCompiler.define "UNICODE"
                     if (buildType == buildTypes.debug) {
-                        cppCompiler.define "FUUGB_DEBUG", "/O3"
+                        cppCompiler.define "FUUGB_DEBUG"  
                     }
+                    cppCompiler.args "/MT"
                     linker.args "comdlg32.lib"
                     linker.args "user32.lib"
                 }
