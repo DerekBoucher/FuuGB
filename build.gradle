@@ -49,6 +49,10 @@ model {
             architecture "x64"
         }
     }
+    buildTypes {
+        debug
+        release
+    }
     repositories {
         libs(PrebuiltLibraries) {
             SDL2 {
@@ -107,9 +111,41 @@ model {
                     if (buildType == buildTypes.debug) {
                         cppCompiler.define "FUUGB_DEBUG"  
                     }
-                    cppCompiler.args "/MT"
+                    cppCompiler.args "/FS","/Zi","/MT"
                     linker.args "comdlg32.lib"
                     linker.args "user32.lib"
+                }
+            }
+        }
+    }
+    tasks {
+        finish(Task) {
+            copy {
+                from 'lib/bootrom/DMG_ROM.bin'
+                into 'build/exe/fuuGBemu/debug'
+            }
+            copy {
+                from 'lib/bootrom/DMG_ROM.bin'
+                into 'build/exe/fuuGBemu/release'
+            }
+            if (OperatingSystem.current().isMacOsX()) {
+                copy {
+                    from 'lib/SDL2/MacOsX/libSDL2.dylib'
+                    into 'build/exe/fuuGBemu/debug'
+                }
+                copy {
+                    from 'lib/SDL2/MacOsX/libSDL2.dylib'
+                    into 'build/exe/fuuGBemu/release'
+                }
+            }
+            if (OperatingSystem.current().isWindows()) {
+                copy {
+                    from 'lib/SDL2/Windows/x64/SDL2.dll'
+                    into 'build/exe/fuuGBemu/debug'
+                }
+                copy {
+                    from 'lib/SDL2/Windows/x64/SDL2.dll'
+                    into 'build/exe/fuuGBemu/release'
                 }
             }
         }
