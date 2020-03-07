@@ -49,10 +49,6 @@ model {
             architecture "x64"
         }
     }
-    buildTypes {
-        debug
-        release
-    }
     repositories {
         libs(PrebuiltLibraries) {
             SDL2 {
@@ -109,43 +105,38 @@ model {
                     cppCompiler.define "FUUGB_SYSTEM_WINDOWS"
                     cppCompiler.define "UNICODE"
                     if (buildType == buildTypes.debug) {
-                        cppCompiler.define "FUUGB_DEBUG"  
+                        cppCompiler.define "FUUGB_DEBUG"
+                        linker.args "/DEBUG"
                     }
-                    cppCompiler.args "/FS","/Zi","/MT"
+                    cppCompiler.args "/FS","/Zi","/MTd", "/Ot"
                     linker.args "comdlg32.lib"
                     linker.args "user32.lib"
+                    linker.args "/SUBSYSTEM:CONSOLE"
                 }
             }
         }
     }
     tasks {
-        finish(Task) {
-            copy {
-                from 'lib/bootrom/DMG_ROM.bin'
-                into 'build/exe/fuuGBemu/debug'
+        buildemu(Task) {
+            dependsOn {
+                build
             }
-            copy {
-                from 'lib/bootrom/DMG_ROM.bin'
-                into 'build/exe/fuuGBemu/release'
-            }
-            if (OperatingSystem.current().isMacOsX()) {
+            doLast {
                 copy {
-                    from 'lib/SDL2/MacOsX/libSDL2.dylib'
-                    into 'build/exe/fuuGBemu/debug'
+                    from 'lib/bootrom/DMG_ROM.bin'
+                    into 'build/exe/fuuGBemu'
                 }
-                copy {
-                    from 'lib/SDL2/MacOsX/libSDL2.dylib'
-                    into 'build/exe/fuuGBemu/release'
+                if (OperatingSystem.current().isMacOsX()) {
+                    copy {
+                        from 'lib/SDL2/MacOsX/libSDL2.dylib'
+                        into 'build/exe/fuuGBemu'
+                    }
                 }
-            }
-            if (OperatingSystem.current().isWindows()) {
-                copy {
-                    from 'lib/SDL2/Windows/x64/SDL2.dll'
-                    into 'build/exe/fuuGBemu/debug'
-                }
-                copy {
-                    from 'lib/SDL2/Windows/x64/SDL2.dll'
-                    into 'build/exe/fuuGBemu/release'
+                if (OperatingSystem.current().isWindows()) {
+                    copy {
+                        from 'lib/SDL2/Windows/x64/SDL2.dll'
+                        into 'build/exe/fuuGBemu'
+                    }
                 }
             }
         }
