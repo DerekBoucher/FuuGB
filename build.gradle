@@ -156,20 +156,20 @@ model {
             compileTestCpp {
                 includes.from(sdl2Include)
                 compilerArgs.addAll toolChain.map { toolChain ->
-                    if (toolChain in [ Gcc, Clang ]) {
-                        return ['-Wall', '-O3']
-                    } else if (toolChain in VisualCpp) {
+                    if (toolChain in VisualCpp) {
                         return ['/MT','/DFUUGB_SYSTEM_WINDOWS', '/DUNICODE', '/DFUUGB_DEBUG', '/DFUUGB_UNIT_TEST']
+                    } else {
+                        return ['-x', 'objective-c++', '-std=c++11', '-Wall', '-O3', '-DFUUGB_SYSTEM_MACOS', '-DFUUGB_DEBUG', '-DFUUGB_UNIT_TEST']
                     }
                 }
             }
             linkTest {
                 libs.from(sdl2Lib)
                 linkerArgs.addAll toolChain.map { toolChain ->
-                    if (toolChain in [ Gcc, Clang ]) {
-                        return ['-Wall', '-O3']
-                    } else if (toolChain in VisualCpp) {
+                    if (toolChain in VisualCpp) {
                         return ['comdlg32.lib', 'user32.lib']
+                    } else {
+                        return ['-framework', 'Cocoa', '-framework', 'AppKit']
                     }
                 }
                 doLast {
