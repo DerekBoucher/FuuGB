@@ -7,27 +7,27 @@ All credit goes to codeslinger!
 
 Early Alpha Development
 
-Build Script System provided by Premake5 : https://github.com/premake/premake-core
+Build Script System provided by Gradle!
+
+## Build Prerequisites
+    1.  Gradle build system must be installed on your machine
+    2.  To install gradle:
+
+    MAC OS X
+        3_1. Brew package manager:
+            3_1_1. brew install gradle
+        3_2. Visit https://gradle.org/releases/ and download the binary or complete package.
+    
+    WINDOWS
+        3_3. Visit https://gradle.org/install/ and follow the directives for "Microsoft Windows users"
+
 
 ## How to build:
 
     1.  Clone Repository into arbitrary directory.
     2.  Open the command line or Terminal from the DIRECTORY of the CLONED repository.
-    
-    MAC OS X
-    **Only supports building with Xcode.
-        3_1. From the Terminal, enter "premake5 xcode4" (or "./premake5 xcode4" if the command is not recognized).
-        3_2. Open the generated .xcodeproj file.
-        3_3. Build the project in Xcode.
-
-    WINDOWS:
-    **Only supports building with VS 2013, 2015, 2017 and 2019.
-        3_4. From the Command Line, enter "premake5 vs20xx". (where xx = 13, 15, 17 or 19)
-        3_5. Open the generated .sln file.
-        3_6. Build the project in Visual Studio.
-        
-        **NOTE: Clean solution prior to rebuilding, or else some copied dll's will not be updated to
-			the new build version. (Only applicable for Windows)
+    3.  Type in the following command:
+        3_1.    gradle build
 
 ## Emulation Accuracy Testing
 
