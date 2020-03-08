@@ -14,9 +14,7 @@ import org.gradle.internal.os.OperatingSystem
     Required Plugins For FuuGBemu
 */
 plugins {
-    id 'cpp'
-    id 'objective-cpp'
-    id 'cpp-unit-test'
+    id 'cpp-application'
 }
 
 /*
@@ -40,22 +38,13 @@ if (OperatingSystem.current().isMacOsX()) {
     sdl2Include = 'lib/SDL2/MacOsX/include'
 }
 
-/*
-    Model Block:
-        This block defines the platform, architecture, compiler and linker arguments,
-        the platform specific source sets and binary types.
+/* 
+    Repositories Block:
+        Defines the 3rd party libraries that this project links against.
+        Namely, the SDL2 library for graphical needs.
 */
 model {
-    platforms {
-        windows_x64 {
-            architecture "x86_64"
-            operatingSystem "windows"
-        }
-        macosx_x64 {
-            architecture "x86_64"
-            operatingSystem "macosx"
-        }
-    }
+
     repositories {
         libs(PrebuiltLibraries) {
             SDL2 {
@@ -69,138 +58,127 @@ model {
             }
         }
     }
-    components {
-        FuuGBemu(NativeExecutableSpec) {
-            sources {
-                if (OperatingSystem.current().isMacOsX()) {
-                    targetPlatform "macosx_x64"
-                    objcpp {
-                        source {
-                            srcDirs "src/main/cpp", "src/main/MacOSX"
-                            include "**/*.mm", "**/*.m", "**/*.cpp"
-                        }
-                        exportedHeaders {
-                            srcDirs "src/main/headers"
-                        }
-                        lib library: "SDL2", linkage: "shared"
-                    }
-                }
-                if (OperatingSystem.current().isWindows()) {
-                    targetPlatform "windows_x64"
-                    cpp {
-                        source {
-                            srcDirs "src/main/cpp", "src/main/Windows"
-                            include "**/*.cpp"
-                        }
-                        exportedHeaders {
-                            srcDirs "src/main/headers"
-                        }
-                        lib library: "SDL2", linkage: "shared"
-                    }
-                }
-            }
-            binaries.all {
-                if(OperatingSystem.current().isMacOsX()) {
-                    objcppCompiler.define "FUUGB_SYSTEM_MACOS"
-                    if (buildType == buildTypes.debug) {
-                        objcppCompiler.define "FUUGB_DEBUG"
-                        objcppCompiler.args '-g','-Wall','-std=c++11','-stdlib=libc++'
-                    }
-                    linker.args "-framework", "Cocoa"
-                    linker.args "-framework", "AppKit"
-                }
-                if(OperatingSystem.current().isWindows()) {
-                    cppCompiler.define "FUUGB_SYSTEM_WINDOWS"
-                    cppCompiler.define "UNICODE"
-                    if (buildType == buildTypes.debug) {
-                        cppCompiler.define "FUUGB_DEBUG"
-                        linker.args "/DEBUG"
-                    }
-                    cppCompiler.args "/FS","/Zi","/MTd", "/Ot"
-                    linker.args "comdlg32.lib"
-                    linker.args "user32.lib"
-                    linker.args "/SUBSYSTEM:CONSOLE"
-                }
-            }
-            build {
-                doLast {
-                    copy {
-                        from 'lib/bootrom/DMG_ROM.bin'
-                        into 'build/exe/fuuGBemu'
-                    }
-                    if (OperatingSystem.current().isMacOsX()) {
-                        copy {
-                            from 'lib/SDL2/MacOsX/libSDL2.dylib'
-                            into 'build/exe/fuuGBemu'
-                        }
-                    }
-                    if (OperatingSystem.current().isWindows()) {
-                        copy {
-                            from 'lib/SDL2/Windows/x64/SDL2.dll'
-                            into 'build/exe/fuuGBemu'
-                        }
-                    }
-                }
-            }
-            unitTest {
-                source {
-                    from "src/main/cpp"
-                    from "src/test/cpp"
-                    from "src/test"
-                }
-                privateHeaders {
-                    from "src/main/headers"
-                    from "src/test/headers"
+}
+
+/*
+    Application Block:
+        This block defines the platform, architecture, compiler and linker arguments,
+        the platform specific source sets and binary types.
+*/
+application {
+    
+    /*
+        Target Machines
+    */
+    targetMachines = [
+        machines.windows.x86_64,
+        machines.macOS.x86_64,
+        machines.linux.x86_64
+    ]
+
+    /*
+        Source Sets
+    */
+    source {
+        
+        /*
+            Common
+        */
+        from "src/main/cpp"
+
+        /*
+            Windows
+        */
+        if(OperatingSystem.current().isWindows()) {
+            from "src/main/Windows"
+        }
+
+        /*
+            MacOSX
+        */
+        if (OperatingSystem.current().isMacOsX()) {
+            from "src/main/MacOSX"
+        }
+
+        /*
+            Linux
+        */
+        //TBD
+    }
+
+    /*
+        Configure Build
+    */
+    binaries.whenElementFinalized { binary ->
+
+        /*
+            Configure Compiler
+        */
+        binary.compileTask.get().configure {
+            includes.from(sdl2Include)
+
+            compilerArgs.addAll toolChain.map { toolChain ->
+                if (toolChain in VisualCpp) {
+                    return [
+                        '/MTd',
+                        '/DFUUGB_SYSTEM_WINDOWS',
+                        '/DFUUGB_DEBUG',
+                        '/DUNICODE'
+                    ]
+                } else {
+                    return [
+                        '-x',
+                        'objective-c++',
+                        '-Wall',
+                        '-std=c++11',
+                        '-DFUUGB_SYSTEM_MACOS',
+                        '-DFUUGB_DEBUG'
+                    ]
                 }
             }
-            compileTestCpp {
-                includes.from(sdl2Include)
-                compilerArgs.addAll toolChain.map { toolChain ->
-                    if (toolChain in VisualCpp) {
-                        return ['/MT','/DFUUGB_SYSTEM_WINDOWS', '/DUNICODE', '/DFUUGB_DEBUG', '/DFUUGB_UNIT_TEST']
-                    } else {
-                        return ['-x', 'objective-c++', '-std=c++11', '-Wall', '-O3', '-DFUUGB_SYSTEM_MACOS', '-DFUUGB_DEBUG', '-DFUUGB_UNIT_TEST']
-                    }
+        }
+
+        /*
+            Configure Linker
+        */
+        binary.linkTask.get().configure {
+            libs.from(sdl2Lib)
+            linkerArgs.addAll toolChain.map { toolChain ->
+                if (toolChain in VisualCpp) {
+                    return [
+                        'comdlg32.lib',
+                        'user32.lib',
+                        '/SUBSYSTEM:CONSOLE'
+                    ]
+                } else {
+                    return [
+                        '-framework',
+                        'Cocoa',
+                        '-framework',
+                        'AppKit'
+                    ]
                 }
             }
-            linkTest {
-                libs.from(sdl2Lib)
-                linkerArgs.addAll toolChain.map { toolChain ->
-                    if (toolChain in VisualCpp) {
-                        return ['comdlg32.lib', 'user32.lib']
-                    } else {
-                        return ['-framework', 'Cocoa', '-framework', 'AppKit']
-                    }
+        }
+    }
+
+    /*
+        Post Build Commands
+    */
+    build {
+        doLast {
+            if (OperatingSystem.current().isWindows()) {
+                copy {
+                    from 'lib/SDL2/Windows/x64/SDL2.dll'
+                    into 'build/exe/main/debug/windows'
                 }
-                doLast {
-                    if (OperatingSystem.current().isMacOsX()) {
-                        copy {
-                            from 'lib/SDL2/MacOsX/libSDL2.dylib'
-                            into 'build/exe/test'
-                        }
-                    }
-                    if (OperatingSystem.current().isWindows()) {
-                        copy {
-                            from 'lib/SDL2/Windows/x64/SDL2.dll'
-                            into 'build/exe/test'
-                        }
-                    } 
+                copy {
+                    from 'lib/bootrom/DMG_ROM.bin'
+                    into 'build/exe/main/debug/windows'
                 }
-            }
-            installTest {
-                doLast {
-                    if (OperatingSystem.current().isMacOsX()) {
-                        copy {
-                            from 'lib/SDL2/MacOsX/libSDL2.dylib'
-                            into 'build/install/test/lib'
-                        }
-                    }
-                    if (OperatingSystem.current().isWindows()) {
-                        copy {
-                            from 'lib/SDL2/Windows/x64/SDL2.dll'
-                            into 'build/install/test/lib'
-                        }
-                    } 
+                copy {
+                    from 'lib/SDL2/Windows/x64/SDL2.dll'
+                    into 'build/test/windows'
                 }
             }
         }
