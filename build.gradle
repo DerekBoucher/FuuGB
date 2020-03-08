@@ -9,6 +9,7 @@
 */
 import org.gradle.internal.os.OperatingSystem
 
+
 /*
     Required Plugins For FuuGBemu
 */
@@ -45,8 +46,13 @@ if (OperatingSystem.current().isMacOsX()) {
 */
 model {
     platforms {
-        x64 {
-            architecture "x64"
+        windows_x64 {
+            architecture "x86_64"
+            operatingSystem "windows"
+        }
+        macosx_x64 {
+            architecture "x86_64"
+            operatingSystem "macosx"
         }
     }
     repositories {
@@ -54,7 +60,7 @@ model {
             SDL2 {
                 headers.srcDirs sdl2Include
                 binaries.withType(SharedLibraryBinary) {
-                    sharedLibraryFile = sdl2Dll
+                    sharedLibraryFile = sdl2Lib
                 }
                 binaries.withType(StaticLibraryBinary) {
                     staticLibraryFile = sdl2Lib
@@ -64,9 +70,9 @@ model {
     }
     components {
         FuuGBemu(NativeExecutableSpec) {
-            targetPlatform "x64"
             sources {
                 if (OperatingSystem.current().isMacOsX()) {
+                    targetPlatform "macosx_x64"
                     objcpp {
                         source {
                             srcDirs "src/main/cpp", "src/main/MacOSX"
@@ -79,6 +85,7 @@ model {
                     }
                 }
                 if (OperatingSystem.current().isWindows()) {
+                    targetPlatform "windows_x64"
                     cpp {
                         source {
                             srcDirs "src/main/cpp", "src/main/Windows"
@@ -87,7 +94,7 @@ model {
                         exportedHeaders {
                             srcDirs "src/main/headers"
                         }
-                        lib library: "SDL2", linkage: "static"
+                        lib library: "SDL2", linkage: "shared"
                     }
                 }
             }
@@ -112,6 +119,28 @@ model {
                     linker.args "comdlg32.lib"
                     linker.args "user32.lib"
                     linker.args "/SUBSYSTEM:CONSOLE"
+                }
+            }
+            compileTestCpp {
+                sources {
+                    cpp {
+                        source {
+                            srcDirs "src/test/cpp", "src/main/cpp"
+                            include "**/*.cpp"
+                        }
+                        exportedHeaders {
+                            srcDirs "src/main/headers", "src/test/headers"
+                        }
+                        lib library: "SDL2", linkage: "shared"
+                    }
+                }
+                source {
+                    "src/test/cpp/*.cpp"
+                    "src/main/cpp/*.cpp"
+                }
+                includes {
+                    "src/main/headers" 
+                    "src/test/headers"
                 }
             }
         }
