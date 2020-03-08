@@ -1,9 +1,9 @@
 #include "testCPU.h"
 #include "CPU.h"
 
-namespace CPU_TESTS {
+namespace CpuTests {
 
-    void RUN() {
+    void run() {
+        assert(1 ==1 );
     }
-
 }

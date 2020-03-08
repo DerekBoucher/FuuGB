@@ -1,6 +1,7 @@
 #include <cassert>
+#include "CPU.h"
 
-namespace CPU_TESTS {
-
-    void RUN();
+namespace CpuTests {
+    
+    void run();
 }

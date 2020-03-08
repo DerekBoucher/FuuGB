@@ -1,4 +1,6 @@
+#ifndef FUUGB_UNIT_TEST
 #define SDL_MAIN_HANDLED
+
 #include "Sandbox.h"
 
 int main(int argc, char** argv)
@@ -7,3 +9,5 @@ int main(int argc, char** argv)
     sandbox->run();
     delete sandbox;
 }
+
+#endif

@@ -1,3 +1,4 @@
+#define SDL_MAIN_HANDLED
 #include "testCPU.h"
 
 int main() {
@@ -5,5 +6,7 @@ int main() {
     /*
     *   CPU Tests
     */
-    CPU_TESTS::RUN();
+    FuuGB::CPU* cpu;
+    assert(1 == 1);
+    return 0;
 }
