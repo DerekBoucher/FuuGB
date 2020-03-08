@@ -18,7 +18,7 @@ Build Script System provided by Gradle!
             3_1_1. brew install gradle
 
             OR
-            
+
         3_2. Visit https://gradle.org/releases/ and download the binary or complete package.
     
     WINDOWS
@@ -53,15 +53,3 @@ Build Script System provided by Gradle!
 |09-op r,r		| Fail	|
 |10-bit ops		| Fail	|
 |11-op a,(hl)		| Fail	|
-
-
-### Milestones:
-
-	Emulator is able to successfully get past the bootrom:
-![](Images/Capture2.PNG)
-
-	Emulator is able to boot into first game (although very buggy) (Dr. Mario)
-![](Images/drmario.PNG)
-
-### Current WIP:
-	Trying to get all of Blargg's Cpu tests to pass
