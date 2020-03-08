@@ -3,10 +3,14 @@
 
 int main() {
 
-    /*
-    *   CPU Tests
-    */
-    FuuGB::CPU* cpu;
-    assert(1 == 1);
+    // Instantiate Tests
+    CpuTests::Test* cpuTests = new CpuTests::Test();
+
+    // Run Tests
+    cpuTests->RunAllTests();
+
+    // Tear Down
+    delete cpuTests;
+
     return 0;
 }

@@ -26,6 +26,7 @@ def sdl2Lib
 def sdl2Include
 def sdl2Dll
 
+
 /*
     Determine Platform Specific Library Paths
  */
@@ -171,9 +172,23 @@ model {
                         return ['comdlg32.lib', 'user32.lib']
                     }
                 }
+                doLast {
+                    if (OperatingSystem.current().isMacOsX()) {
+                        copy {
+                            from 'lib/SDL2/MacOsX/libSDL2.dylib'
+                            into 'build/exe/test'
+                        }
+                    }
+                    if (OperatingSystem.current().isWindows()) {
+                        copy {
+                            from 'lib/SDL2/Windows/x64/SDL2.dll'
+                            into 'build/exe/test'
+                        }
+                    } 
+                }
             }
-            runTest {
-                doFirst {
+            installTest {
+                doLast {
                     if (OperatingSystem.current().isMacOsX()) {
                         copy {
                             from 'lib/SDL2/MacOsX/libSDL2.dylib'

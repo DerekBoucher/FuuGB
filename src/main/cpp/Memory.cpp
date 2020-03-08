@@ -21,7 +21,6 @@ namespace FuuGB
 
 	Memory::~Memory()
 	{
-
 		delete[] M_MEM;
 		delete cart;
 	}

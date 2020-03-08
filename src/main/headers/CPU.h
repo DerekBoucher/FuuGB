@@ -44,7 +44,7 @@ namespace FuuGB
         bool _cpuHalted;
         void halt();
         
-	private:
+	protected:
 		union Register
 		{
 			uWORD data;
