@@ -16,6 +16,9 @@ Build Script System provided by Gradle!
     MAC OS X
         3_1. Brew package manager:
             3_1_1. brew install gradle
+
+            OR
+            
         3_2. Visit https://gradle.org/releases/ and download the binary or complete package.
     
     WINDOWS
