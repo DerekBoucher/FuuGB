@@ -101,20 +101,28 @@ model {
             }
             binaries.all {
                 if(OperatingSystem.current().isMacOsX()) {
-                    objcppCompiler.define "FUUGB_SYSTEM_MACOS"
-                    if (buildType == buildTypes.debug) {
-                        objcppCompiler.define "FUUGB_DEBUG"
-                        objcppCompiler.args '-g','-Wall','-std=c++11','-stdlib=libc++'
-                    }
-                    linker.args "-framework", "Cocoa"
-                    linker.args "-framework", "AppKit"
+                    objcppCompiler.args "-DFUUGB_SYSTEM_MACOS",
+                                        "-DFUUGB_DEBUG",
+                                        "-g",
+                                        "-Wall",
+                                        "-std=c++11",
+                                        "-stdlib=libc++"
+
+                    linker.args         "-framework",
+                                        "Cocoa",
+                                        "-framework",
+                                        "AppKit"
                 }
                 if(OperatingSystem.current().isWindows()) {
-                    cppCompiler.args    "/Zi",
+                    cppCompiler.args    "/std:c++latest",
+                                        "/EHsc",
+                                        "/Wall",
+                                        "/FS",
+                                        "/Zi",
                                         "/MT",
-                                        "-DFUUGB_SYSTEM_WINDOWS",
-                                        "-DUNICODE",
-                                        "-DFUUGB_DEBUG"
+                                        "/DFUUGB_SYSTEM_WINDOWS",
+                                        "/DUNICODE",
+                                        "/DFUUGB_DEBUG"
 
                     linker.args         "/DEBUG",
                                         "comdlg32.lib",
