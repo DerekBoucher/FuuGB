@@ -110,16 +110,15 @@ model {
                     linker.args "-framework", "AppKit"
                 }
                 if(OperatingSystem.current().isWindows()) {
-                    cppCompiler.define "FUUGB_SYSTEM_WINDOWS"
-                    cppCompiler.define "UNICODE"
-                    if (buildType == buildTypes.debug) {
-                        cppCompiler.define "FUUGB_DEBUG"
-                        linker.args "/DEBUG"
-                    }
-                    cppCompiler.args "/FS","/Zi","/MTd", "/Ot"
-                    linker.args "comdlg32.lib"
-                    linker.args "user32.lib"
-                    linker.args "/SUBSYSTEM:CONSOLE"
+                    cppCompiler.args    "/Zi",
+                                        "/MT",
+                                        "-DFUUGB_SYSTEM_WINDOWS",
+                                        "-DUNICODE",
+                                        "-DFUUGB_DEBUG"
+
+                    linker.args         "/DEBUG",
+                                        "comdlg32.lib",
+                                        "user32.lib"
                 }
             }
             build {
