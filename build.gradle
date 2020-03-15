@@ -114,14 +114,21 @@ model {
                                         "AppKit"
                 }
                 if(OperatingSystem.current().isWindows()) {
-                    cppCompiler.args    "/std:c++latest",
+                    cppCompiler.args    "/std:c++17",
                                         "/EHsc",
                                         "/Wall",
                                         "/FS",
                                         "/Zi",
                                         "/MT",
+                                        "/Gm-",
+                                        "/GS",
+                                        "/Gd",
+                                        "/Zc:forScope",
+                                        "/Zc:inline",
+                                        "/fp:precise",
                                         "/DFUUGB_SYSTEM_WINDOWS",
                                         "/DUNICODE",
+                                        "/D_UNICODE",
                                         "/DFUUGB_DEBUG"
 
                     linker.args         "/DEBUG",
