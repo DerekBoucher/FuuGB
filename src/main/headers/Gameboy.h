@@ -12,17 +12,17 @@ namespace FuuGB
         Gameboy(SDL_Window*, Cartridge*);
         virtual ~Gameboy();
 
-		void Pause();
-		void Resume();
-		void Run();
-    
+        void Pause();
+        void Resume();
+        void Run();
+
     private:
-        CPU*        cpu;
-        Memory*     memory;
-        PPU*        ppu;
-		std::thread* _gameboyTHR;
-		bool		globalPause;
-		bool		running;
+        CPU*            cpu;
+        Memory*         memory;
+        PPU*            ppu;
+        std::thread*    _gameboyTHR;
+        bool            globalPause;
+        bool            running;
     };
 }
 

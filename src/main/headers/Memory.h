@@ -15,28 +15,28 @@ namespace FuuGB
         Memory(Cartridge*);
         virtual ~Memory();
 
-		void closeBootRom();
+        void closeBootRom();
         void writeMemory(uWORD, uBYTE);
-		void DMA_write(uWORD addr, uBYTE data);
-		void changeROMBank(uWORD addr, uBYTE data);
-		void toggleRAM(uWORD addr, uBYTE data);
-		void changeMode(uBYTE data);
+        void DMA_write(uWORD addr, uBYTE data);
+        void changeROMBank(uWORD addr, uBYTE data);
+        void toggleRAM(uWORD addr, uBYTE data);
+        void changeMode(uBYTE data);
         void RequestInterupt(int code);
-		void changeRAMBank(uWORD addr, uBYTE data);
-		uBYTE& readMemory(uWORD);
-		uBYTE& DMA_read(uWORD addr);
+        void changeRAMBank(uWORD addr, uBYTE data);
+        uBYTE& readMemory(uWORD);
+        uBYTE& DMA_read(uWORD addr);
 
-	public:
-		int                     timer_counter;
+    public:
+        int                     timer_counter;
     private:
         uBYTE*                  M_MEM;
         Cartridge*              cart;
         FILE*                   bootROM;
         std::thread*            _timerTHR;
         bool                    CycleDone;
-		bool					bootRomClosed;
+        bool                    bootRomClosed;
         void                    DMA_Transfer(uBYTE);
-		uBYTE					dummy = 0x00;
+        uBYTE                    dummy = 0x00;
     };
 }
 #endif /* Memory_h */

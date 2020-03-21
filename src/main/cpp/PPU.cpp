@@ -3,52 +3,52 @@
 
 namespace FuuGB
 {
-	PPU::PPU(SDL_Window* windowRef, Memory* mem, bool extended)
-	{
-		ext = extended;
-		MEM = mem;
-		renderer = SDL_GetRenderer(windowRef);
-		if (renderer == NULL)
-			renderer = SDL_CreateRenderer(windowRef, -1, SDL_RENDERER_ACCELERATED);
+    PPU::PPU(SDL_Window* windowRef, Memory* mem, bool extended)
+    {
+        ext = extended;
+        MEM = mem;
+        renderer = SDL_GetRenderer(windowRef);
+        if (renderer == NULL)
+            renderer = SDL_CreateRenderer(windowRef, -1, SDL_RENDERER_ACCELERATED);
         
         SDL_RenderClear(renderer);
 
-		for (int i = 0; i < NATIVE_SIZE_X; ++i)
-		{
-			for (int j = 0; j < NATIVE_SIZE_Y; ++j)
-			{
-				pixels[i][j].h = SCALE_FACTOR;
-				pixels[i][j].w = SCALE_FACTOR;
-				pixels[i][j].x = i * SCALE_FACTOR;
-				pixels[i][j].y = j * SCALE_FACTOR;
-			}
-		}
+        for (int i = 0; i < NATIVE_SIZE_X; ++i)
+        {
+            for (int j = 0; j < NATIVE_SIZE_Y; ++j)
+            {
+                pixels[i][j].h = SCALE_FACTOR;
+                pixels[i][j].w = SCALE_FACTOR;
+                pixels[i][j].x = i * SCALE_FACTOR;
+                pixels[i][j].y = j * SCALE_FACTOR;
+            }
+        }
 
-		for (int i = 0; i < EXT_SIZE_X; ++i)
-		{
-			for (int j = 0; j < EXT_SIZE_Y; ++j)
-			{
-				ext_Pixels[i][j].h = SCALE_FACTOR;
-				ext_Pixels[i][j].w = SCALE_FACTOR;
-				ext_Pixels[i][j].x = i * SCALE_FACTOR;
-				ext_Pixels[i][j].y = j * SCALE_FACTOR;
-			}
-		}
+        for (int i = 0; i < EXT_SIZE_X; ++i)
+        {
+            for (int j = 0; j < EXT_SIZE_Y; ++j)
+            {
+                ext_Pixels[i][j].h = SCALE_FACTOR;
+                ext_Pixels[i][j].w = SCALE_FACTOR;
+                ext_Pixels[i][j].x = i * SCALE_FACTOR;
+                ext_Pixels[i][j].y = j * SCALE_FACTOR;
+            }
+        }
         currentScanLine = 1;
         scanline_counter = 456;
-	}
+    }
 
-	PPU::~PPU()
-	{
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-		SDL_RenderClear(renderer);
-		SDL_RenderPresent(renderer);
-		SDL_DestroyRenderer(this->renderer);
-	}
+    PPU::~PPU()
+    {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(renderer);
+        SDL_RenderPresent(renderer);
+        SDL_DestroyRenderer(this->renderer);
+    }
 
 
-	void PPU::updateGraphics(int cycles)
-	{
+    void PPU::updateGraphics(int cycles)
+    {
         std::bitset<8> LCDC(MEM->readMemory(0xFF40));
         setLCDStatus();
         
@@ -67,17 +67,17 @@ namespace FuuGB
             
             if(currentScanLine == 144)//V-Blank
                 MEM->RequestInterupt(0);
-			else if (currentScanLine > 153)
-			{
-				MEM->DMA_write(0xFF44, 0x00);
-				return;
-			}
+            else if (currentScanLine > 153)
+            {
+                MEM->DMA_write(0xFF44, 0x00);
+                return;
+            }
             else if(currentScanLine < 144)
                 this->DrawScanLine();
             
             MEM->DMA_write(0xFF44, MEM->DMA_read(0xFF44)+1);
         }
-	}
+    }
     
     void PPU::DrawScanLine()
     {
@@ -144,30 +144,30 @@ namespace FuuGB
         
         // Determine the current scanline we are on
         currentScanLine = MEM->readMemory(0xFF44);
-		uWORD yPos;
-		if (!WinEnabled)
-			yPos = ScrollY + currentScanLine;
-		else
-			yPos = currentScanLine - WinY;
+        uWORD yPos;
+        if (!WinEnabled)
+            yPos = ScrollY + currentScanLine;
+        else
+            yPos = currentScanLine - WinY;
 
-		uWORD Tile_Row = (yPos / 8) * 32;
+        uWORD Tile_Row = (yPos / 8) * 32;
         
         // Start Rendering the scanline
         for(int pixel = 0;pixel < 160; pixel++)
         {
-			uWORD xPos = pixel + ScrollX;
+            uWORD xPos = pixel + ScrollX;
             if(WinEnabled)
             {
-				if (pixel >= WinX)
-				{
-					xPos = pixel - WinX;
-				}
+                if (pixel >= WinX)
+                {
+                    xPos = pixel - WinX;
+                }
             }
 
-			uWORD Tile_Col = xPos / 8;
+            uWORD Tile_Col = xPos / 8;
 
             //Determine the address for the tile identifier
-			uWORD current_Tile_Map_Adr = Tile_Map_Ptr + Tile_Col + Tile_Row;
+            uWORD current_Tile_Map_Adr = Tile_Map_Ptr + Tile_Col + Tile_Row;
             
             //Determine the Tile ID
             sBYTE sTile_ID;
@@ -247,8 +247,8 @@ namespace FuuGB
                     else if(Color_11.to_ulong() == 0x2) { R = 169; G = 169; B = 169; }
                     else if(Color_11.to_ulong() == 0x3) { R = 0; G = 0; B = 0; }
                     break;
-				default:
-					break;
+                default:
+                    break;
             }
             
             if(currentScanLine < 0 || currentScanLine > 143 || pixel < 0 || pixel > 159)
@@ -415,36 +415,36 @@ namespace FuuGB
             STAT.reset(0);
             reqInt = STAT.test(5);
         }
-		else
-		{
-			int mode2BOUND = 456 - 80;
-			int mode3BOUND = mode2BOUND - 172;
+        else
+        {
+            int mode2BOUND = 456 - 80;
+            int mode3BOUND = mode2BOUND - 172;
 
-			//Mode 2
-			if (scanline_counter >= mode2BOUND)
-			{
-				mode = 2;
-				STAT.set(1);
-				STAT.reset(0);
-				reqInt = STAT.test(5);
-			}
-			//Mode 3
-			else if (scanline_counter >= mode3BOUND)
-			{
-				mode = 3;
-				STAT.set(1);
-				STAT.set(0);
-			}
-			else
-			{
-				mode = 0;
-				STAT.reset(1);
-				STAT.reset(0);
-				reqInt = STAT.test(3);
-			}
-		}
+            //Mode 2
+            if (scanline_counter >= mode2BOUND)
+            {
+                mode = 2;
+                STAT.set(1);
+                STAT.reset(0);
+                reqInt = STAT.test(5);
+            }
+            //Mode 3
+            else if (scanline_counter >= mode3BOUND)
+            {
+                mode = 3;
+                STAT.set(1);
+                STAT.set(0);
+            }
+            else
+            {
+                mode = 0;
+                STAT.reset(1);
+                STAT.reset(0);
+                reqInt = STAT.test(3);
+            }
+        }
             
-		if(reqInt && (mode != currentMode))
+        if(reqInt && (mode != currentMode))
         {
             MEM->RequestInterupt(1);
         }
@@ -462,7 +462,7 @@ namespace FuuGB
             STAT.reset(2);
         }
 
-		MEM->DMA_write(0xFF41, (uBYTE)STAT.to_ulong());
+        MEM->DMA_write(0xFF41, (uBYTE)STAT.to_ulong());
     }
     
     void PPU::renderscreen()

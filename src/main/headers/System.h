@@ -13,7 +13,7 @@ namespace FuuGB
         {
             FUUGB_RUNNING = true;
             SDL_Init(SDL_INIT_EVERYTHING);
-			SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+            SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
         }
         
         static inline void closeSystems()

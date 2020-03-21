@@ -13,7 +13,7 @@
 
 #ifdef FUUGB_SYSTEM_WINDOWS
     #include "WinApplication.h"
-	#define FUUGB_APP FuuGB::WinApplication
+    #define FUUGB_APP FuuGB::WinApplication
 #endif
 
 #ifdef FUUGB_SYSTEM_LINUX

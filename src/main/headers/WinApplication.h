@@ -17,15 +17,15 @@
 
 namespace FuuGB
 {
-	class WinApplication : public Application
-	{
-	public:
-		void run();
-	private:
-		char* open_file(SDL_Window*);
-		Cartridge* getRom(char*, SDL_Window*);
-		Cartridge* ROM;
-	};
+    class WinApplication : public Application
+    {
+    public:
+        void run();
+    private:
+        char* open_file(SDL_Window*);
+        Cartridge* getRom(char*, SDL_Window*);
+        Cartridge* ROM;
+    };
 }
 #endif /* WinApplication_h */
 
