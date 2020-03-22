@@ -106,7 +106,8 @@ model {
                                         "-g",
                                         "-Wall",
                                         "-std=c++11",
-                                        "-stdlib=libc++"
+                                        "-stdlib=libc++",
+                                        "-pthread"
 
                     linker.args         "-framework",
                                         "Cocoa",
