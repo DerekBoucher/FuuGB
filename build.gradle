@@ -95,7 +95,7 @@ model {
                         exportedHeaders {
                             srcDirs "src/main/headers"
                         }
-                        lib library: "SDL2", linkage: "shared"
+                        lib library: "SDL2", linkage: "static"
                     }
                 }
             }
