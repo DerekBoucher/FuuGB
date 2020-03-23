@@ -30,14 +30,13 @@ def sdl2Dll
 /*
     Determine Platform Specific Library Paths
  */
+ sdl2Include = 'lib/SDL2/include'
 if (OperatingSystem.current().isWindows()) {
     sdl2Lib = file(OperatingSystem.current().getStaticLibraryName('lib/SDL2/Windows/x64/SDL2'))
     sdl2Dll = file(OperatingSystem.current().getSharedLibraryName('lib/SDL2/Windows/x64/SDL2'))
-    sdl2Include = 'lib/SDL2/Windows/include'
 }
 if (OperatingSystem.current().isMacOsX()) {
     sdl2Lib = file(OperatingSystem.current().getSharedLibraryName('lib/SDL2/MacOsX/SDL2'))
-    sdl2Include = 'lib/SDL2/MacOsX/include'
 }
 
 /*

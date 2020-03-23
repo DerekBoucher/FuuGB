@@ -9,7 +9,7 @@ namespace FuuGB
         MEM = mem;
         renderer = SDL_GetRenderer(windowRef);
         if (renderer == NULL)
-            renderer = SDL_CreateRenderer(windowRef, -1, SDL_RENDERER_ACCELERATED);
+            renderer = SDL_CreateRenderer(windowRef, -1, SDL_RENDERER_SOFTWARE);
         
         SDL_RenderClear(renderer);
 

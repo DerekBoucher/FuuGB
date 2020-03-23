@@ -597,8 +597,7 @@ namespace FuuGB
             SET_8_adrHL = 0xFE, //Set bit 8 in reg n
             SET_8_A = 0xFF //Set bit 8 in reg n
         };
-
-        void clock();
+        
         void increment16BitRegister(uWORD & reg);
         void increment8BitRegister(uBYTE & reg);
         void decrement8BitRegister(uBYTE & reg);

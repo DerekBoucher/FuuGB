@@ -39,22 +39,6 @@ namespace FuuGB
         _cpuPaused = true;
     }
 
-    void CPU::clock()
-    {
-        while (_cpuRunning)
-        {
-            if (_cpuPaused)
-            {
-                std::unique_lock<std::mutex> pauseLock(Shared::mu_GB);
-                Shared::cv_GB.wait(pauseLock);
-                pauseLock.unlock();
-                _cpuPaused = false;
-            }
-            executeNextOpCode();
-            checkInterupts();
-        }
-    }
-
     int CPU::executeNextOpCode()
     {
         timer_update_cnt = 0;
@@ -4053,6 +4037,4 @@ namespace FuuGB
             _cpuHalted = false;
         }
     }
-    
-    
 }
