@@ -94,7 +94,7 @@ model {
                         exportedHeaders {
                             srcDirs "src/main/headers"
                         }
-                        lib library: "SDL2", linkage: "static"
+                        lib library: "SDL2", linkage: "shared"
                     }
                 }
             }
@@ -163,9 +163,24 @@ model {
                 includes.from(sdl2Include)
                 compilerArgs.addAll toolChain.map { toolChain ->
                     if (toolChain in VisualCpp) {
-                        return ['/MT','/DFUUGB_SYSTEM_WINDOWS', '/DUNICODE', '/DFUUGB_DEBUG', '/DFUUGB_UNIT_TEST']
+                        return [
+                            '/MT',
+                            '/DFUUGB_SYSTEM_WINDOWS',
+                            '/DUNICODE',
+                            '/DFUUGB_DEBUG',
+                            '/DFUUGB_UNIT_TEST'
+                        ]
                     } else {
-                        return ['-x', 'objective-c++', '-std=c++11', '-Wall', '-O3', '-DFUUGB_SYSTEM_MACOS', '-DFUUGB_DEBUG', '-DFUUGB_UNIT_TEST']
+                        return [
+                            '-x',
+                            'objective-c++',
+                            '-std=c++11',
+                            '-Wall',
+                            '-O3',
+                            '-DFUUGB_SYSTEM_MACOS',
+                            '-DFUUGB_DEBUG',
+                            '-DFUUGB_UNIT_TEST'
+                        ]
                     }
                 }
             }
@@ -173,9 +188,17 @@ model {
                 libs.from(sdl2Lib)
                 linkerArgs.addAll toolChain.map { toolChain ->
                     if (toolChain in VisualCpp) {
-                        return ['comdlg32.lib', 'user32.lib']
+                        return [
+                            'comdlg32.lib',
+                            'user32.lib'
+                        ]
                     } else {
-                        return ['-framework', 'Cocoa', '-framework', 'AppKit']
+                        return [
+                            '-framework',
+                            'Cocoa',
+                            '-framework',
+                            'AppKit'
+                        ]
                     }
                 }
                 doLast {
