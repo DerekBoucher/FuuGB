@@ -3828,132 +3828,132 @@ namespace FuuGB
             BitField[i] = hiNibble[i];
 
         for (int i = 0; i < 4; ++i)
-			BitField[i + 4] = lowNibble[i];
+            BitField[i + 4] = lowNibble[i];
 
-		reg = BitField.to_ulong();
+        reg = BitField.to_ulong();
 
-		if (reg == 0x00)
-			CPU_FLAG_BIT_SET(Z_FLAG);
-		else
-			CPU_FLAG_BIT_RESET(Z_FLAG);
+        if (reg == 0x00)
+            CPU_FLAG_BIT_SET(Z_FLAG);
+        else
+            CPU_FLAG_BIT_RESET(Z_FLAG);
 
 
-		CPU_FLAG_BIT_RESET(N_FLAG);
-		CPU_FLAG_BIT_RESET(H_FLAG);
-		CPU_FLAG_BIT_RESET(C_FLAG);
-	}
+        CPU_FLAG_BIT_RESET(N_FLAG);
+        CPU_FLAG_BIT_RESET(H_FLAG);
+        CPU_FLAG_BIT_RESET(C_FLAG);
+    }
 
-	void CPU::Flag_set(int flag)
-	{
-		std::bitset<8> FlagBits(AF.lo);
-		FlagBits.set(flag);
-		AF.lo = FlagBits.to_ulong();
-	}
+    void CPU::Flag_set(int flag)
+    {
+        std::bitset<8> FlagBits(AF.lo);
+        FlagBits.set(flag);
+        AF.lo = FlagBits.to_ulong();
+    }
 
-	void CPU::Flag_reset(int flag)
-	{
-		std::bitset<8> FlagBits(AF.lo);
-		FlagBits.reset(flag);
-		AF.lo = FlagBits.to_ulong();
-	}
+    void CPU::Flag_reset(int flag)
+    {
+        std::bitset<8> FlagBits(AF.lo);
+        FlagBits.reset(flag);
+        AF.lo = FlagBits.to_ulong();
+    }
 
-	bool CPU::Flag_test(int flag)
-	{
-		std::bitset<8> FlagBits(AF.lo);
-		return FlagBits.test(flag);
-	}
+    bool CPU::Flag_test(int flag)
+    {
+        std::bitset<8> FlagBits(AF.lo);
+        return FlagBits.test(flag);
+    }
 
-	void CPU::test_bit(int pos, uBYTE reg)
-	{
-		std::bitset<8> BitField(reg);
-		if (!BitField.test(pos))
-			CPU_FLAG_BIT_SET(Z_FLAG);
-		else
-			CPU_FLAG_BIT_RESET(Z_FLAG);
+    void CPU::test_bit(int pos, uBYTE reg)
+    {
+        std::bitset<8> BitField(reg);
+        if (!BitField.test(pos))
+            CPU_FLAG_BIT_SET(Z_FLAG);
+        else
+            CPU_FLAG_BIT_RESET(Z_FLAG);
 
-		CPU_FLAG_BIT_RESET(N_FLAG);
-		CPU_FLAG_BIT_SET(H_FLAG);
-	}
+        CPU_FLAG_BIT_RESET(N_FLAG);
+        CPU_FLAG_BIT_SET(H_FLAG);
+    }
 
-	void CPU::reset_bit(int pos, uBYTE& reg)
-	{
-		std::bitset<8> BitField(reg);
-		BitField.reset(pos);
+    void CPU::reset_bit(int pos, uBYTE& reg)
+    {
+        std::bitset<8> BitField(reg);
+        BitField.reset(pos);
 
-		reg = BitField.to_ulong();
-	}
+        reg = BitField.to_ulong();
+    }
 
-	void CPU::set_bit(int pos, uBYTE& reg)
-	{
-		std::bitset<8> BitField(reg);
-		BitField.set(pos);
+    void CPU::set_bit(int pos, uBYTE& reg)
+    {
+        std::bitset<8> BitField(reg);
+        BitField.set(pos);
 
-		reg = BitField.to_ulong();
-	}
+        reg = BitField.to_ulong();
+    }
 
-	void CPU::checkInterupts()
-	{
-		if (!IME)
-			return;
+    void CPU::checkInterupts()
+    {
+        if (!IME)
+            return;
 
-		std::bitset<8> IE(memory->readMemory(INTERUPT_EN_REGISTER_ADR));
-		std::bitset<8> IF(memory->readMemory(INTERUPT_FLAG_REG));
-		Register Temp;
+        std::bitset<8> IE(memory->readMemory(INTERUPT_EN_REGISTER_ADR));
+        std::bitset<8> IF(memory->readMemory(INTERUPT_FLAG_REG));
+        Register Temp;
 
-		if (IF[0] && IE[0]) //V-Blank
-		{
-			IME = false;
+        if (IF[0] && IE[0]) //V-Blank
+        {
+            IME = false;
             IF.reset(0);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			Temp.data = PC;
-			memory->DMA_write(--SP, Temp.hi);
-			memory->DMA_write(--SP, Temp.lo);
-			PC = VBLANK_INT;
-		}
-		else if (IF[1] && IE[1]) // LCDC
-		{
-			IME = false;
+            Temp.data = PC;
+            memory->DMA_write(--SP, Temp.hi);
+            memory->DMA_write(--SP, Temp.lo);
+            PC = VBLANK_INT;
+        }
+        else if (IF[1] && IE[1]) // LCDC
+        {
+            IME = false;
             IF.reset(1);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			Temp.data = PC;
-			memory->DMA_write(--SP, Temp.hi);
-			memory->DMA_write(--SP, Temp.lo);
-			PC = LCDC_INT;
-		}
-		else if (IF[2] && IE[2]) // Timer Overflow
-		{
-			IME = false;
+            Temp.data = PC;
+            memory->DMA_write(--SP, Temp.hi);
+            memory->DMA_write(--SP, Temp.lo);
+            PC = LCDC_INT;
+        }
+        else if (IF[2] && IE[2]) // Timer Overflow
+        {
+            IME = false;
             IF.reset(2);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			Temp.data = PC;
-			memory->DMA_write(--SP, Temp.hi);
-			memory->DMA_write(--SP, Temp.lo);
-			PC = TIMER_OVER_INT;
-		}
-		else if (IF[3] && IE[3]) // Serial I/O Complete
-		{
-			IME = false;
+            Temp.data = PC;
+            memory->DMA_write(--SP, Temp.hi);
+            memory->DMA_write(--SP, Temp.lo);
+            PC = TIMER_OVER_INT;
+        }
+        else if (IF[3] && IE[3]) // Serial I/O Complete
+        {
+            IME = false;
             IF.reset(3);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			Temp.data = PC;
-			memory->DMA_write(--SP, Temp.hi);
-			memory->DMA_write(--SP, Temp.lo);
-			PC = SER_TRF_INT;
-		}
-		else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
-		{
-			IME = false;
+            Temp.data = PC;
+            memory->DMA_write(--SP, Temp.hi);
+            memory->DMA_write(--SP, Temp.lo);
+            PC = SER_TRF_INT;
+        }
+        else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
+        {
+            IME = false;
             IF.reset(4);
             memory->writeMemory(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
-			Temp.data = PC;
-			memory->DMA_write(--SP, Temp.hi);
-			memory->DMA_write(--SP, Temp.lo);
-			PC = CONTROL_INT;
-		}
-	}
+            Temp.data = PC;
+            memory->DMA_write(--SP, Temp.hi);
+            memory->DMA_write(--SP, Temp.lo);
+            PC = CONTROL_INT;
+        }
+    }
 
-	void CPU::updateTimers(int cycles)
-	{
+    void CPU::updateTimers(int cycles)
+    {
         std::bitset<8> TMC(memory->readMemory(0xFF07));
         std::bitset<8> TMA(memory->readMemory(0xFF06));
         std::bitset<8> TIMA(memory->readMemory(0xFF05));
@@ -3986,7 +3986,7 @@ namespace FuuGB
             }
         }
         
-	}
+    }
 
     void CPU::updateDivider(int cycles)
     {
@@ -3998,61 +3998,61 @@ namespace FuuGB
         }
     }
 
-	void CPU::adjustDAA(uBYTE & reg)
-	{
-		if (!CPU_FLAG_BIT_TEST(N_FLAG))
-		{
-			if (CPU_FLAG_BIT_TEST(C_FLAG) || reg > 0x99)
-			{
-				reg += 0x60;
-				CPU_FLAG_BIT_SET(C_FLAG);
-			}
+    void CPU::adjustDAA(uBYTE & reg)
+    {
+        if (!CPU_FLAG_BIT_TEST(N_FLAG))
+        {
+            if (CPU_FLAG_BIT_TEST(C_FLAG) || reg > 0x99)
+            {
+                reg += 0x60;
+                CPU_FLAG_BIT_SET(C_FLAG);
+            }
 
-			if (CPU_FLAG_BIT_TEST(H_FLAG) || (reg & 0x0F) > 0x09)
-				reg += 0x06;
-		}
-		else
-		{
-			if (CPU_FLAG_BIT_TEST(C_FLAG))
-				reg -= 0x60;
+            if (CPU_FLAG_BIT_TEST(H_FLAG) || (reg & 0x0F) > 0x09)
+                reg += 0x06;
+        }
+        else
+        {
+            if (CPU_FLAG_BIT_TEST(C_FLAG))
+                reg -= 0x60;
 
-			if (CPU_FLAG_BIT_TEST(H_FLAG))
-				reg -= 0x06;
-		}
+            if (CPU_FLAG_BIT_TEST(H_FLAG))
+                reg -= 0x06;
+        }
 
-		if (reg == 0x00)
-			CPU_FLAG_BIT_SET(Z_FLAG);
-		else
-			CPU_FLAG_BIT_RESET(Z_FLAG);
+        if (reg == 0x00)
+            CPU_FLAG_BIT_SET(Z_FLAG);
+        else
+            CPU_FLAG_BIT_RESET(Z_FLAG);
 
-		CPU_FLAG_BIT_RESET(H_FLAG);
-	}
+        CPU_FLAG_BIT_RESET(H_FLAG);
+    }
     
-	void CPU::halt()
-	{
-		std::bitset<8> IE(memory->DMA_read(INTERUPT_EN_REGISTER_ADR));
-		std::bitset<8> IF(memory->DMA_read(INTERUPT_FLAG_REG));
-			if (IF[0] && IE[0]) //V-Blank
-			{
+    void CPU::halt()
+    {
+        std::bitset<8> IE(memory->DMA_read(INTERUPT_EN_REGISTER_ADR));
+        std::bitset<8> IF(memory->DMA_read(INTERUPT_FLAG_REG));
+            if (IF[0] && IE[0]) //V-Blank
+            {
                 _cpuHalted = false;
-			}
-			else if (IF[1] && IE[1]) // LCDC
-			{
-				_cpuHalted = false;
-			}
-			else if (IF[2] && IE[2]) // Timer Overflow
-			{
-				_cpuHalted = false;
-			}
-			else if (IF[3] && IE[3]) // Serial I/O Complete
-			{
-				_cpuHalted = false;
-			}
-			else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
-			{
-				_cpuHalted = false;
-			}
-	}
+            }
+            else if (IF[1] && IE[1]) // LCDC
+            {
+                _cpuHalted = false;
+            }
+            else if (IF[2] && IE[2]) // Timer Overflow
+            {
+                _cpuHalted = false;
+            }
+            else if (IF[3] && IE[3]) // Serial I/O Complete
+            {
+                _cpuHalted = false;
+            }
+            else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
+            {
+                _cpuHalted = false;
+            }
+    }
     
     
 }
