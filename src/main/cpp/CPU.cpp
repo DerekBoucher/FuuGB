@@ -4032,26 +4032,26 @@ namespace FuuGB
     {
         std::bitset<8> IE(memory->DMA_read(INTERUPT_EN_REGISTER_ADR));
         std::bitset<8> IF(memory->DMA_read(INTERUPT_FLAG_REG));
-            if (IF[0] && IE[0]) //V-Blank
-            {
-                _cpuHalted = false;
-            }
-            else if (IF[1] && IE[1]) // LCDC
-            {
-                _cpuHalted = false;
-            }
-            else if (IF[2] && IE[2]) // Timer Overflow
-            {
-                _cpuHalted = false;
-            }
-            else if (IF[3] && IE[3]) // Serial I/O Complete
-            {
-                _cpuHalted = false;
-            }
-            else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
-            {
-                _cpuHalted = false;
-            }
+        if (IF[0] && IE[0]) //V-Blank
+        {
+            _cpuHalted = false;
+        }
+        else if (IF[1] && IE[1]) // LCDC
+        {
+            _cpuHalted = false;
+        }
+        else if (IF[2] && IE[2]) // Timer Overflow
+        {
+            _cpuHalted = false;
+        }
+        else if (IF[3] && IE[3]) // Serial I/O Complete
+        {
+            _cpuHalted = false;
+        }
+        else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
+        {
+            _cpuHalted = false;
+        }
     }
     
     
