@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <stdio.h>
+#include <ctime>
 #include "CPU.h"
 
 namespace CpuTests {
@@ -19,6 +20,9 @@ namespace CpuTests {
         void test_increment8BitRegister();
         void test_decrement16BitRegister();
         void test_decrement8BitRegister();
+        void test_add16BitRegister();
+        void test_add8BitRegister();
+        void test_add8BitRegisterWithCarry();
         void resetRegisters();
     };
 }

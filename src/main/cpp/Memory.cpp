@@ -3,9 +3,9 @@
 
 namespace FuuGB
 {
-    Memory::Memory(Cartridge* gameCart)
+    Memory::Memory(Cartridge* GameCart)
     {
-        cart = gameCart;
+        cart = GameCart;
         M_MEM = new uBYTE[0x10000];
         memset(this->M_MEM, 0x0, 0x10000);
         bootROM = fopen("DMG_ROM.bin", "rb");

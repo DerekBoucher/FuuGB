@@ -6,9 +6,9 @@ namespace FuuGB
     Gameboy::Gameboy(SDL_Window* windowPtr, Cartridge* cart)
     {
         running = true;
-        this->memory = new Memory(cart);
-        this->ppu = new PPU(windowPtr, this->memory, false);
-        this->cpu = new CPU(this->memory);
+        this->MemoryUnit = new Memory(cart);
+        this->ppu = new PPU(windowPtr, this->MemoryUnit, false);
+        this->cpu = new CPU(this->MemoryUnit);
         globalPause = false;
         _gameboyTHR = new std::thread(&Gameboy::Run, this);
     }
@@ -16,11 +16,10 @@ namespace FuuGB
     Gameboy::~Gameboy()
     {
         running = false;
-        cpu->stop();
         _gameboyTHR->join();
         delete _gameboyTHR;
         delete ppu;
-        delete memory;
+        delete MemoryUnit;
         delete cpu;
     }
 
@@ -40,18 +39,18 @@ namespace FuuGB
                     pauseLock.unlock();
                     globalPause = false;
                 }
-                if (cpu->_cpuHalted)
+                if (cpu->CpuHalted)
                 {
-                    cpu->halt();
+                    cpu->Halt();
                     cycles = 4;
                 }
                 else
-                    cycles = cpu->executeNextOpCode();
+                    cycles = cpu->ExecuteNextOpCode();
                 cyclesthisupdate += cycles;
-                cpu->updateTimers(cycles);
+                cpu->UpdateTimers(cycles);
                 ppu->updateGraphics(cycles);
-                if(!cpu->_cpuHalted)
-                    cpu->checkInterupts();
+                if(!cpu->CpuHalted)
+                    cpu->CheckInterupts();
             }
             ppu->renderscreen();
         }

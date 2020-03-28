@@ -36,7 +36,7 @@ namespace FuuGB
         bool                    CycleDone;
         bool                    bootRomClosed;
         void                    DMA_Transfer(uBYTE);
-        uBYTE                    dummy = 0x00;
+        uBYTE                   dummy = 0x00;
     };
 }
 #endif /* Memory_h */

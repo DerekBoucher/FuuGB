@@ -133,7 +133,7 @@ namespace FuuGB
         else
             WinEnabled = false;
         
-        // If Window is to be rendered, determine its Maping ptr in memory
+        // If Window is to be rendered, determine its Maping ptr in MemoryUnit
         if(WinEnabled)
         {
             if(LCDC.test(6))

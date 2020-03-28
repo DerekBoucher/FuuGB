@@ -18,7 +18,7 @@ namespace FuuGB
 
     private:
         CPU*            cpu;
-        Memory*         memory;
+        Memory*         MemoryUnit;
         PPU*            ppu;
         std::thread*    _gameboyTHR;
         bool            globalPause;
