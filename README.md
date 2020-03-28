@@ -7,7 +7,7 @@ All credit goes to codeslinger!
 
 Early Alpha Development
 
-Build Script System provided by Gradle! https://github.com/gradle/gradles
+Build Script System provided by Gradle! https://github.com/gradle/gradle
 
 ## Build Prerequisites
     1.  Gradle build system must be installed on your machine
