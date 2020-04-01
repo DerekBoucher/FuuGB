@@ -3469,10 +3469,10 @@ namespace FuuGB
         case 7: mask = 0x7F; break;
         }
 
-        std::bitset<8> a(byte & mask);
-        std::bitset<8> b(subtractedByte & mask);
+        byte = byte & mask;
+        subtractedByte = subtractedByte & mask;
 
-        if (a.to_ulong() < b.to_ulong())
+        if (byte < subtractedByte)
             return true;
         else
             return false;
@@ -3586,7 +3586,7 @@ namespace FuuGB
 
     void CPU::sub8BitRegister(uBYTE& host, uBYTE operand)
     {
-        if (!checkBorrowFromBit_Byte(4, host, operand))
+        if (checkBorrowFromBit_Byte(4, host, operand))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3608,7 +3608,7 @@ namespace FuuGB
 
     void CPU::sub8BitRegister(uBYTE& host, uBYTE operand, bool carry)
     {
-        if (!checkBorrowFromBit_Byte(4, host, operand + carry))
+        if (checkBorrowFromBit_Byte(4, host, operand + carry))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3618,7 +3618,7 @@ namespace FuuGB
         else
             CPU_FLAG_BIT_RESET(C_FLAG);
         
-        host = host - operand - carry;
+        host = host - (operand + carry);
 
         if (host == 0x00)
             CPU_FLAG_BIT_SET(Z_FLAG);
@@ -3679,7 +3679,7 @@ namespace FuuGB
 
         CPU_FLAG_BIT_SET(N_FLAG);
         
-        if (!checkBorrowFromBit_Byte(4, host, operand))
+        if (checkBorrowFromBit_Byte(4, host, operand))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);

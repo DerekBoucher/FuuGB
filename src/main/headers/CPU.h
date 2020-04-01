@@ -607,7 +607,8 @@ namespace FuuGB
         bool checkBorrowFromBit_Byte(int pos, uBYTE byte, uBYTE subtractedByte);
         bool checkBorrowFromBit_Word(int pos, uWORD word, uWORD subtractedWord);
         uBYTE twoComp_Byte(uBYTE byte);
-        uWORD twoComp_Word(uWORD word);        void rotateReg(bool direction, bool withCarry, uBYTE & reg);
+        uWORD twoComp_Word(uWORD word);        
+        void rotateReg(bool direction, bool withCarry, uBYTE & reg);
         void shiftReg(bool direction, bool keepMSB, uBYTE & reg);
         void swapReg(uBYTE & reg);
         void Flag_set(int flag);

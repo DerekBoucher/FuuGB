@@ -23,6 +23,17 @@ namespace CpuTests {
         void test_add16BitRegister();
         void test_add8BitRegister();
         void test_add8BitRegisterWithCarry();
+        void test_sub8BitRegister();
+        void test_sub8BitRegisterWithCarry();
+        void test_and8BitRegister();
+        void test_xor8BitRegister();
+        void test_or8BitRegister();
+        void test_cmp8BitRegister();
+        void test_TestBitInByte();
+        void test_TestBitInWord();
+        void test_twoComp_Byte();
+        void test_twoComp_Word();
+        void test_rotateReg();
         void resetRegisters();
     };
 }
