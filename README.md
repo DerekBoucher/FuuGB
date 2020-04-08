@@ -1,5 +1,5 @@
 # FuuGBemu
-![build](https://img.shields.io/github/workflow/status/DerekBoucher/FuuGBemu/CI) ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu)
+![build](https://img.shields.io/github/workflow/status/DerekBoucher/FuuGBemu/CI) ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu) ![issues](https://img.shields.io/github/issues-raw/DerekBoucher/FuuGBemu)
 
 Cross platform C/C++ GameBoy emulator using SDL2 framework.
 
