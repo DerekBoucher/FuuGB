@@ -1,5 +1,5 @@
 # FuuGBemu
-https://travis-ci.org/{DerekBoucher}/{FuuGBemu}
+https://img.shields.io/appveyor/build/DerekBoucher/FuuGBemu?style=for-the-badge
 Cross platform C/C++ GameBoy emulator using SDL2 framework.
 
 Algorithm for the PPU and Memory Management are taken from http://www.codeslinger.co.uk/pages/projects/gameboy.html
