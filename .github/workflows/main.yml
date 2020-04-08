@@ -32,7 +32,11 @@ jobs:
         echo Add other actions to build,
         echo test, and deploy your project.
         
+<<<<<<< HEAD
     # execute gradle build scriptt
+=======
+    # execute gradle build script
+>>>>>>> af0c1bf394b747882a5a3d35cfd2a9b51caf2ce0
     - name: Gradle Command
       uses: eskatos/gradle-command-action@v1
       with:
