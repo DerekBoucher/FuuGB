@@ -7,20 +7,20 @@ namespace FuuGB
     {
         running = true;
         this->MemoryUnit = new Memory(cart);
-        this->ppu = new PPU(windowPtr, this->MemoryUnit, false);
-        this->cpu = new CPU(this->MemoryUnit);
+        this->PpuUnit = new PPU(windowPtr, this->MemoryUnit, false);
+        this->CpuUnit = new CPU(this->MemoryUnit);
         globalPause = false;
-        _gameboyTHR = new std::thread(&Gameboy::Run, this);
+        GameboyThread = new std::thread(&Gameboy::Run, this);
     }
 
     Gameboy::~Gameboy()
     {
         running = false;
-        _gameboyTHR->join();
-        delete _gameboyTHR;
-        delete ppu;
+        GameboyThread->join();
+        delete GameboyThread;
+        delete PpuUnit;
         delete MemoryUnit;
-        delete cpu;
+        delete CpuUnit;
     }
 
     void Gameboy::Run()
@@ -39,20 +39,20 @@ namespace FuuGB
                     pauseLock.unlock();
                     globalPause = false;
                 }
-                if (cpu->CpuHalted)
+                if (CpuUnit->CpuHalted)
                 {
-                    cpu->Halt();
+                    CpuUnit->Halt();
                     cycles = 4;
                 }
                 else
-                    cycles = cpu->ExecuteNextOpCode();
+                    cycles = CpuUnit->ExecuteNextOpCode();
                 cyclesthisupdate += cycles;
-                cpu->UpdateTimers(cycles);
-                ppu->updateGraphics(cycles);
-                if(!cpu->CpuHalted)
-                    cpu->CheckInterupts();
+                CpuUnit->UpdateTimers(cycles);
+                PpuUnit->updateGraphics(cycles);
+                if(!CpuUnit->CpuHalted)
+                    CpuUnit->CheckInterupts();
             }
-            ppu->renderscreen();
+            PpuUnit->renderscreen();
         }
     }
 

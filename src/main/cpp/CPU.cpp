@@ -3140,7 +3140,7 @@ namespace FuuGB
             byte = MemoryUnit->readMemory(PC++);
             if (TestBitInByte(byte, 7))
             {
-                if (!checkBorrowFromBit_Word(12, SP, twoComp_Byte(byte)))
+                if (checkBorrowFromBit_Word(12, SP, twoComp_Byte(byte)))
                     CPU_FLAG_BIT_SET(H_FLAG);
                 else
                     CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3247,7 +3247,7 @@ namespace FuuGB
             TempByte = MemoryUnit->readMemory(PC++);
             if (TestBitInByte(TempByte,7))
             {
-                if (!checkBorrowFromBit_Word(12, SP, twoComp_Byte(TempByte)))
+                if (checkBorrowFromBit_Word(12, SP, twoComp_Byte(TempByte)))
                     CPU_FLAG_BIT_SET(H_FLAG);
                 else
                     CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3351,7 +3351,7 @@ namespace FuuGB
 
     void CPU::decrement8BitRegister(uBYTE& reg)
     {
-        if (!checkBorrowFromBit_Byte(4, reg, 0x01))
+        if (checkBorrowFromBit_Byte(4, reg, 0x01))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);
@@ -3758,14 +3758,6 @@ namespace FuuGB
                 CPU_FLAG_BIT_RESET(C_FLAG);
 
             reg = reg << 1;
-
-            if (keepMSB)
-            {
-                if (oldMSB)
-                    reg |= 0x80;
-                else
-                    reg &= 0x7F;
-            }
         }
         else //Right
         {
@@ -3776,7 +3768,7 @@ namespace FuuGB
                 CPU_FLAG_BIT_RESET(C_FLAG);
 
             reg = reg >> 1;
-
+            
             if (keepMSB)
             {
                 if (oldMSB)

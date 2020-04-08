@@ -36,6 +36,8 @@ namespace CpuTests {
         test_TestBitInWord();
         test_twoComp_Word();
         test_twoComp_Byte();
+        test_rotateReg();
+        test_shiftReg();
     }
 
     void Test::test_increment16BitRegister() {
@@ -149,9 +151,9 @@ namespace CpuTests {
             }
 
             if (((((expected + 0x01) & 0x0F) - (0x01 & 0x0F))) < 0x0) {
-                assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
-            } else {
                 assert(CPU_FLAG_BIT_TEST(H_FLAG) == 1);
+            } else {
+                assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
             }
 
             assert(CPU_FLAG_BIT_TEST(N_FLAG) == 1);
@@ -604,5 +606,93 @@ namespace CpuTests {
     void Test::test_rotateReg() {
 
         resetRegisters();
+
+        uBYTE operand = 0x01;
+        uBYTE expectedLeft[] = {0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x01};
+        uBYTE expectedRight[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+        uBYTE expectedLeftCarry[] = {0x03, 0x06, 0x0C, 0x18, 0x30, 0x60, 0xC0, 0x80};
+        uBYTE expectedRightCarry[] = {0xC0, 0x60, 0x30, 0x18, 0x0C, 0x06, 0x03, 0x01};
+
+        for (auto i = 0x0; i < 8; i++) {
+            rotateReg(true, false, operand);
+            assert(operand == expectedLeft[i]);
+        }
+        for (auto i = 0x0; i < 8; i++) {
+            rotateReg(false, false, operand);
+            assert(operand == expectedRight[i]);
+        }
+
+        AF.lo = 0x10;
+
+        for (auto i = 0x0; i < 8; i++) {
+            rotateReg(true, true, operand);
+            assert(operand == expectedLeftCarry[i]);
+        }
+        for (auto i = 0x0; i < 8; i++) {
+            rotateReg(false, true, operand);
+            assert(operand == expectedRightCarry[i]);
+        }
+    }
+
+    void Test::test_shiftReg() {
+
+        resetRegisters();
+        uBYTE operand = 0x01;
+        uBYTE expectedLeft[] = {0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x00};
+        uBYTE expectedRight[] = {0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0x00};
+        uBYTE expectedRightMSB[] = {0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0xFF, 0xFF};
+
+        for (auto i = 0x0; i < 8; i++) {
+            shiftReg(true, false, operand);
+            assert(operand == expectedLeft[i]);
+            if(expectedLeft[i] == 0x00) {
+                assert(CPU_FLAG_BIT_TEST(C_FLAG) == 1);
+            } else {
+                assert(CPU_FLAG_BIT_TEST(C_FLAG) == 0);
+            }
+            if(expectedLeft[i] == 0x00) {
+                assert(CPU_FLAG_BIT_TEST(Z_FLAG) == 1);
+            } else {
+                assert(CPU_FLAG_BIT_TEST(Z_FLAG) == 0);
+            }
+            assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
+            assert(CPU_FLAG_BIT_TEST(N_FLAG) == 0);
+        }
+        operand = 0x80;
+        for (auto i = 0x0; i < 8; i++) {
+            shiftReg(false, false, operand);
+            assert(operand == expectedRight[i]);
+            if(expectedRight[i] == 0x00) {
+                assert(CPU_FLAG_BIT_TEST(C_FLAG) == 1);
+            } else {
+                assert(CPU_FLAG_BIT_TEST(C_FLAG) == 0);
+            }
+            if(expectedRight[i] == 0x00) {
+                assert(CPU_FLAG_BIT_TEST(Z_FLAG) == 1);
+            } else {
+                assert(CPU_FLAG_BIT_TEST(Z_FLAG) == 0);
+            }
+            assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
+            assert(CPU_FLAG_BIT_TEST(N_FLAG) == 0);
+        }
+        
+        AF.lo = 0x10;
+        operand = 0x80;
+        for (auto i = 0x0; i < 8; i++) {
+            shiftReg(false, true, operand);
+            assert(operand == expectedRightMSB[i]);
+            if(i == 7) {
+                assert(CPU_FLAG_BIT_TEST(C_FLAG) == 1);
+            } else {
+                assert(CPU_FLAG_BIT_TEST(C_FLAG) == 0);
+            }
+            if(expectedRightMSB[i] == 0x00) {
+                assert(CPU_FLAG_BIT_TEST(Z_FLAG) == 1);
+            } else {
+                assert(CPU_FLAG_BIT_TEST(Z_FLAG) == 0);
+            }
+            assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
+            assert(CPU_FLAG_BIT_TEST(N_FLAG) == 0);
+        }
     }
 }

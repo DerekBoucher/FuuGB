@@ -9,7 +9,7 @@
 #define CPU_FLAG_BIT_SET(...) FuuGB::CPU::Flag_set(__VA_ARGS__)
 #define CPU_FLAG_BIT_TEST(...) FuuGB::CPU::Flag_test(__VA_ARGS__)
 #define CPU_FLAG_BIT_RESET(...) FuuGB::CPU::Flag_reset(__VA_ARGS__)
-#define CPU_SLEEP_FOR_MACHINE_CYCLE() std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * 4))
+#define CPU_SLEEP_FOR_MACHINE_CYCLE(...) std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * __VA_ARGS__))
 
 #define INTERUPT_EN_REGISTER_ADR 0xFFFF
 #define INTERUPT_FLAG_REG 0xFF0F
