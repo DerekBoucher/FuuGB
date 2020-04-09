@@ -35,6 +35,8 @@ namespace CpuTests {
         void test_twoComp_Word();
         void test_rotateReg();
         void test_shiftReg();
+        void test_swapReg();
+        void test_adjustDAA();
         void resetRegisters();
     };
 }

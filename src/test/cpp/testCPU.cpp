@@ -38,6 +38,8 @@ namespace CpuTests {
         test_twoComp_Byte();
         test_rotateReg();
         test_shiftReg();
+        test_swapReg();
+        test_adjustDAA();
     }
 
     void Test::test_increment16BitRegister() {
@@ -694,5 +696,35 @@ namespace CpuTests {
             assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
             assert(CPU_FLAG_BIT_TEST(N_FLAG) == 0);
         }
+    }
+
+    void Test::test_swapReg() {
+
+        resetRegisters();
+
+        uBYTE operand = 0xF0;
+        uBYTE expected = 0x0F;
+
+        swapReg(operand);
+        assert(operand == expected);
+        assert(CPU_FLAG_BIT_TEST(C_FLAG) == 0);
+        assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
+        assert(CPU_FLAG_BIT_TEST(N_FLAG) == 0);
+        assert(CPU_FLAG_BIT_TEST(Z_FLAG) == 0);
+    }
+
+    void Test::test_adjustDAA() {
+
+        resetRegisters();
+
+        uBYTE operand = 0x0F;
+        uBYTE expected = 0x15;
+
+        adjustDAA(operand);
+        assert(operand == expected);
+        assert(CPU_FLAG_BIT_TEST(C_FLAG) == 0);
+        assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
+        assert(CPU_FLAG_BIT_TEST(Z_FLAG) == 0);
+        assert(CPU_FLAG_BIT_TEST(N_FLAG) == 0);
     }
 }
