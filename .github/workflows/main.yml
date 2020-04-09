@@ -2,7 +2,7 @@
 
 # .github/workflows/gradle-build-pr.yml
 name: Run Gradle on PRs
-on: pull-request
+on: push
 jobs:
   gradle:
     strategy:
