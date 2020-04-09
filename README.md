@@ -1,5 +1,5 @@
 # FuuGBemu
-![CI](https://github.com/DerekBoucher/FuuGBemu/workflows/CI/badge.svg?branch=master)    ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu) ![issues](https://img.shields.io/github/issues-raw/DerekBoucher/FuuGBemu)     ![commit](https://img.shields.io/github/commit-activity/y/DerekBoucher/FuuGBemu) [![Coverage Status](https://coveralls.io/repos/github/DerekBoucher/FuuGBemu/badge.svg?branch=master)](https://coveralls.io/github/DerekBoucher/FuuGBemu?branch=master)
+![Run Gradle on Push](https://github.com/DerekBoucher/FuuGBemu/workflows/Run%20Gradle%20on%20Push/badge.svg?event=push)    ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu) ![issues](https://img.shields.io/github/issues-raw/DerekBoucher/FuuGBemu)     ![commit](https://img.shields.io/github/commit-activity/y/DerekBoucher/FuuGBemu) [![Coverage Status](https://coveralls.io/repos/github/DerekBoucher/FuuGBemu/badge.svg?branch=master)](https://coveralls.io/github/DerekBoucher/FuuGBemu?branch=master)
 
 Cross platform C/C++ GameBoy emulator using SDL2 framework.
 
