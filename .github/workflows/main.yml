@@ -1,7 +1,7 @@
 # This is a basic workflow to help you get started with Actions
 
 # .github/workflows/gradle-build-pr.yml
-name: Run Gradle on PRs
+name: Run Gradle on Push
 on: push
 jobs:
   gradle:
@@ -14,9 +14,6 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 11
-    - uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: wrapper
     - uses: eskatos/gradle-command-action@v1
       with:
         arguments: build
