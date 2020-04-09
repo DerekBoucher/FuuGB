@@ -1,5 +1,5 @@
 # FuuGBemu
-![Windows 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Windows%2064-Bit%20Build/badge.svg?event=push)    ![MacOS 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/MacOS%2064-Bit%20Build/badge.svg?event=push)    ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu)
+![Tests](https://github.com/DerekBoucher/FuuGBemu/workflows/Tests/badge.svg?event=push)    ![Windows 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Windows%2064-Bit%20Build/badge.svg?event=push)    ![MacOS 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/MacOS%2064-Bit%20Build/badge.svg?event=push)    ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu)
 
 Cross platform C/C++ GameBoy emulator using SDL2 framework.
 
