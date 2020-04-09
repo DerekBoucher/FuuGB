@@ -1,4 +1,4 @@
-name: Mac OS Gradle Build on Push
+name: MacOS Build
 on: push
 jobs:
   gradle:
