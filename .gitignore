@@ -17,4 +17,3 @@ bin-int/
 .settings/
 build/
 gradle/
-gradlew.bat
