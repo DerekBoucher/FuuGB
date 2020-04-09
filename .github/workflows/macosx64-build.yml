@@ -1,4 +1,4 @@
-name: MacOS Build
+name: MacOS 64-Bit Build
 on: push
 jobs:
   gradle:

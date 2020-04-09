@@ -1,4 +1,4 @@
-name: Windows Build
+name: Windows 64-Bit Build
 on: push
 jobs:
   gradle:
