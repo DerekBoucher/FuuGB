@@ -1,4 +1,4 @@
-name: Run Gradle on Push
+name: Windows Gradle Build on Push
 on: push
 jobs:
   gradle:
