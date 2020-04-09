@@ -7,7 +7,7 @@ jobs:
   gradle:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v1
@@ -16,5 +16,4 @@ jobs:
         java-version: 11
     - uses: eskatos/gradle-command-action@v1
       with:
-        build-root-directory: .
         arguments: build
