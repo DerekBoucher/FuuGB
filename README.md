@@ -1,5 +1,5 @@
 # FuuGBemu
-![Run Gradle on Push](https://github.com/DerekBoucher/FuuGBemu/workflows/Run%20Gradle%20on%20Push/badge.svg?event=push)    ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu)
+![Windows Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Windows%20Build/badge.svg?event=push)    ![MacOS Build](https://github.com/DerekBoucher/FuuGBemu/workflows/MacOS%20Build/badge.svg?event=push)    ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu)
 
 Cross platform C/C++ GameBoy emulator using SDL2 framework.
 
