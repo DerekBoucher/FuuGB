@@ -1,6 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
-# .github/workflows/gradle-build-pr.yml
 name: Run Gradle on Push
 on: push
 jobs:
