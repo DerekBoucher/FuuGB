@@ -1,5 +1,5 @@
 # FuuGBemu
-![Windows Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Windows%20Build/badge.svg?branch=master&event=push)    ![MacOS Build](https://github.com/DerekBoucher/FuuGBemu/workflows/MacOS%20Build/badge.svg?branch=master&event=push)    ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu)
+![Windows 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Windows%20Build/badge.svg?branch=master&event=push)    ![MacOS 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/MacOS%20Build/badge.svg?branch=master&event=push)    ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu)
 
 Cross platform C/C++ GameBoy emulator using SDL2 framework.
 
@@ -43,7 +43,7 @@ Build Script System provided by Gradle! https://github.com/gradle/gradle
 	Blargg's test rom suite: https://github.com/retrio/gb-test-roms
 	Gekkio's test rom repo: https://github.com/Gekkio/mooneye-gb/tree/master/tests
 
-### Blargg's CPU Instruction Tests
+## Blargg's CPU Instruction Tests
 | Test 		| Fail/Pass |
 |------			|-------|
 |01-special		| Fail	|
