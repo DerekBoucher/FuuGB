@@ -4,6 +4,7 @@
 #include <cassert>
 #include <stdio.h>
 #include <ctime>
+#include <fstream>
 #include "CPU.h"
 
 namespace CpuTests {
@@ -37,6 +38,7 @@ namespace CpuTests {
         void test_shiftReg();
         void test_swapReg();
         void test_adjustDAA();
+        void test_executeNextOpCode();
         void resetRegisters();
     };
 }

@@ -8,13 +8,16 @@ namespace FuuGB
         cart = GameCart;
         M_MEM = new uBYTE[0x10000];
         memset(this->M_MEM, 0x0, 0x10000);
+#ifndef FUUGB_UNIT_TEST
         bootROM = fopen("DMG_ROM.bin", "rb");
         fread(M_MEM, sizeof(uBYTE), 0x100, bootROM);
         fclose(bootROM);
-
         for (int i = 0x100; i < 0x8000; ++i)
             M_MEM[i] = cart->ROM[i];
-        
+#else
+        for (int i = 0x0; i < 0x8000; ++i)
+            M_MEM[i] = cart->ROM[i];
+#endif
         bootRomClosed = false;
         timer_counter = 0;
     }

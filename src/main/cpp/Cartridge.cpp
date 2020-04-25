@@ -172,8 +172,10 @@ namespace FuuGB
             ROM_BANK_CNT = 96;
             break;
         default:
+#ifndef FUUGB_UNIT_TEST
             //Invalid Value
             exit(-8);
+#endif
             break;
         }
 

@@ -40,6 +40,7 @@ namespace CpuTests {
         test_shiftReg();
         test_swapReg();
         test_adjustDAA();
+        test_executeNextOpCode();
     }
 
     void Test::test_increment16BitRegister() {
@@ -726,5 +727,45 @@ namespace CpuTests {
         assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
         assert(CPU_FLAG_BIT_TEST(Z_FLAG) == 0);
         assert(CPU_FLAG_BIT_TEST(N_FLAG) == 0);
+    }
+
+    void Test::test_executeNextOpCode() {
+
+        resetRegisters();
+
+        uBYTE testProgram[] = {
+            NOP,
+            LD_16IMM_BC,
+            0x10,
+            0x11,
+            LD_A_adrBC,
+            INC_BC,
+            INC_B,
+            DEC_B,
+        };
+
+        std::ofstream tempRomFile("temprom.bin", std::ios::out | std::ios::binary );
+        tempRomFile.write((char*)testProgram, sizeof(testProgram));
+        tempRomFile.close();
+        FILE* tempRom = fopen("temprom.bin", "rb");
+        MemoryUnit = new FuuGB::Memory(new FuuGB::Cartridge(tempRom));
+        PC = 0x0000;
+
+        // Verify the test program after each instruction
+        assert(ExecuteNextOpCode() == 4);
+        assert(ExecuteNextOpCode() == 12);
+        assert(BC.data == 0x1110);
+        assert(ExecuteNextOpCode() == 8);
+        assert(AF.hi == 0x00);
+        assert(ExecuteNextOpCode() == 8);
+        assert(BC.data == 0x1111);
+        assert(ExecuteNextOpCode() == 4);
+        assert(BC.data == 0x1211);
+        assert(ExecuteNextOpCode() == 4);
+        assert(BC.data == 0x1111);
+
+        fclose(tempRom);
+        remove("temprom.bin");
+        delete MemoryUnit;
     }
 }

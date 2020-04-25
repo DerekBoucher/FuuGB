@@ -213,7 +213,7 @@ model {
                             from 'lib/SDL2/Windows/x64/SDL2.dll'
                             into 'build/exe/test'
                         }
-                    } 
+                    }
                 }
             }
             installTest {
