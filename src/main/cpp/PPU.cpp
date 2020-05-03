@@ -155,6 +155,10 @@ namespace FuuGB
         // Start Rendering the scanline
         for(int pixel = 0;pixel < 160; pixel++)
         {
+
+            if(currentScanLine < 0 || currentScanLine > 143 || pixel < 0 || pixel > 159)
+                continue;
+
             uWORD xPos = pixel + ScrollX;
             if(WinEnabled)
             {
@@ -374,9 +378,6 @@ namespace FuuGB
                     xPix += 7;
                     
                     int pixel = xPos+xPix;
-                    
-                    if((currentScanLine <0) || (currentScanLine >143) || (pixel <0) || (pixel > 159))
-                        continue;
                     
                     SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
                     SDL_RenderFillRect(renderer, &pixels[pixel][currentScanLine]);

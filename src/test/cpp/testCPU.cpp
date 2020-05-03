@@ -742,6 +742,35 @@ namespace CpuTests {
             INC_BC,
             INC_B,
             DEC_B,
+            LD_8IMM_B,
+            0x99,
+            RLC_A,
+            LD_SP_adr,
+            0x01,
+            0xC0,
+            ADD_BC_HL,
+            LD_adrBC_A,
+            DEC_BC,
+            INC_C,
+            DEC_C,
+            LD_8IMM_C,
+            0xFF,
+            RRC_A,
+            LD_16IMM_DE,
+            0x79,
+            0x81,
+            LD_A_adrDE,
+            INC_DE,
+            INC_D,
+            DEC_D,
+            LD_8IMM_D,
+            0xFF,
+            RL_A,
+            RJmp_IMM,
+            0x02,
+            NOP,
+            NOP,
+
         };
 
         std::ofstream tempRomFile("temprom.bin", std::ios::out | std::ios::binary );
@@ -750,19 +779,61 @@ namespace CpuTests {
         FILE* tempRom = fopen("temprom.bin", "rb");
         MemoryUnit = new FuuGB::Memory(new FuuGB::Cartridge(tempRom));
         PC = 0x0000;
+        AF.hi = 0x67;
+        SP = 0x000D;
+        uWORD tempWord;
+        uBYTE tempByte;
 
         // Verify the test program after each instruction
         assert(ExecuteNextOpCode() == 4);
         assert(ExecuteNextOpCode() == 12);
         assert(BC.data == 0x1110);
         assert(ExecuteNextOpCode() == 8);
-        assert(AF.hi == 0x00);
+        assert(MemoryUnit->DMA_read(BC.data) == 0x0);
         assert(ExecuteNextOpCode() == 8);
         assert(BC.data == 0x1111);
         assert(ExecuteNextOpCode() == 4);
         assert(BC.data == 0x1211);
         assert(ExecuteNextOpCode() == 4);
         assert(BC.data == 0x1111);
+        assert(ExecuteNextOpCode() == 8);
+        assert(BC.data == 0x9911);
+        assert(ExecuteNextOpCode() == 4);
+        assert(AF.hi == 0xCE);
+        assert(ExecuteNextOpCode() == 20);
+        assert(MemoryUnit->DMA_read(0xC001) == 0xC0);
+        assert(ExecuteNextOpCode() == 8);
+        assert(HL.data == 0x9911);
+        MemoryUnit->DMA_write(BC.data, 0x71);
+        assert(ExecuteNextOpCode() == 8);
+        assert(AF.hi == 0x71);
+        assert(ExecuteNextOpCode() == 8);
+        assert(BC.data == 0x9910);
+        assert(ExecuteNextOpCode() == 4);
+        assert(BC.data == 0x9911);
+        assert(ExecuteNextOpCode() == 4);
+        assert(BC.data == 0x9910);
+        assert(ExecuteNextOpCode() == 8);
+        assert(BC.data == 0x99FF);
+        assert(ExecuteNextOpCode() == 4);
+        assert(AF.hi == 0xB8);
+        assert(ExecuteNextOpCode() == 12);
+        assert(DE.data == 0x8179);
+        assert(ExecuteNextOpCode() == 8);
+        assert(MemoryUnit->DMA_read(DE.data) == AF.hi);
+        assert(ExecuteNextOpCode() == 8);
+        assert(DE.data == 0x817A);
+        assert(ExecuteNextOpCode() == 4);
+        assert(DE.data == 0x827A);
+        assert(ExecuteNextOpCode() == 4);
+        assert(DE.data == 0x817A);
+        assert(ExecuteNextOpCode() == 8);
+        assert(DE.data == 0xFF7A);
+        assert(ExecuteNextOpCode() == 4);
+        assert(AF.hi == 0x71);
+        tempWord = PC;
+        assert(ExecuteNextOpCode() == 12);
+        assert(PC == (tempWord + 0x04));
 
         fclose(tempRom);
         remove("temprom.bin");

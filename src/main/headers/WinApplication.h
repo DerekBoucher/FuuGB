@@ -14,6 +14,7 @@
 #include "System.h"
 #include "Gameboy.h"
 #include "FuuEvent.h"
+#include "Fuupch.h"
 
 namespace FuuGB
 {

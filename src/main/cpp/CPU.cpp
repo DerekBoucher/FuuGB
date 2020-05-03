@@ -192,13 +192,13 @@ namespace FuuGB
             break;
 
         case RJmp_IMM:
-            //8 Clock Cycles
+            //12 Clock Cycles
             byte = MemoryUnit->readMemory(PC++);
             if (TestBitInByte(byte, 7))
                 PC = PC - twoComp_Byte(byte);
             else
                 PC = PC + byte;
-            TimerUpdateCounter += 8;
+            TimerUpdateCounter += 12;
             break;
 
         case ADD_DE_HL:

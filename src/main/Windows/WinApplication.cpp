@@ -1,5 +1,10 @@
-#include "Fuupch.h"
 #include "WinApplication.h"
+#ifdef FUUGB_DEBUG
+    #define DEBUG_WINX (160 * SCALE_FACTOR)
+    #define DEBUG_WINY SDL_WINDOWPOS_CENTERED
+    #define DEBUG_WINW (160 * SCALE_FACTOR)
+    #define DEBUG_WINH (144 * SCALE_FACTOR)
+#endif
 
 namespace FuuGB
 {
@@ -10,12 +15,21 @@ namespace FuuGB
         SDL_SysWMinfo* NativeWindowInfo = new SDL_SysWMinfo;
 
         SDL_Window* _SDLwindow;
+#ifdef FUUGB_DEBUG
         _SDLwindow = SDL_CreateWindow("FuuGBemu",
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            160 * SCALE_FACTOR,
-            144 * SCALE_FACTOR,
-            0);
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        160 * SCALE_FACTOR * 2,
+        144 * SCALE_FACTOR,
+        0);
+#else
+        _SDLwindow = SDL_CreateWindow("FuuGBemu",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        160 * SCALE_FACTOR,
+        144 * SCALE_FACTOR,
+        0);
+#endif
         SDL_GetWindowWMInfo(_SDLwindow, NativeWindowInfo);
         FUUGB_WINDOW_CONFIG(_SDLwindow);
         Gameboy* gameBoy = nullptr;
@@ -50,7 +64,6 @@ namespace FuuGB
                             gameBoy = new Gameboy(_SDLwindow, ROM);
                             break;
                         case ID_EXT_DISPLAY:
-
                             break;
                         case ID_EXIT:
                             FUUGB_RUNNING = false;
