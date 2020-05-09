@@ -1,80 +1,79 @@
 #include "WinApplication.h"
-#ifdef FUUGB_DEBUG
-    #define DEBUG_WINX (160 * SCALE_FACTOR)
-    #define DEBUG_WINY SDL_WINDOWPOS_CENTERED
-    #define DEBUG_WINW (160 * SCALE_FACTOR)
-    #define DEBUG_WINH (144 * SCALE_FACTOR)
-#endif
 
 namespace FuuGB
 {
     void WinApplication::run()
     {
-        bool extDisp = false;
+        // Initialize SDL
         FUUGB_INIT();
-        SDL_SysWMinfo* NativeWindowInfo = new SDL_SysWMinfo;
 
-        SDL_Window* _SDLwindow;
-#ifdef FUUGB_DEBUG
-        _SDLwindow = SDL_CreateWindow("FuuGBemu",
+        // Enable Configurations
+        bool extDisp = false;
+
+        // Instantiate Application Window
+        SDL_SysWMinfo* NativeWindowInfo = new SDL_SysWMinfo;
+        SDL_Window* _SDLwindow = SDL_CreateWindow("FuuGBemu",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        160 * SCALE_FACTOR * 2,
-        144 * SCALE_FACTOR,
+        WINX,
+        WINY,
         0);
-#else
-        _SDLwindow = SDL_CreateWindow("FuuGBemu",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        160 * SCALE_FACTOR,
-        144 * SCALE_FACTOR,
-        0);
-#endif
+
+        // Configure Application Window
         SDL_GetWindowWMInfo(_SDLwindow, NativeWindowInfo);
+        SDL_CreateRenderer(_SDLwindow, -1, SDL_RENDERER_SOFTWARE);
         FUUGB_WINDOW_CONFIG(_SDLwindow);
+
+        // Declare a Gameboy Pointer
         Gameboy* gameBoy = nullptr;
-        while (FUUGB_RUNNING)
-        {
-            while (FUUGB_POLL_EVENT())
-            {
-                switch (FUUGB_EVENT.type)
-                {
-                case SDL_QUIT:
-                    FUUGB_RUNNING = false;
-                    break;
-                case SDL_SYSWMEVENT:
-                    if (FUUGB_EVENT.syswm.msg->msg.win.msg == WM_COMMAND)
-                    {
-                        switch (FUUGB_WIN_EVENT)
-                        {
-                        case ID_LOADROM:
-                            if (gameBoy != nullptr)
-                                gameBoy->Pause();
-                            ROM = FUUGB_LOAD_ROM();
-                            if (ROM == NULL)
-                            {
-                                gameBoy->Resume();
+
+#ifdef FUUGB_DEBUG
+        // Attach Debugger
+        Debugger* debugger = new Debugger(_SDLwindow, gameBoy);
+#endif
+
+        while (FUUGB_RUNNING) {
+
+            while (FUUGB_POLL_EVENT()) {
+
+                switch (FUUGB_EVENT.type) {
+
+                    case SDL_QUIT: FUUGB_RUNNING = false; break;
+
+                    case SDL_SYSWMEVENT:
+                        if (FUUGB_EVENT.syswm.msg->msg.win.msg == WM_COMMAND) {
+                        
+                        switch (FUUGB_WIN_EVENT) {
+                            
+                            case ID_LOADROM:
+
+                                if (gameBoy != nullptr) gameBoy->Pause();
+
+                                ROM = FUUGB_LOAD_ROM();
+
+                                if (ROM == NULL) { gameBoy->Resume(); break; }
+
+                                if (gameBoy != nullptr) { gameBoy->Resume(); delete gameBoy; }
+
+                                gameBoy = new Gameboy(_SDLwindow, ROM);
+
                                 break;
-                            }
-                            if (gameBoy != nullptr)
-                            {
-                                gameBoy->Resume();
-                                delete gameBoy;
-                            }
-                            gameBoy = new Gameboy(_SDLwindow, ROM);
-                            break;
-                        case ID_EXT_DISPLAY:
-                            break;
-                        case ID_EXIT:
-                            FUUGB_RUNNING = false;
-                            break;
+
+                            case ID_EXT_DISPLAY: break;
+
+                            case ID_EXIT: FUUGB_RUNNING = false; break;
                         }
                     }
                     break;
-                default:
-                    break;
+
+                    default: break;
                 }
             }
+#ifdef FUUGB_DEBUG
+            debugger->ProcessEvents(FUUGB_EVENT);
+            debugger->PerformLogic();
+            debugger->RenderGui();
+#endif
             SDL_Delay(1);
         }
 
@@ -85,6 +84,7 @@ namespace FuuGB
         SDL_DestroyWindow(_SDLwindow);
         FUUGB_QUIT();
     }
+
     char* WinApplication::open_file(SDL_Window* win)
     {
         OPENFILENAME ofn;

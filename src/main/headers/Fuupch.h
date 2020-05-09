@@ -14,6 +14,11 @@
 #include <bitset>
 #include <limits.h>
 
+#ifdef FUUGB_DEBUG
+    #include <guisan.hpp>
+    #include <guisan/sdl.hpp>
+#endif
+
 #ifndef FUUGB_SYSTEM_MACOS
     #include <iostream>
     #include <string>
