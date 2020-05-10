@@ -1,6 +1,6 @@
 #ifndef Memory_h
 #define Memory_h
-#include "Core.h"
+
 #include "Cartridge.h"
 
 #define RAM_CLOCK_PERIOD_NS 952
@@ -39,4 +39,4 @@ namespace FuuGB
         uBYTE                   dummy = 0x00;
     };
 }
-#endif /* Memory_h */
+#endif

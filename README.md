@@ -32,6 +32,7 @@ Build Script System provided by Gradle! https://github.com/gradle/gradle
 ## How to build:
 
     1.  Clone Repository into arbitrary directory.
+        1_1. git clone --recursive https://github.com/DerekBoucher/FuuGBemu.git
     2.  Open the command line or Terminal from the DIRECTORY of the CLONED repository.
     3.  Type in the following command:
         3_1.    gradle build

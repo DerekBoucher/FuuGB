@@ -1,13 +1,13 @@
+#ifdef FUUGB_SYSTEM_WINDOWS
 #ifdef FUUGB_DEBUG
+
 
 #ifndef DEBUGGER_H
 #define DEBUGGER_H
 
-#include "Fuupch.h"
-#include "Core.h"
-#include "Gameboy.h"
 #include <guisan.hpp>
 #include <guisan/sdl.hpp>
+#include "Gameboy.h"
 
 #define DEBUG_WINX (160 * SCALE_FACTOR)
 #define DEBUG_WINY 0
@@ -51,5 +51,5 @@ namespace FuuGB {
 }
 
 #endif
-
+#endif
 #endif

@@ -8,7 +8,7 @@
 #define ID_CONTROLS 4
 #define ID_EXT_DISPLAY 5
 
-#include "Fuupch.h"
+#include "Cartridge.h"
 
 namespace FuuGB {
 
@@ -22,9 +22,10 @@ namespace FuuGB {
     HWND getSDLWinHandle(SDL_Window* win);
     HINSTANCE getHinst(SDL_Window* win);
     void ActivateMenu(HWND windowRef);
-
+    char* OpenFile(SDL_Window* win);
+    Cartridge* GetRom(char* path, SDL_Window* win);
 }
 
-#endif /* Utilities_h */
+#endif
 
 #endif

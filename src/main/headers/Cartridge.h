@@ -2,6 +2,7 @@
 #define Cartridge_h
 
 #include "Core.h"
+
 namespace FuuGB
 {
     class Cartridge

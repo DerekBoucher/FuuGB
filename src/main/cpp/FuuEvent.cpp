@@ -1,4 +1,4 @@
-#include "Fuupch.h"
+#include "Core.h"
 #include "FuuEvent.h"
 
 namespace FuuGB

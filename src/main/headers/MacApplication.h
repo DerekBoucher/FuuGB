@@ -20,6 +20,6 @@ namespace FuuGB
     private:
     };
 }
-#endif 
 
+#endif 
 #endif

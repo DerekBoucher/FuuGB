@@ -84,40 +84,4 @@ namespace FuuGB
         SDL_DestroyWindow(_SDLwindow);
         FUUGB_QUIT();
     }
-
-    char* WinApplication::open_file(SDL_Window* win)
-    {
-        OPENFILENAME ofn;
-
-        wchar_t file_path[255];
-        ZeroMemory(&ofn, sizeof(OPENFILENAME));
-        ofn.lStructSize = sizeof(OPENFILENAME);
-        ofn.hwndOwner = FUUGB_WIN_HANDLE(win);
-        ofn.lpstrFile = file_path;
-        ofn.lpstrFile[0] = '\0';
-        ofn.nMaxFile = 255;
-        ofn.lpstrFilter = L"Gameboy Roms (*.gb)\0*.gb\0";
-        ofn.nFilterIndex = 1;
-        ofn.Flags = OFN_NOCHANGEDIR;
-
-        GetOpenFileName(&ofn);
-
-        char* path = new char[255];
-        sprintf(path, "%ws", ofn.lpstrFile);
-        printf("Loading ROM: %s\n", path);
-        SDL_SetWindowTitle(win, path);
-        return path;
-    }
-
-    Cartridge* WinApplication::getRom(char* path, SDL_Window* win)
-    {
-        FILE* romFile;
-        if (path[0] == '\0')
-            return NULL;
-        romFile = fopen(path, "r");
-        Cartridge* cart = new Cartridge(romFile);
-        fclose(romFile);
-        delete path;
-        return cart;
-    }
 }

@@ -225,7 +225,6 @@ model {
                             '-Wall',
                             '-O3',
                             '-DFUUGB_SYSTEM_MACOS',
-                            '-DFUUGB_DEBUG',
                             '-DFUUGB_UNIT_TEST'
                         ]
                     }

@@ -1,8 +1,3 @@
-/*
- *  This header file is only referenced by client applications.
- *  Core library never includes this.
- */
-
 #ifndef FuuGB_h
 #define FuuGB_h
 
@@ -21,4 +16,4 @@
     #define FUUGB_APP FuuGB::LinuxApplication
 #endif
 
-#endif /* FuuGB_h */
+#endif

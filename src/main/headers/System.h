@@ -1,6 +1,6 @@
 #ifndef System_h
 #define System_h
-#include "Core.h"
+
 #include "FuuEvent.h"
 #include "PPU.h"
 
@@ -26,4 +26,4 @@ namespace FuuGB
 #define FUUGB_INIT() FuuGB::System::initSystems()
 #define FUUGB_QUIT() FuuGB::System::closeSystems()
 
-#endif /* System_h */
+#endif

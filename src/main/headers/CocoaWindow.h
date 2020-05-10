@@ -1,5 +1,8 @@
 #ifdef FUUGB_SYSTEM_MACOS
 
+#ifndef COCOAWINDOW_H
+#define COCOAWINDOW_H
+
 #import "MacEventHandler.h"
 #include "Gameboy.h"
 
@@ -16,4 +19,5 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
+#endif
 #endif

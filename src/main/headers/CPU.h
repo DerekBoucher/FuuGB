@@ -1,7 +1,6 @@
 #ifndef CPU_h
 #define CPU_h
 
-#include "Core.h"
 #include "Memory.h"
 
 #define CPU_CLOCK_PERIOD_NS 239

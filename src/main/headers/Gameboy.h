@@ -1,6 +1,5 @@
 #ifndef GAMEBOY_H_
 #define GAMEBOY_H_
-#include "Core.h"
 #include "CPU.h"
 #include "PPU.h"
 

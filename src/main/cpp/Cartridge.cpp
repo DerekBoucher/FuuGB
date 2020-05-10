@@ -1,4 +1,4 @@
-#include "Fuupch.h"
+#include "Core.h"
 #include "Cartridge.h"
 
 namespace FuuGB

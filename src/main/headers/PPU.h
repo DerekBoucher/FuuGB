@@ -36,4 +36,4 @@ namespace FuuGB
         bool ext;
     };
 }
-#endif /* PPU_h */
+#endif
