@@ -80,6 +80,9 @@ namespace FuuGB
         /*
         *  Shutdown System
         */
+#ifdef FUUGB_DEBUG
+        delete debugger;
+#endif
         delete gameBoy;
         SDL_DestroyWindow(_SDLwindow);
         FUUGB_QUIT();
