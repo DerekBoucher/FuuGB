@@ -54,6 +54,12 @@ namespace FuuGB {
         gcn::Widget::setGlobalFont(font);
 
         // Configure Core Attributes
+        SDL_Rect viewport;
+        viewport.x = DEBUG_WINX;
+        viewport.y = DEBUG_WINY;
+        viewport.w = 160 * SCALE_FACTOR;
+        viewport.h = 144 * SCALE_FACTOR;
+        SDL_SetClipRect(screen, &viewport);
         graphics->setTarget(screen);
         top->setDimension(gcn::Rectangle(DEBUG_WINX, DEBUG_WINY, 160 * SCALE_FACTOR, 144 * SCALE_FACTOR));
         gui->setGraphics(graphics);

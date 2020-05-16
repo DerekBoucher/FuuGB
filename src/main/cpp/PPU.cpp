@@ -11,7 +11,14 @@ namespace FuuGB
         if (renderer == NULL)
             renderer = SDL_CreateRenderer(windowRef, -1, SDL_RENDERER_SOFTWARE);
         
-        SDL_RenderClear(renderer);
+#ifdef FUUGB_DEBUG
+        SDL_Rect viewport;
+        viewport.x = 0;
+        viewport.y = 0;
+        viewport.w = 160 * SCALE_FACTOR;
+        viewport.h = 144 * SCALE_FACTOR;
+        SDL_RenderSetViewport(renderer, &viewport);
+#endif
 
         for (int i = 0; i < NATIVE_SIZE_X; ++i)
         {
