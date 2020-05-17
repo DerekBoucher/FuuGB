@@ -13,10 +13,10 @@ namespace FuuGB
         // Instantiate Application Window
         SDL_SysWMinfo* NativeWindowInfo = new SDL_SysWMinfo;
         SDL_Window* _SDLwindow = SDL_CreateWindow("FuuGBemu",
+        200,
         SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        WINX,
-        WINY,
+        WINW,
+        WINH,
         0);
 
         // Configure Application Window
@@ -43,28 +43,37 @@ namespace FuuGB
                     case SDL_SYSWMEVENT:
                         if (FUUGB_EVENT.syswm.msg->msg.win.msg == WM_COMMAND) {
                         
-                        switch (FUUGB_WIN_EVENT) {
-                            
-                            case ID_LOADROM:
+                            switch (FUUGB_WIN_EVENT) {
+                                
+                                case ID_LOADROM:
 
-                                if (gameBoy != nullptr) gameBoy->Pause();
+                                    if (gameBoy != nullptr) gameBoy->Pause();
 
-                                ROM = FUUGB_LOAD_ROM();
+                                    ROM = FUUGB_LOAD_ROM();
 
-                                if (ROM == NULL) { gameBoy->Resume(); break; }
+                                    if (ROM == NULL) { gameBoy->Resume(); break; }
 
-                                if (gameBoy != nullptr) { gameBoy->Resume(); delete gameBoy; }
+                                    if (gameBoy != nullptr) { gameBoy->Resume(); delete gameBoy; }
 
-                                gameBoy = new Gameboy(_SDLwindow, ROM);
+                                    gameBoy = new Gameboy(_SDLwindow, ROM);
 
-                                break;
+                                    break;
 
-                            case ID_EXT_DISPLAY: break;
+                                case ID_EXT_DISPLAY: break;
 
-                            case ID_EXIT: FUUGB_RUNNING = false; break;
+                                case ID_EXIT: FUUGB_RUNNING = false; break;
+                            }
                         }
-                    }
                     break;
+#ifdef FUUGB_DEBUG
+                    case SDL_WINDOWEVENT:
+                        if(FUUGB_EVENT.window.event == SDL_WINDOWEVENT_MOVED) {
+                            int x, y;
+                            SDL_GetWindowPosition(_SDLwindow, &x, &y);
+                            debugger->ResetWindowPosition(x, y);
+                        }
+                        break;
+#endif
 
                     default: break;
                 }

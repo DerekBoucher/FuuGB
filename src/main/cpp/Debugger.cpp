@@ -14,27 +14,37 @@ namespace FuuGB {
         gcn::Image::setImageLoader(imgLoader);
 
         // Instantiate Debugger Core Attributes
-        win         = winRef;
-        gb          = gbRef;
-        screen      = SDL_GetWindowSurface(winRef);
-        graphics    = new gcn::SDLGraphics();
-        input       = new gcn::SDLInput();
-        gui         = new gcn::Gui();
-        font        = new gcn::ImageFont("fixedfont.bmp", " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-
+        int x, y;
+        SDL_GetWindowPosition(winRef, &x, &y);
+        win = SDL_CreateWindow("Debugger",
+            x + DEBUG_WINX,
+            y + DEBUG_WINY - 20,
+            DEBUG_WINW,
+            DEBUG_WINH,
+            0
+        );
+        gb              = gbRef;
+        screen          = SDL_GetWindowSurface(win);
+        graphics        = new gcn::SDLGraphics();
+        input           = new gcn::SDLInput();
+        gui             = new gcn::Gui();
+        font            = new gcn::ImageFont(
+            "fixedfont.bmp",
+            " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        );
 
         // Instantiate Widgets
         top             = new gcn::Container();
 
         // Labels
-        memoryLabel             = new gcn::Label("Memory");
-        pcLabel                 = new gcn::Label("PC");
-        spLabel                 = new gcn::Label("SP");
-        afLabel                 = new gcn::Label("AF");
-        bcLabel                 = new gcn::Label("BC");
-        deLabel                 = new gcn::Label("DE");
-        hlLabel                 = new gcn::Label("HL");
-        cartLabel               = new gcn::Label("Cartridge");
+        memoryLabel = new gcn::Label("Memory");
+        pcLabel     = new gcn::Label("PC");
+        spLabel     = new gcn::Label("SP");
+        afLabel     = new gcn::Label("AF");
+        bcLabel     = new gcn::Label("BC");
+        deLabel     = new gcn::Label("DE");
+        hlLabel     = new gcn::Label("HL");
+        cartLabel   = new gcn::Label("Cartridge");
 
         // Buttons
         buttn           = new gcn::Button("Click me!");
@@ -42,26 +52,25 @@ namespace FuuGB {
 
         // Text Fields
         memoryViewer    = new gcn::TextBox();
-        pcViewer    = new gcn::TextBox();
-        spViewer    = new gcn::TextBox();
-        afViewer    = new gcn::TextBox();
-        bcViewer    = new gcn::TextBox();
-        deViewer    = new gcn::TextBox();
-        hlViewer    = new gcn::TextBox();
-        cartViewer  = new gcn::TextBox();
+        pcViewer        = new gcn::TextBox();
+        spViewer        = new gcn::TextBox();
+        afViewer        = new gcn::TextBox();
+        bcViewer        = new gcn::TextBox();
+        deViewer        = new gcn::TextBox();
+        hlViewer        = new gcn::TextBox();
+        cartViewer      = new gcn::TextBox();
 
         // Set the Global Font
         gcn::Widget::setGlobalFont(font);
 
         // Configure Core Attributes
-        SDL_Rect viewport;
-        viewport.x = DEBUG_WINX;
-        viewport.y = DEBUG_WINY;
-        viewport.w = 160 * SCALE_FACTOR;
-        viewport.h = 144 * SCALE_FACTOR;
-        SDL_SetClipRect(screen, &viewport);
         graphics->setTarget(screen);
-        top->setDimension(gcn::Rectangle(DEBUG_WINX, DEBUG_WINY, 160 * SCALE_FACTOR, 144 * SCALE_FACTOR));
+        top->setDimension(gcn::Rectangle(
+            0,
+            0, 
+            160 * SCALE_FACTOR,
+            144 * SCALE_FACTOR
+        ));
         gui->setGraphics(graphics);
         gui->setInput(input);
         gui->setTop(top);
@@ -136,6 +145,8 @@ namespace FuuGB {
         delete spLabel;
         delete pcLabel;
         delete memoryLabel;
+        SDL_FreeSurface(screen);
+        SDL_DestroyWindow(win);
     }
 
     void Debugger::ProcessEvents(SDL_Event e) {
@@ -149,6 +160,10 @@ namespace FuuGB {
     void Debugger::RenderGui() {
         gui->draw();
         SDL_UpdateWindowSurface(win);
+    }
+
+    void Debugger::ResetWindowPosition(int x, int y) {
+        SDL_SetWindowPosition(win, x + DEBUG_WINX, y + DEBUG_WINY - 20);
     }
 }
 

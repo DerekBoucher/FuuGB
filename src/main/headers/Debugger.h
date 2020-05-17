@@ -25,7 +25,7 @@
 #define MEM_LABEL_Y 20
 #define CART_LABEL_ANCHOR_X 320
 #define CART_LABEL_ANCHOR_Y 20
-#define CART_VIEW_SIZE_X 60
+#define CART_VIEW_SIZE_X 300
 #define CART_VIEW_SIZE_Y 20
 #define CART_VIEW_ANCHOR_X 320
 #define CART_VIEW_ANCHOR_Y 40
@@ -42,6 +42,8 @@ namespace FuuGB {
         void ProcessEvents(SDL_Event);
         void PerformLogic();
         void RenderGui();
+
+        void ResetWindowPosition(int x, int y);
 
     private:
         // Core Attributes

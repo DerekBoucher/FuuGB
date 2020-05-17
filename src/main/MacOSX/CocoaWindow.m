@@ -24,4 +24,5 @@
     [FILE_menu addItem:LOADROM_menuitem];
     [Handle->info.cocoa.window.menu insertItem:FILE_menuitem atIndex:1];
 }
+
 @end
