@@ -14,21 +14,23 @@
 #define DEBUG_WINW (160 * SCALE_FACTOR)
 #define DEBUG_WINH (144 * SCALE_FACTOR)
 #define REG_VIEW_SIZE_X 60
-#define REG_VIEW_SIZE_Y 20
-#define REG_ANCHOR_X 240
+#define REG_VIEW_SIZE_Y 15
+#define REG_ANCHOR_X 380
 #define REG_ANCHOR_Y 20
-#define MEM_VIEW_SIZE_X 200
-#define MEM_VIEW_SIZE_Y 400
+#define MEM_VIEW_SIZE_X 340
+#define MEM_VIEW_SIZE_Y 53250
 #define MEM_VIEW_ANCHOR_X 20
-#define MEM_VIEW_ANCHOR_Y 40
+#define MEM_VIEW_ANCHOR_Y 60
 #define MEM_LABEL_X 20
 #define MEM_LABEL_Y 20
-#define CART_LABEL_ANCHOR_X 320
+#define CART_LABEL_ANCHOR_X 460
 #define CART_LABEL_ANCHOR_Y 20
 #define CART_VIEW_SIZE_X 300
-#define CART_VIEW_SIZE_Y 20
-#define CART_VIEW_ANCHOR_X 320
+#define CART_VIEW_SIZE_Y 15
+#define CART_VIEW_ANCHOR_X 460
 #define CART_VIEW_ANCHOR_Y 40
+#define FLAG_LABEL_X 20
+#define FLAG_LABEL_Y 460
 
 namespace FuuGB {
 
@@ -42,8 +44,11 @@ namespace FuuGB {
         void ProcessEvents(SDL_Event);
         void PerformLogic();
         void RenderGui();
-
         void ResetWindowPosition(int x, int y);
+        void MinimizeWindow();
+        void MaximizeWindow();
+        void SetCartridgeName();
+        void SetGbRef(Gameboy*);
 
     private:
         // Core Attributes
@@ -65,8 +70,13 @@ namespace FuuGB {
         gcn::Label* deLabel;
         gcn::Label* hlLabel;
         gcn::Label* cartLabel;
-        gcn::Button* buttn;
-        gcn::CheckBox* checkbox;
+        gcn::Label* flagLabel;
+        gcn::Label* zLabel;
+        gcn::Label* nLabel;
+        gcn::Label* hLabel;
+        gcn::Label* cLabel;
+
+        gcn::TextBox* memoryViewerTop;
         gcn::TextBox* memoryViewer;
         gcn::TextBox* pcViewer;
         gcn::TextBox* spViewer;
@@ -75,6 +85,16 @@ namespace FuuGB {
         gcn::TextBox* deViewer;
         gcn::TextBox* hlViewer;
         gcn::TextBox* cartViewer;
+        gcn::TextBox* zViewer;
+        gcn::TextBox* nViewer;
+        gcn::TextBox* hViewer;
+        gcn::TextBox* cViewer;
+
+        gcn::Button* breakButton;
+        gcn::Button* stepButton;
+
+        gcn::CheckBox* checkbox;
+        gcn::ScrollArea* scrollMemView;
         
         // Debugee
         Gameboy* gb;

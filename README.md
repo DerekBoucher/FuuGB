@@ -26,7 +26,7 @@ Build Script System provided by Gradle! https://github.com/gradle/gradle
     WINDOWS
         3_3. Visit https://gradle.org/install/ and follow the directives for "Microsoft Windows users"
     
-    4.  Supported toolchains: Visual C++, Gcc, Clang.
+    4.  Supported toolchains: Visual C++, Gcc, Clang. (Gradle will find it automatically)
 
 
 ## How to build:

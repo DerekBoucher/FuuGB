@@ -56,7 +56,11 @@ namespace FuuGB
                                     if (gameBoy != nullptr) { gameBoy->Resume(); delete gameBoy; }
 
                                     gameBoy = new Gameboy(_SDLwindow, ROM);
-
+#ifdef FUUGB_DEBUG
+                                    debugger->SetGbRef(gameBoy);
+                                    debugger->SetCartridgeName();
+#endif
+                                    
                                     break;
 
                                 case ID_EXT_DISPLAY: break;
@@ -72,9 +76,17 @@ namespace FuuGB
                             SDL_GetWindowPosition(_SDLwindow, &x, &y);
                             debugger->ResetWindowPosition(x, y);
                         }
+                        if(FUUGB_EVENT.window.event == SDL_WINDOWEVENT_MINIMIZED) {
+                            debugger->MinimizeWindow();
+                        }
+                        if(FUUGB_EVENT.window.event == SDL_WINDOWEVENT_RESTORED) {
+                            debugger->MaximizeWindow();
+                        }
+                        if(FUUGB_EVENT.window.event == SDL_WINDOWEVENT_CLOSE) {
+                            FUUGB_RUNNING = false;
+                        }
                         break;
 #endif
-
                     default: break;
                 }
             }

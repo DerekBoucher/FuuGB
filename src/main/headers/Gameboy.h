@@ -14,6 +14,9 @@ namespace FuuGB
         void Pause();
         void Resume();
         void Run();
+#ifdef FUUGB_DEBUG
+        Memory* GetMemory();
+#endif
 
     private:
         CPU*            CpuUnit;
