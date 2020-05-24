@@ -50,6 +50,8 @@ if (OperatingSystem.current().isWindows()) {
 }
 if (OperatingSystem.current().isMacOsX()) {
     sdl2Lib = file(OperatingSystem.current().getSharedLibraryName('lib/SDL2/MacOsX/SDL2'))
+    sdl2ImageLib = file(OperatingSystem.current().getStaticLibraryName('lib/SDL2_Image/MacOsX/SDL2_image'))
+    sdl2TtfLib = file(OperatingSystem.current().getStaticLibraryName('lib/SDL2_ttf/MacOsX/SDL2_ttf'))
 }
 
 /*
@@ -106,13 +108,16 @@ model {
                     targetPlatform "macosx_x64"
                     objcpp {
                         source {
-                            srcDirs "src/main/cpp", "src/main/MacOSX"
+                            srcDirs "src/main/cpp", "src/main/MacOSX", "vendor/guisan/src"
                             include "**/*.mm", "**/*.m", "**/*.cpp"
                         }
                         exportedHeaders {
-                            srcDirs "src/main/headers"
+                            srcDirs "src/main/headers", "vendor/guisan/include"
+                            include "**/*.h", "**/*.hpp"
                         }
                         lib library: "SDL2", linkage: "shared"
+                        lib library: "SDL2Image", linkage: "static"
+                        lib library: "SDL2Ttf", linkage: "static"
                     }
                 }
                 if (OperatingSystem.current().isWindows()) {
@@ -143,10 +148,16 @@ model {
                                         "-pthread",
                                         "-O3"
 
-                    linker.args         "-framework",
+                    linker.args         "-L./lib/SDL2_Image/MacOsX",       
+                                        "-framework",
                                         "Cocoa",
                                         "-framework",
-                                        "AppKit"
+                                        "AppKit",
+                                        "-framework",
+                                        "OpenGL",
+                                        "-lpng",
+                                        "-lfreetype",
+                                        "-lwebp"
                 }
                 if(OperatingSystem.current().isWindows()) {
                     cppCompiler.args    "/FS",
@@ -175,6 +186,10 @@ model {
                     if (OperatingSystem.current().isMacOsX()) {
                         copy {
                             from 'lib/SDL2/MacOsX/libSDL2.dylib'
+                            into 'build/exe/fuuGBemu'
+                        }
+                        copy {
+                            from 'vendor/guisan/examples/fixedfont.bmp'
                             into 'build/exe/fuuGBemu'
                         }
                     }

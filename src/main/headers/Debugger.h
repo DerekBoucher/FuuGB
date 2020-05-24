@@ -1,4 +1,3 @@
-#ifdef FUUGB_SYSTEM_WINDOWS
 #ifdef FUUGB_DEBUG
 
 
@@ -103,6 +102,5 @@ namespace FuuGB {
 
 }
 
-#endif
 #endif
 #endif

@@ -1,4 +1,3 @@
-#ifdef FUUGB_SYSTEM_WINDOWS
 #ifdef FUUGB_DEBUG
 
 #include "Debugger.h"
@@ -307,5 +306,4 @@ namespace FuuGB {
     }
 }
 
-#endif
 #endif
