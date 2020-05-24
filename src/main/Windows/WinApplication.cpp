@@ -1,3 +1,4 @@
+#ifdef FUUGB_SYSTEM_WINDOWS
 #include "WinApplication.h"
 
 namespace FuuGB
@@ -110,3 +111,5 @@ namespace FuuGB
         FUUGB_QUIT();
     }
 }
+
+#endif

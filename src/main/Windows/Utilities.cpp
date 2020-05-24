@@ -1,3 +1,4 @@
+#ifdef FUUGB_SYSTEM_WINDOWS
 #include "Utilities.h"
 
 namespace FuuGB
@@ -88,3 +89,4 @@ namespace FuuGB
         return cart;
     }
 };
+#endif
