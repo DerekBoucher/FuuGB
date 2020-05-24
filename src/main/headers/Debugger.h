@@ -49,6 +49,7 @@ namespace FuuGB {
         void MaximizeWindow();
         void SetCartridgeName();
         void SetGbRef(Gameboy*);
+        void UpdateMemory();
 
     private:
         // Core Attributes

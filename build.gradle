@@ -140,7 +140,8 @@ model {
                                         "-Wall",
                                         "-std=c++11",
                                         "-stdlib=libc++",
-                                        "-pthread"
+                                        "-pthread",
+                                        "-O3"
 
                     linker.args         "-framework",
                                         "Cocoa",
@@ -156,7 +157,8 @@ model {
                                         "/DUNICODE",
                                         "/D_UNICODE",
                                         "/DFUUGB_DEBUG",
-                                        "/EHsc"
+                                        "/EHsc",
+                                        "/O2"
 
                     linker.args         "/DEBUG",
                                         "comdlg32.lib",

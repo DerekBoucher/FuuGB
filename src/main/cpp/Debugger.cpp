@@ -274,6 +274,37 @@ namespace FuuGB {
     void Debugger::SetGbRef(Gameboy* ref) {
         gb = ref;
     }
+
+    void Debugger::UpdateMemory() {
+        char* Buffer = new char[0x10];
+        for(int i = 0x0; i < 0x10000; i+=0x10) {
+            for (int j = 0x0; j < 0x10; j++) {
+                Buffer[j] = (gb->GetMemory()->DMA_read(i+j));
+            }
+            char* rowString = new char[256];
+            sprintf(rowString, "0x%04X %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x", i,
+                Buffer[0x0],
+                Buffer[0x1],
+                Buffer[0x2],
+                Buffer[0x3],
+                Buffer[0x4],
+                Buffer[0x5],
+                Buffer[0x6],
+                Buffer[0x7],
+                Buffer[0x8],
+                Buffer[0x9],
+                Buffer[0xA],
+                Buffer[0xB],
+                Buffer[0xC],
+                Buffer[0xD],
+                Buffer[0xE],
+                Buffer[0xF]
+            );
+            memoryViewer->setTextRow(i/0x10, rowString);
+            delete rowString;
+        }
+        delete Buffer;
+    }
 }
 
 #endif
