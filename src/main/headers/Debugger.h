@@ -16,8 +16,8 @@
 #define REG_VIEW_SIZE_Y 15
 #define REG_ANCHOR_X 380
 #define REG_ANCHOR_Y 20
-#define MEM_VIEW_SIZE_X 340
-#define MEM_VIEW_SIZE_Y 53250
+#define MEM_VIEW_SIZE_X 327
+#define MEM_VIEW_SIZE_Y 53240
 #define MEM_VIEW_ANCHOR_X 20
 #define MEM_VIEW_ANCHOR_Y 60
 #define MEM_LABEL_X 20
@@ -33,12 +33,14 @@
 
 namespace FuuGB {
 
-    class Debugger {
+    class Debugger : public gcn::ActionListener {
 
     public:
         Debugger();
         Debugger(SDL_Window*, Gameboy*);
         ~Debugger();
+
+        void action(const gcn::ActionEvent&);
 
         void ProcessEvents(SDL_Event);
         void PerformLogic();
@@ -48,7 +50,10 @@ namespace FuuGB {
         void MaximizeWindow();
         void SetCartridgeName();
         void SetGbRef(Gameboy*);
-        void UpdateMemory();
+        void UpdatePage();
+
+        void OnClickLeftPageButton();
+        void OnClickRightPageButton();
 
     private:
         // Core Attributes
@@ -89,12 +94,14 @@ namespace FuuGB {
         gcn::TextBox* nViewer;
         gcn::TextBox* hViewer;
         gcn::TextBox* cViewer;
+        gcn::TextBox* pageViewer;
 
         gcn::Button* breakButton;
         gcn::Button* stepButton;
+        gcn::Button* leftPage;
+        gcn::Button* rightPage;
 
-        gcn::CheckBox* checkbox;
-        gcn::ScrollArea* scrollMemView;
+        unsigned int currentPage;
         
         // Debugee
         Gameboy* gb;

@@ -6,7 +6,7 @@ namespace FuuGB {
 
     Debugger::Debugger() {}
 
-    Debugger::Debugger(SDL_Window* winRef, Gameboy* gbRef) {
+    Debugger::Debugger(SDL_Window* winRef, Gameboy* gbRef) : gcn::ActionListener(){
 
         // Set Global Image Loader
         imgLoader   = new gcn::SDLImageLoader();
@@ -54,12 +54,12 @@ namespace FuuGB {
         // Buttons
         breakButton     = new gcn::Button("Break Execution");
         stepButton      = new gcn::Button("Step Once");
-        checkbox        = new gcn::CheckBox("button", false);
+        leftPage        = new gcn::Button("L");
+        rightPage       = new gcn::Button("R");
 
         // Text Fields
         memoryViewer    = new gcn::TextBox();
         memoryViewerTop = new gcn::TextBox();
-        scrollMemView   = new gcn::ScrollArea(memoryViewer);
         pcViewer        = new gcn::TextBox();
         spViewer        = new gcn::TextBox();
         afViewer        = new gcn::TextBox();
@@ -71,6 +71,7 @@ namespace FuuGB {
         nViewer         = new gcn::TextBox();
         hViewer         = new gcn::TextBox();
         cViewer         = new gcn::TextBox();
+        pageViewer      = new gcn::TextBox();
 
         // Set the Global Font
         gcn::Widget::setGlobalFont(font);
@@ -116,21 +117,21 @@ namespace FuuGB {
         cLabel->setPosition(FLAG_LABEL_X + 120, FLAG_LABEL_Y + 60);
         
         // Format the memory viewer
+        currentPage = 1;
         memoryViewerTop->setSize(1000, 47);
-        memoryViewerTop->setPosition(21, 46);
+        memoryViewerTop->setPosition(20, 46);
         memoryViewerTop->setTextRow(0, "0x     00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
         memoryViewer->setTextRow(0, "0x0000 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00");
         char* buffer = new char[256];
-        for (auto i = 0x10; i < 0x10000; i+=0x10) {
-            sprintf(buffer, "0x%04X 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00", i);
+        for (auto i = 1; i < 28; i++) {
+            sprintf(buffer, "0x%04X 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00", (i*currentPage*0x10));
             memoryViewer->addRow(buffer);
         }
-        delete buffer;
-        memoryViewer->setSize(MEM_VIEW_SIZE_X, MEM_VIEW_SIZE_Y);
+        memoryViewer->setSize(326, 366);
         memoryViewer->setPosition(MEM_VIEW_ANCHOR_X, MEM_VIEW_ANCHOR_Y);
-        scrollMemView->setPosition(MEM_VIEW_ANCHOR_X, MEM_VIEW_ANCHOR_Y);
-        scrollMemView->setSize(MEM_VIEW_SIZE_X, 380);
-        scrollMemView->setScrollPolicy(gcn::ScrollArea::SHOW_NEVER, gcn::ScrollArea::SHOW_AUTO);
+        pageViewer->setPosition(180, 440);
+        pageViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+        pageViewer->setTextRow(0, itoa(currentPage, buffer, 10));
 
         pcViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
         pcViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 20);
@@ -172,6 +173,10 @@ namespace FuuGB {
         stepButton->setPosition(460, 160);
         stepButton->setEnabled(false);
         stepButton->setBaseColor(gcn::Color(255, 255, 255, 100));
+        leftPage->setSize(20,20);
+        leftPage->setPosition(133, 436);
+        rightPage->setSize(20,20);
+        rightPage->setPosition(213, 436);
 
         // Add Widgets to top container
         top->add(memoryLabel);
@@ -188,7 +193,7 @@ namespace FuuGB {
         top->add(hLabel);
         top->add(cLabel);
         top->add(memoryViewerTop);
-        top->add(scrollMemView);
+        top->add(memoryViewer);
         top->add(pcViewer);
         top->add(spViewer);
         top->add(afViewer);
@@ -202,6 +207,20 @@ namespace FuuGB {
         top->add(cViewer);
         top->add(breakButton);
         top->add(stepButton);
+        top->add(leftPage);
+        top->add(rightPage);
+        top->add(pageViewer);
+
+        // Attach to debugger action listener
+        leftPage->addActionListener(this);
+        rightPage->addActionListener(this);
+        breakButton->addActionListener(this);
+        stepButton->addActionListener(this);
+
+        leftPage->setActionEventId("0");
+        rightPage->setActionEventId("1");
+        breakButton->setActionEventId("2");
+        stepButton->setActionEventId("3");
     }
 
     Debugger::~Debugger() {
@@ -230,8 +249,10 @@ namespace FuuGB {
         delete cLabel;
         delete breakButton;
         delete stepButton;
-        delete scrollMemView;
         delete memoryViewerTop;
+        delete leftPage;
+        delete rightPage;
+        delete pageViewer;
         SDL_FreeSurface(screen);
         SDL_DestroyWindow(win);
     }
@@ -274,14 +295,26 @@ namespace FuuGB {
         gb = ref;
     }
 
-    void Debugger::UpdateMemory() {
-        char* Buffer = new char[0x10];
-        for(int i = 0x0; i < 0x10000; i+=0x10) {
-            for (int j = 0x0; j < 0x10; j++) {
-                Buffer[j] = (gb->GetMemory()->DMA_read(i+j));
+    void Debugger::UpdatePage() {
+        unsigned char* Buffer = new unsigned char[0x10];
+        for(int i = 0; i < 28; i++) {
+            int address = (i*0x10)+((currentPage-1)*(0x10*28));
+            if (gb != NULL) {
+                for (int j = 0x0; j < 0x10; j++) {
+                    Buffer[j] = (gb->GetMemory()->DMA_read((address)+j));
+                }
+            } else {
+                for (int j = 0x0; j < 0x10; j++) {
+                    Buffer[j] = 0x00;
+                }
             }
             char* rowString = new char[256];
-            sprintf(rowString, "0x%04X %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x", i,
+            if (address > 0xFFF0) {
+                delete rowString;
+                memoryViewer->setTextRow(i, "");
+                continue;
+            }
+            sprintf(rowString, "0x%04X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", address,
                 Buffer[0x0],
                 Buffer[0x1],
                 Buffer[0x2],
@@ -299,10 +332,45 @@ namespace FuuGB {
                 Buffer[0xE],
                 Buffer[0xF]
             );
-            memoryViewer->setTextRow(i/0x10, rowString);
+            memoryViewer->setTextRow(i, rowString);
             delete rowString;
         }
         delete Buffer;
+    }
+
+    void Debugger::action(const gcn::ActionEvent &event) {
+        switch(std::stoi(event.getId(), NULL, 10)) {
+            case 0: OnClickLeftPageButton(); break;
+            case 1: OnClickRightPageButton(); break;
+            default: break;
+        }
+    }
+
+    void Debugger::OnClickLeftPageButton() {
+        if (currentPage == 1) {
+            currentPage = 147;
+        } else {
+            currentPage--;
+        }
+
+        char Buffer[256];
+
+        pageViewer->setTextRow(0, itoa(currentPage, Buffer, 10));
+        UpdatePage();
+
+    }
+
+    void Debugger::OnClickRightPageButton() {
+        if(currentPage == 147) {
+            currentPage = 1;
+        } else {
+            currentPage++;
+        }
+
+        char Buffer[256];
+
+        pageViewer->setTextRow(0, itoa(currentPage, Buffer, 10));
+        UpdatePage();
     }
 }
 
