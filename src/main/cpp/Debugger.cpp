@@ -37,19 +37,19 @@ namespace FuuGB {
         top             = new gcn::Container();
 
         // Labels
-        pcLabel     = new gcn::Label("PC");
-        spLabel     = new gcn::Label("SP");
-        afLabel     = new gcn::Label("AF");
-        bcLabel     = new gcn::Label("BC");
-        deLabel     = new gcn::Label("DE");
-        hlLabel     = new gcn::Label("HL");
-        zLabel      = new gcn::Label("Z");
-        nLabel      = new gcn::Label("N");
-        hLabel      = new gcn::Label("H");
-        cLabel      = new gcn::Label("C");
-        memoryLabel = new gcn::Label("Memory");
-        cartLabel   = new gcn::Label("Cartridge");
-        flagLabel   = new gcn::Label("Flags");
+        pcLabel         = new gcn::Label("PC");
+        spLabel         = new gcn::Label("SP");
+        afLabel         = new gcn::Label("AF");
+        bcLabel         = new gcn::Label("BC");
+        deLabel         = new gcn::Label("DE");
+        hlLabel         = new gcn::Label("HL");
+        zLabel          = new gcn::Label("Z");
+        nLabel          = new gcn::Label("N");
+        hLabel          = new gcn::Label("H");
+        cLabel          = new gcn::Label("C");
+        memoryLabel     = new gcn::Label("Memory");
+        cartLabel       = new gcn::Label("Cartridge");
+        flagLabel       = new gcn::Label("Flags");
 
         // Buttons
         breakButton     = new gcn::Button("Break Execution");
@@ -57,16 +57,8 @@ namespace FuuGB {
         leftPageButton  = new gcn::Button("L");
         rightPageButton = new gcn::Button("R");
 
-        // Attach to debugger action listener
-        leftPageButton->addActionListener(this);
-        rightPageButton->addActionListener(this);
-        breakButton->addActionListener(this);
-        stepButton->addActionListener(this);
-
-        leftPageButton->setActionEventId("0");
-        rightPageButton->setActionEventId("1");
-        breakButton->setActionEventId("2");
-        stepButton->setActionEventId("3");
+        // Checkboxes
+        breakBootRom    = new gcn::CheckBox("Break when boot rom exits");
 
         // Text Fields
         pcViewer        = new gcn::TextBox();
@@ -83,6 +75,20 @@ namespace FuuGB {
         memoryViewer    = new gcn::TextBox();
         cartViewer      = new gcn::TextBox();
         pageViewer      = new gcn::TextBox();
+
+        // Attach to debugger action listener
+        leftPageButton->addActionListener(this);
+        rightPageButton->addActionListener(this);
+        breakButton->addActionListener(this);
+        stepButton->addActionListener(this);
+        breakBootRom->addActionListener(this);
+
+        // Set Action Event ID's
+        leftPageButton->setActionEventId("0");
+        rightPageButton->setActionEventId("1");
+        breakButton->setActionEventId("2");
+        stepButton->setActionEventId("3");
+        breakBootRom->setActionEventId("4");
 
         // Set the Global Font
         gcn::Widget::setGlobalFont(font);
@@ -113,6 +119,7 @@ namespace FuuGB {
         memoryLabel->adjustSize();
         cartLabel->adjustSize();
         flagLabel->adjustSize();
+        breakBootRom->adjustSize();
 
         pcLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 0);
         spLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 60);
@@ -191,6 +198,7 @@ namespace FuuGB {
         stepButton->setPosition(460, 160);
         leftPageButton->setPosition(133, 436);
         rightPageButton->setPosition(213, 436);
+        breakBootRom->setPosition(460, 240);
 
         stepButton->setEnabled(false);
         leftPageButton->setEnabled(false);
@@ -232,9 +240,13 @@ namespace FuuGB {
         top->add(leftPageButton);
         top->add(rightPageButton);
         top->add(pageViewer);
+        top->add(breakBootRom);
     }
 
     Debugger::~Debugger() {
+
+        top->clear();
+
         delete hlViewer;
         delete deViewer;
         delete bcViewer;
@@ -242,10 +254,13 @@ namespace FuuGB {
         delete spViewer;
         delete pcViewer;
         delete memoryViewer;
+        delete memoryViewerTop;
+        delete pageViewer;
         delete zViewer;
         delete nViewer;
         delete hViewer;
         delete cViewer;
+
         delete hlLabel;
         delete deLabel;
         delete bcLabel;
@@ -258,14 +273,15 @@ namespace FuuGB {
         delete nLabel;
         delete hLabel;
         delete cLabel;
+
         delete breakButton;
         delete stepButton;
-        delete memoryViewerTop;
         delete leftPageButton;
         delete rightPageButton;
-        delete pageViewer;
-        top->clear();
+        delete breakBootRom;
+
         delete top;
+
         SDL_FreeSurface(screen);
         SDL_DestroyWindow(win);
     }
@@ -311,10 +327,10 @@ namespace FuuGB {
     void Debugger::UpdatePage() {
         unsigned char* Buffer = new unsigned char[0x10];
         for(int i = 0; i < 28; i++) {
-            int address = (i*0x10)+((currentPage-1)*(0x10*28));
+            int BaseAddress = (i*0x10)+((currentPage-1)*(0x10*28));
             if (gb != NULL) {
                 for (int j = 0x0; j < 0x10; j++) {
-                    Buffer[j] = (gb->GetMemory()->DMA_read((address)+j));
+                    Buffer[j] = (gb->GetMemory()->DMA_read((BaseAddress)+j));
                 }
             } else {
                 for (int j = 0x0; j < 0x10; j++) {
@@ -322,12 +338,12 @@ namespace FuuGB {
                 }
             }
             char* rowString = new char[256];
-            if (address > 0xFFF0) {
+            if (BaseAddress > 0xFFF0) {
                 delete rowString;
                 memoryViewer->setTextRow(i, "");
                 continue;
             }
-            sprintf(rowString, "0x%04X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", address,
+            sprintf(rowString, "0x%04X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", BaseAddress,
                 Buffer[0x0],
                 Buffer[0x1],
                 Buffer[0x2],
@@ -349,6 +365,9 @@ namespace FuuGB {
             delete rowString;
         }
         delete Buffer;
+    }
+
+    void Debugger::UpdatePcHighlight() {
     }
 
     void Debugger::action(const gcn::ActionEvent &event) {

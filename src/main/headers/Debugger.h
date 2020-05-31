@@ -51,6 +51,7 @@ namespace FuuGB {
         void SetCartridgeName();
         void SetGbRef(Gameboy*);
         void UpdatePage();
+        void UpdatePcHighlight();
 
         void OnClickLeftPageButton();
         void OnClickRightPageButton();
@@ -100,6 +101,8 @@ namespace FuuGB {
         gcn::Button* stepButton;
         gcn::Button* leftPageButton;
         gcn::Button* rightPageButton;
+
+        gcn::CheckBox* breakBootRom;
 
         unsigned int currentPage;
         
