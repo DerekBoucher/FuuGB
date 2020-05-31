@@ -98,8 +98,8 @@ namespace FuuGB {
 
         gcn::Button* breakButton;
         gcn::Button* stepButton;
-        gcn::Button* leftPage;
-        gcn::Button* rightPage;
+        gcn::Button* leftPageButton;
+        gcn::Button* rightPageButton;
 
         unsigned int currentPage;
         

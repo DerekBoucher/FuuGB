@@ -37,40 +37,51 @@ namespace FuuGB {
         top             = new gcn::Container();
 
         // Labels
-        memoryLabel = new gcn::Label("Memory");
         pcLabel     = new gcn::Label("PC");
         spLabel     = new gcn::Label("SP");
         afLabel     = new gcn::Label("AF");
         bcLabel     = new gcn::Label("BC");
         deLabel     = new gcn::Label("DE");
         hlLabel     = new gcn::Label("HL");
-        cartLabel   = new gcn::Label("Cartridge");
-        flagLabel   = new gcn::Label("Flags");
         zLabel      = new gcn::Label("Z");
         nLabel      = new gcn::Label("N");
         hLabel      = new gcn::Label("H");
         cLabel      = new gcn::Label("C");
+        memoryLabel = new gcn::Label("Memory");
+        cartLabel   = new gcn::Label("Cartridge");
+        flagLabel   = new gcn::Label("Flags");
 
         // Buttons
         breakButton     = new gcn::Button("Break Execution");
         stepButton      = new gcn::Button("Step Once");
-        leftPage        = new gcn::Button("L");
-        rightPage       = new gcn::Button("R");
+        leftPageButton  = new gcn::Button("L");
+        rightPageButton = new gcn::Button("R");
+
+        // Attach to debugger action listener
+        leftPageButton->addActionListener(this);
+        rightPageButton->addActionListener(this);
+        breakButton->addActionListener(this);
+        stepButton->addActionListener(this);
+
+        leftPageButton->setActionEventId("0");
+        rightPageButton->setActionEventId("1");
+        breakButton->setActionEventId("2");
+        stepButton->setActionEventId("3");
 
         // Text Fields
-        memoryViewer    = new gcn::TextBox();
-        memoryViewerTop = new gcn::TextBox();
         pcViewer        = new gcn::TextBox();
         spViewer        = new gcn::TextBox();
         afViewer        = new gcn::TextBox();
         bcViewer        = new gcn::TextBox();
         deViewer        = new gcn::TextBox();
         hlViewer        = new gcn::TextBox();
-        cartViewer      = new gcn::TextBox();
         zViewer         = new gcn::TextBox();
         nViewer         = new gcn::TextBox();
         hViewer         = new gcn::TextBox();
         cViewer         = new gcn::TextBox();
+        memoryViewerTop = new gcn::TextBox();
+        memoryViewer    = new gcn::TextBox();
+        cartViewer      = new gcn::TextBox();
         pageViewer      = new gcn::TextBox();
 
         // Set the Global Font
@@ -89,94 +100,105 @@ namespace FuuGB {
         gui->setTop(top);
 
         // Configure Widgets   
-        memoryLabel->adjustSize();
-        memoryLabel->setPosition(MEM_LABEL_X, MEM_LABEL_Y);
         pcLabel->adjustSize();
-        pcLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 0);
         spLabel->adjustSize();
-        spLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 60);
         afLabel->adjustSize();
-        afLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 120);
         bcLabel->adjustSize();
-        bcLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 180);
         deLabel->adjustSize();
-        deLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 240);
         hlLabel->adjustSize();
-        hlLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 300);
-        cartLabel->adjustSize();
-        cartLabel->setPosition(CART_LABEL_ANCHOR_X, CART_LABEL_ANCHOR_Y);
-        flagLabel->adjustSize();
-        flagLabel->setPosition(FLAG_LABEL_X, FLAG_LABEL_Y);
         zLabel->adjustSize();
-        zLabel->setPosition(FLAG_LABEL_X, FLAG_LABEL_Y + 20);
         nLabel->adjustSize();
-        nLabel->setPosition(FLAG_LABEL_X + 120, FLAG_LABEL_Y + 20);
         hLabel->adjustSize();
-        hLabel->setPosition(FLAG_LABEL_X, FLAG_LABEL_Y + 60);
         cLabel->adjustSize();
+        memoryLabel->adjustSize();
+        cartLabel->adjustSize();
+        flagLabel->adjustSize();
+
+        pcLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 0);
+        spLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 60);
+        afLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 120);
+        bcLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 180);
+        deLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 240);
+        hlLabel->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 300);
+        zLabel->setPosition(FLAG_LABEL_X, FLAG_LABEL_Y + 20);
+        nLabel->setPosition(FLAG_LABEL_X + 120, FLAG_LABEL_Y + 20);
+        hLabel->setPosition(FLAG_LABEL_X, FLAG_LABEL_Y + 60);
         cLabel->setPosition(FLAG_LABEL_X + 120, FLAG_LABEL_Y + 60);
+        memoryLabel->setPosition(MEM_LABEL_X, MEM_LABEL_Y);
+        cartLabel->setPosition(CART_LABEL_ANCHOR_X, CART_LABEL_ANCHOR_Y);
+        flagLabel->setPosition(FLAG_LABEL_X, FLAG_LABEL_Y);
         
         // Format the memory viewer
         currentPage = 1;
+
+        pcViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+        spViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+        afViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+        bcViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+        deViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+        hlViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+        zViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+        nViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+        hViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+        cViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
         memoryViewerTop->setSize(1000, 47);
+        memoryViewer->setSize(326, 366);
+        cartViewer->setSize(CART_VIEW_SIZE_X, CART_VIEW_SIZE_Y);
+        pageViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
+
+        pcViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 20);
+        spViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 80);
+        afViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 140);
+        bcViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 200);
+        deViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 260);
+        hlViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 320);
+        zViewer->setPosition(FLAG_LABEL_X + 20, FLAG_LABEL_Y + 25);
+        nViewer->setPosition(FLAG_LABEL_X + 140, FLAG_LABEL_Y + 25);
+        hViewer->setPosition(FLAG_LABEL_X + 20, FLAG_LABEL_Y + 65);
+        cViewer->setPosition(FLAG_LABEL_X + 140, FLAG_LABEL_Y + 65);
         memoryViewerTop->setPosition(20, 46);
+        memoryViewer->setPosition(MEM_VIEW_ANCHOR_X, MEM_VIEW_ANCHOR_Y);
+        cartViewer->setPosition(CART_VIEW_ANCHOR_X, CART_VIEW_ANCHOR_Y);
+        pageViewer->setPosition(180, 440);
+
+        pcViewer->setTextRow(0,"0x0000");
+        spViewer->setTextRow(0,"0x0000");
+        afViewer->setTextRow(0,"0x0000");
+        bcViewer->setTextRow(0,"0x0000");
+        deViewer->setTextRow(0,"0x0000");
+        hlViewer->setTextRow(0,"0x0000");
+        zViewer->setTextRow(0,"0");
+        nViewer->setTextRow(0,"0");
+        hViewer->setTextRow(0,"0");
+        cViewer->setTextRow(0,"0");
         memoryViewerTop->setTextRow(0, "0x     00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
         memoryViewer->setTextRow(0, "0x0000 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00");
+        cartViewer->setTextRow(0,"null");
         char* buffer = new char[256];
+
+        pageViewer->setTextRow(0, itoa(currentPage, buffer, 10));
         for (auto i = 1; i < 28; i++) {
             sprintf(buffer, "0x%04X 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00", (i*currentPage*0x10));
             memoryViewer->addRow(buffer);
         }
-        memoryViewer->setSize(326, 366);
-        memoryViewer->setPosition(MEM_VIEW_ANCHOR_X, MEM_VIEW_ANCHOR_Y);
-        pageViewer->setPosition(180, 440);
-        pageViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        pageViewer->setTextRow(0, itoa(currentPage, buffer, 10));
-
-        pcViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        pcViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 20);
-        pcViewer->setTextRow(0,"0x0000");
-        spViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        spViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 80);
-        spViewer->setTextRow(0,"0x0000");
-        afViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        afViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 140);
-        afViewer->setTextRow(0,"0x0000");
-        bcViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        bcViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 200);
-        bcViewer->setTextRow(0,"0x0000");
-        deViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        deViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 260);
-        deViewer->setTextRow(0,"0x0000");
-        hlViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        hlViewer->setPosition(REG_ANCHOR_X, REG_ANCHOR_Y + 320);
-        hlViewer->setTextRow(0,"0x0000");
-        cartViewer->setSize(CART_VIEW_SIZE_X, CART_VIEW_SIZE_Y);
-        cartViewer->setPosition(CART_VIEW_ANCHOR_X, CART_VIEW_ANCHOR_Y);
-        cartViewer->setTextRow(0,"null");
-        zViewer->setTextRow(0,"0");
-        zViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        zViewer->setPosition(FLAG_LABEL_X + 20, FLAG_LABEL_Y + 25);
-        nViewer->setTextRow(0,"0");
-        nViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        nViewer->setPosition(FLAG_LABEL_X + 140, FLAG_LABEL_Y + 25);
-        hViewer->setTextRow(0,"0");
-        hViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        hViewer->setPosition(FLAG_LABEL_X + 20, FLAG_LABEL_Y + 65);
-        cViewer->setTextRow(0,"0");
-        cViewer->setSize(REG_VIEW_SIZE_X, REG_VIEW_SIZE_Y);
-        cViewer->setPosition(FLAG_LABEL_X + 140, FLAG_LABEL_Y + 65);
 
         breakButton->setSize(140, 60);
-        breakButton->setPosition(460, 80);
         stepButton->setSize(140, 60);
+        leftPageButton->setSize(20,20);
+        rightPageButton->setSize(20,20);
+
+        breakButton->setPosition(460, 80);
         stepButton->setPosition(460, 160);
+        leftPageButton->setPosition(133, 436);
+        rightPageButton->setPosition(213, 436);
+
         stepButton->setEnabled(false);
+        leftPageButton->setEnabled(false);
+        rightPageButton->setEnabled(false);
+
         stepButton->setBaseColor(gcn::Color(255, 255, 255, 100));
-        leftPage->setSize(20,20);
-        leftPage->setPosition(133, 436);
-        rightPage->setSize(20,20);
-        rightPage->setPosition(213, 436);
+        leftPageButton->setBaseColor(gcn::Color(255, 255, 255, 100));
+        rightPageButton->setBaseColor(gcn::Color(255, 255, 255, 100));
 
         // Add Widgets to top container
         top->add(memoryLabel);
@@ -207,20 +229,9 @@ namespace FuuGB {
         top->add(cViewer);
         top->add(breakButton);
         top->add(stepButton);
-        top->add(leftPage);
-        top->add(rightPage);
+        top->add(leftPageButton);
+        top->add(rightPageButton);
         top->add(pageViewer);
-
-        // Attach to debugger action listener
-        leftPage->addActionListener(this);
-        rightPage->addActionListener(this);
-        breakButton->addActionListener(this);
-        stepButton->addActionListener(this);
-
-        leftPage->setActionEventId("0");
-        rightPage->setActionEventId("1");
-        breakButton->setActionEventId("2");
-        stepButton->setActionEventId("3");
     }
 
     Debugger::~Debugger() {
@@ -250,9 +261,11 @@ namespace FuuGB {
         delete breakButton;
         delete stepButton;
         delete memoryViewerTop;
-        delete leftPage;
-        delete rightPage;
+        delete leftPageButton;
+        delete rightPageButton;
         delete pageViewer;
+        top->clear();
+        delete top;
         SDL_FreeSurface(screen);
         SDL_DestroyWindow(win);
     }
