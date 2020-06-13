@@ -7,7 +7,7 @@ namespace FuuGB
     {
         running = true;
         this->MemoryUnit = new Memory(cart);
-        this->PpuUnit = new PPU(windowPtr, this->MemoryUnit, false);
+        this->PpuUnit = new PPU(windowPtr, this->MemoryUnit);
         this->CpuUnit = new CPU(this->MemoryUnit);
         globalPause = false;
         GameboyThread = new std::thread(&Gameboy::Run, this);
@@ -48,11 +48,11 @@ namespace FuuGB
                     cycles = CpuUnit->ExecuteNextOpCode();
                 cyclesthisupdate += cycles;
                 CpuUnit->UpdateTimers(cycles);
-                PpuUnit->updateGraphics(cycles);
+                PpuUnit->UpdateGraphics(cycles);
                 if(!CpuUnit->CpuHalted)
                     CpuUnit->CheckInterupts();
             }
-            PpuUnit->renderscreen();
+            PpuUnit->RenderScreen();
         }
     }
 

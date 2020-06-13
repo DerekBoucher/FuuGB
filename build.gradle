@@ -169,7 +169,7 @@ model {
                                         "/D_UNICODE",
                                         "/DFUUGB_DEBUG",
                                         "/EHsc",
-                                        "/O2"
+                                        "/Od"
 
                     linker.args         "/DEBUG",
                                         "comdlg32.lib",

@@ -37,6 +37,9 @@ namespace FuuGB
 
     int CPU::ExecuteNextOpCode()
     {
+        if (PC == 0x293) { 
+            printf("test\n");
+        }
         TimerUpdateCounter = 0;
         uBYTE byte = MemoryUnit->readMemory(PC++);
         uBYTE SP_data = 0x0;

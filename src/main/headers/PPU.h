@@ -4,36 +4,41 @@
 #include "Core.h"
 #include "Memory.h"
 
-#define NATIVE_SIZE_X   160
-#define NATIVE_SIZE_Y   144
-#define EXT_SIZE_X        256
-#define EXT_SIZE_Y        256
+#define NATIVE_SIZE_X       160
+#define NATIVE_SIZE_Y       144
+#define EXT_SIZE_X          256
+#define EXT_SIZE_Y          256
 #define PPU_CLOCK_PERIOD_NS 239
-#define TILE_BYTE_LENGTH 16
+#define TILE_BYTE_LENGTH    16
+#define LCDC_ADR                0xFF40
+#define STAT_ADR                0xFF41
 
 namespace FuuGB
 {
     class PPU
     {
     public:
-        PPU(SDL_Window* windowPtr, Memory* mem, bool extended);
+        PPU(SDL_Window* windowPtr, Memory* mem);
         virtual ~PPU();
         void DrawScanLine();
-        SDL_Renderer*           renderer;
-        void renderscreen();
-        void updateGraphics(int);
+        void RenderScreen();
+        void UpdateGraphics(int);
+        std::bitset<8> GetSTAT();
+        std::bitset<8> GetLCDC();
 
     private:
-        SDL_Rect                pixels[NATIVE_SIZE_X][NATIVE_SIZE_Y];
-        SDL_Rect                ext_Pixels[EXT_SIZE_X][EXT_SIZE_Y];
-        Memory*                 MEM;
-        uWORD                   BG_Map_Pointer;
-        int                     currentScanLine;
-        int                     scanline_counter;
-        void RenderTiles();
-        void RenderSprites();
+        SDL_Renderer*   renderer;
+        SDL_Rect        pixels[NATIVE_SIZE_X][NATIVE_SIZE_Y];
+        Memory*         memoryRef;
+        int             currentScanline;
+        int             scanlineCounter;
+        std::bitset<8>  LCDC;
+        std::bitset<8>  STAT;
+
+        void drawScanline();
+        void renderTiles();
+        void renderSprites();
         void setLCDStatus();
-        bool ext;
     };
 }
 #endif

@@ -3,9 +3,7 @@
 
 #include "Cartridge.h"
 
-#define RAM_CLOCK_PERIOD_NS 952
 #define ECHO_RAM_OFFSET 0x2000
-#define SLEEP_CLOCK_CYCLE() std::this_thread::sleep_for(std::chrono::nanoseconds(RAM_CLOCK_PERIOD_NS))
 
 namespace FuuGB
 {
@@ -25,9 +23,12 @@ namespace FuuGB
         void changeRAMBank(uWORD addr, uBYTE data);
         uBYTE& readMemory(uWORD);
         uBYTE& DMA_read(uWORD addr);
+        std::bitset<8> getLCDC();
+        std::bitset<8> getSTAT();
+        uBYTE getStatMode();
 
-    public:
         int                     timer_counter;
+        
     private:
         uBYTE*                  M_MEM;
         Cartridge*              cart;

@@ -2,7 +2,7 @@
 
 namespace PpuTests {
 
-    Test::Test():FuuGB::PPU(NULL, NULL, false) {}
+    Test::Test():FuuGB::PPU(NULL, NULL) {}
 
     Test::~Test() {}
 

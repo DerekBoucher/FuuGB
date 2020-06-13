@@ -53,7 +53,10 @@ namespace FuuGB
         }
         else if ((addr >= 0x8000) && (addr < 0xA000)) //Video RAM
         {
-            M_MEM[addr] = data;
+            uBYTE mode = getStatMode();
+            if (mode == 0 || mode == 1 || mode == 2) {
+                M_MEM[addr] = data;
+            }
         }
         else if ((addr >= 0xA000) && (addr < 0xC000)) //Switchable Ram Bank
         {
@@ -73,7 +76,10 @@ namespace FuuGB
         }
         else if ((addr >= 0xFE00) && (addr < 0xFE9F)) //OAM RAM
         {
-            M_MEM[addr] = data;
+            uBYTE mode = getStatMode();
+            if (mode == 0 || mode == 1) {
+                M_MEM[addr] = data;
+            }
         }
         else if(addr == 0xFF07) //Timer Controller
         {
@@ -98,21 +104,21 @@ namespace FuuGB
         }
         else if (addr == 0xFF40)
         {
-            std::bitset<2> STAT(M_MEM[0xFF41] & 0x03);
+            uBYTE mode = getStatMode();
             std::bitset<8> d(data);
-            uBYTE mode = STAT.to_ulong();
             if(!d.test(7))
             {
-                if(mode == 1)
-                    M_MEM[addr] = data;
+                if(mode != 1) {
+                    data |= 0x80;
+                }   
             }
-            else
-                M_MEM[addr] = data;
+            M_MEM[addr] = data;
         }
         else if (addr == 0xFF41)
         {
-            data = data & 0xF8; //first 3 LS bits are Read only
             uBYTE temp = M_MEM[addr] & 0x07;
+            data |= 0x80;
+            data = data & 0xF8; //first 3 LS bits are Read only
             data |= temp;
             M_MEM[addr] = data;
         }
@@ -164,6 +170,9 @@ namespace FuuGB
 
     void Memory::DMA_write(uWORD addr, uBYTE data)
     {
+        if (addr == 0xFF41) {
+            data |= 0x80;
+        }
         M_MEM[addr] = data;
     }
 
@@ -279,5 +288,17 @@ namespace FuuGB
         uWORD addr = data << 8;
         for(int i = 0; i < 0xA0; i++)
             this->writeMemory(0xFE00+i, this->readMemory(addr+i));
+    }
+
+    std::bitset<8> Memory::getLCDC() {
+        return std::bitset<8>(M_MEM[0xFF40]);
+    }
+
+    std::bitset<8> Memory::getSTAT() {
+        return std::bitset<8>(M_MEM[0xFF41]);
+    }
+    
+    uBYTE Memory::getStatMode() {
+        return M_MEM[0xFF41] & 0x03;
     }
 }
