@@ -134,7 +134,7 @@ namespace FuuGB {
         memoryLabel->setPosition(MEM_LABEL_X, MEM_LABEL_Y);
         cartLabel->setPosition(CART_LABEL_ANCHOR_X, CART_LABEL_ANCHOR_Y);
         flagLabel->setPosition(FLAG_LABEL_X, FLAG_LABEL_Y);
-        
+
         // Format the memory viewer
         currentPage = 1;
 
@@ -183,7 +183,7 @@ namespace FuuGB {
         cartViewer->setTextRow(0,"null");
         char* buffer = new char[256];
 
-        pageViewer->setTextRow(0, itoa(currentPage, buffer, 10));
+        pageViewer->setTextRow(0, SDL_itoa(currentPage, buffer, 10));
         for (auto i = 1; i < 28; i++) {
             sprintf(buffer, "0x%04X 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00", (i*currentPage*0x10));
             memoryViewer->addRow(buffer);
@@ -387,7 +387,7 @@ namespace FuuGB {
 
         char Buffer[256];
 
-        pageViewer->setTextRow(0, itoa(currentPage, Buffer, 10));
+        pageViewer->setTextRow(0, SDL_itoa(currentPage, Buffer, 10));
         UpdatePage();
 
     }
@@ -401,7 +401,7 @@ namespace FuuGB {
 
         char Buffer[256];
 
-        pageViewer->setTextRow(0, itoa(currentPage, Buffer, 10));
+        pageViewer->setTextRow(0, SDL_itoa(currentPage, Buffer, 10));
         UpdatePage();
     }
 }

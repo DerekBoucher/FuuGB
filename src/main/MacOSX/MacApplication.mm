@@ -56,7 +56,6 @@ namespace FuuGB
 #ifdef FUUGB_DEBUG
                     debugger->SetGbRef(gameBoy);
                     debugger->SetCartridgeName();
-                    debugger->UpdateMemory();
 #endif
                 }
                 switch(FUUGB_EVENT.type)
