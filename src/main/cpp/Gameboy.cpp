@@ -65,9 +65,4 @@ namespace FuuGB
     {
         Shared::cv_GB.notify_all();
     }
-#ifdef FUUGB_DEBUG
-    Memory* Gameboy::GetMemory() {
-        return MemoryUnit;
-    }
-#endif
 }

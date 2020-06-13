@@ -1,3 +1,0 @@
-[submodule "vendor/guisan"]
-	path = vendor/guisan
-	url = https://github.com/kallisti5/guisan.git

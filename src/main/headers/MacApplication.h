@@ -9,10 +9,6 @@
 #include "CocoaWindow.h"
 #include "FuuEvent.h"
 
-#ifdef FUUGB_DEBUG
-    #include "Debugger.h"
-#endif
-
 #define WINW 160 * SCALE_FACTOR
 #define WINH 144 * SCALE_FACTOR
 

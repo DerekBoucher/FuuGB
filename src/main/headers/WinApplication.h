@@ -3,10 +3,6 @@
 #ifndef WinApplication_h
 #define WinApplication_h
 
-#ifdef FUUGB_DEBUG
-    #include "Debugger.h"
-#endif
-
 #include "Application.h"
 #include "Utilities.h"
 #include "System.h"
