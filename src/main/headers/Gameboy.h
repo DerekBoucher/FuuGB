@@ -16,12 +16,14 @@ namespace FuuGB
         void Run();
 
     private:
-        CPU*            CpuUnit;
-        Memory*         MemoryUnit;
-        PPU*            PpuUnit;
-        std::thread*    GameboyThread;
-        bool            globalPause;
+        CPU*            cpuUnit;
+        Memory*         memoryUnit;
+        PPU*            ppuUnit;
+        std::thread*    thread;
+        bool            pause;
         bool            running;
+
+        void wait();
     };
 }
 

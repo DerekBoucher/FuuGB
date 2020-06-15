@@ -3,6 +3,8 @@
 
 #include "Core.h"
 
+
+
 namespace FuuGB
 {
     class Cartridge
@@ -11,8 +13,12 @@ namespace FuuGB
         Cartridge(FILE* input);
         virtual ~Cartridge();
     
-        uBYTE*  ROM;
-        bool    ROMM        = false;
+        uBYTE   Rom[0x200000];
+
+        bool    RamEnabled;
+        bool    Mode;
+
+        bool    ROM         = false;
         bool    RAM         = false;
         bool    MBC1        = false;
         bool    MBC2        = false;
@@ -23,14 +29,14 @@ namespace FuuGB
         bool    BATTERY     = false;
         bool    TIMER       = false;
         bool    RUMBLE      = false;
-        bool    extRamEnabled;
-        bool    mode;
-        int     ROM_BANK_CNT;
-        int     RAM_BANK_CNT;
-        int     RAM_SIZE;
-        uBYTE   currentRamBank;
-        uBYTE   currentRomBank;
-        uWORD   RAM_Bank_Base_MBC1;
+
+        unsigned int    CurrentRamBank;
+        unsigned int    CurrentRomBank;
+        unsigned int    RomBankCount;
+        unsigned int    RamBankCount;
+        unsigned int    RamBankSize;
+
+        const unsigned int RomBankSize = 0x4000;
     };
 }
 #endif /* Cartridge_h */

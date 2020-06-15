@@ -26,8 +26,6 @@ def sdl2Lib
 def sdl2Include
 def sdl2Dll
 
-
-
 /*
     Determine Platform Specific Library Paths
  */
@@ -140,10 +138,6 @@ model {
             }
             build {
                 doLast {
-                    copy {
-                        from 'lib/bootrom/DMG_ROM.bin'
-                        into 'build/exe/fuuGBemu'
-                    }
                     if (OperatingSystem.current().isMacOsX()) {
                         copy {
                             from 'lib/SDL2/osx/libSDL2.dylib'

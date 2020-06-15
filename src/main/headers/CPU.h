@@ -3,12 +3,9 @@
 
 #include "Memory.h"
 
-#define CPU_CLOCK_PERIOD_NS 239
-#define CLOCK_FREQUENCY 4194304
-#define CPU_FLAG_BIT_SET(...) FuuGB::CPU::Flag_set(__VA_ARGS__)
-#define CPU_FLAG_BIT_TEST(...) FuuGB::CPU::Flag_test(__VA_ARGS__)
-#define CPU_FLAG_BIT_RESET(...) FuuGB::CPU::Flag_reset(__VA_ARGS__)
-#define CPU_SLEEP_FOR_MACHINE_CYCLE(...) std::this_thread::sleep_for(std::chrono::nanoseconds(CPU_CLOCK_PERIOD_NS * __VA_ARGS__))
+#define CPU_FLAG_BIT_SET(...) FuuGB::CPU::flagSet(__VA_ARGS__)
+#define CPU_FLAG_BIT_TEST(...) FuuGB::CPU::flagTest(__VA_ARGS__)
+#define CPU_FLAG_BIT_RESET(...) FuuGB::CPU::flagReset(__VA_ARGS__)
 
 #define INTERUPT_EN_REGISTER_ADR 0xFFFF
 #define INTERUPT_FLAG_REG 0xFF0F
@@ -33,8 +30,8 @@ namespace FuuGB
         CPU(Memory*);
         virtual ~CPU();
 
-        bool    CpuHalted;
-        bool    CpuPaused;
+        bool    Halted;
+        bool    Paused;
 
         void    Pause();
         void    CheckInterupts();
@@ -43,7 +40,7 @@ namespace FuuGB
         int     ExecuteNextOpCode();
         
     protected:
-        union Register {
+        union reg {
             uWORD data;
             struct {
                 uBYTE lo;
@@ -54,19 +51,19 @@ namespace FuuGB
             }
         };
 
-        Register    AF; //Z N H C X X X X ---- Flag Register
-        Register    BC;
-        Register    DE;
-        Register    HL;
-        uWORD       SP;
-        uWORD       PC;
+        reg     AF; //Z N H C X X X X ---- Flag reg
+        reg     BC;
+        reg     DE;
+        reg     HL;
+        uWORD   SP;
+        uWORD   PC;
 
         bool        IME;
-        int         TimerUpdateCounter;
-        int         DividerRegisterCounter;
-        Memory*     MemoryUnit;
+        int         timerUpdateCounter;
+        int         dividerRegisterCounter;
+        Memory*     memoryUnit;
 
-        enum OpCode
+        enum opCode
         {
             NOP = 0x00, //No instruction
             LD_16IMM_BC = 0x01, //Load immediate 16-bit value nn into BC
@@ -75,31 +72,31 @@ namespace FuuGB
             INC_B = 0x04, //Increment B
             DEC_B = 0x05, //Decrement B
             LD_8IMM_B = 0x06, //Load immediate 8 bit value into B
-            RLC_A = 0x07, //Rotate A register left with carry
+            RLC_A = 0x07, //Rotate A reg left with carry
             LD_SP_adr = 0x08, //Load Stack Pointer address into a given address location
             ADD_BC_HL = 0x09, //Add the contents of BC to HL (BC remains the same)
-            LD_adrBC_A = 0x0A, //Load the contents of the address pointed by BC into register A
+            LD_adrBC_A = 0x0A, //Load the contents of the address pointed by BC into reg A
             DEC_BC = 0x0B, //Decrement BC
             INC_C = 0x0C, //Increment C
             DEC_C = 0x0D, //Decrement C
-            LD_8IMM_C = 0x0E, //Load immediate 8bit value into register C
-            RRC_A = 0x0F, //Rotate register A to the right with carry
+            LD_8IMM_C = 0x0E, //Load immediate 8bit value into reg C
+            RRC_A = 0x0F, //Rotate reg A to the right with carry
             STOP = 0x10, //Stop processor
-            LD_16IMM_DE = 0x11, //Load immediate 16bit value into register pair DE
-            LD_A_adrDE = 0x12, //Load contents of register A into address pointed by DE
+            LD_16IMM_DE = 0x11, //Load immediate 16bit value into reg pair DE
+            LD_A_adrDE = 0x12, //Load contents of reg A into address pointed by DE
             INC_DE = 0x13, //Increment DE
             INC_D = 0x14, //Increment D
             DEC_D = 0x15, //Decrement D
-            LD_8IMM_D = 0x16, //Load immediate 8-bit value into register D
-            RL_A = 0x17, //Rotate register A to the left
+            LD_8IMM_D = 0x16, //Load immediate 8-bit value into reg D
+            RL_A = 0x17, //Rotate reg A to the left
             RJmp_IMM = 0x18, //Jump to address (PC + e) where e can be any value between -127 to +129 (the value of e is contained in the following 8 bit instruction)
             ADD_DE_HL = 0x19, //Add contents of DE to HL
-            LD_adrDE_A = 0x1A, //Load contents of MemoryUnit location pointed by DE into A
+            LD_adrDE_A = 0x1A, //Load contents of memoryUnit location pointed by DE into A
             DEC_DE = 0x1B, //Decrement DE
             INC_E = 0x1C, //Increment E
             DEC_E = 0x1D, //Decrement E
             LD_8IMM_E = 0x1E, // Load 8 bit immediate value into E
-            RR_A = 0x1F, // Rotate register A to the right
+            RR_A = 0x1F, // Rotate reg A to the right
             RJmp_NOTZERO = 0x20, //Jump to address (PC+e) if last result was not zero. -127<e<129. e is specfied in the following instruction
             LD_16IMM_HL = 0x21, // Load immediate 16 bit value into HL
             LDI_A_adrHL = 0x22, // Load Contents of A into address pointed by HL. Increment HL afterwards
@@ -267,7 +264,7 @@ namespace FuuGB
             CALL_NOT_ZERO = 0xC4, //Call routine at location if last result was not zero
             PUSH_BC = 0xC5, //Push contents of BC into the stack
             ADD_IMM_A = 0xC6, //Add immediate value to A
-            RST_0 = 0xC7, //Call routine at MemoryUnit location 0x0000
+            RST_0 = 0xC7, //Call routine at memoryUnit location 0x0000
             RET_ZERO = 0xC8, //return from routine if last result was zero
             RETURN = 0xC9, //Return from routine
             JMP_ZERO = 0xCA, //Jump to absolute location if last result was zero
@@ -275,7 +272,7 @@ namespace FuuGB
             CALL_ZERO = 0xCC, //Call routine at location if last result was zero
             CALL = 0xCD, //Call routine at location.
             ADC_8IMM_A = 0xCE, //Add 8 bit immediate value and CARRY flag to A
-            RST_8 = 0xCF, //Call routine at MemoryUnit location 0x0008
+            RST_8 = 0xCF, //Call routine at memoryUnit location 0x0008
             RET_NOCARRY = 0xD0, //Return from routine if last result did not generate a carry
             POP_DE = 0xD1, //POP contents pointed by SP into DE
             JMP_NOCARRY = 0xD2, //Jump to absolute location if last result did not generate a carry
@@ -283,7 +280,7 @@ namespace FuuGB
             CALL_NOCARRY = 0xD4, //Call routine at location if last result did not generate a carry
             PUSH_DE = 0xD5, //Push contents of DE into the stack
             SUB_8IMM_A = 0xD6, //Subtract immediate 8 bit value from A
-            RST_10 = 0xD7, //Call routine at MemoryUnit location 0x0010
+            RST_10 = 0xD7, //Call routine at memoryUnit location 0x0010
             RET_CARRY = 0xD8, //REturn from routine if last result generated a carry
             RET_INT = 0xD9, //Enable interrupts and return to calling routine
             JMP_CARRY = 0xDA, //Jump to absolute location if last result generated a carry
@@ -291,15 +288,15 @@ namespace FuuGB
             CALL_CARRY = 0xDC, //Call routine at location if last result generated a carry
             //        XX = 0xDD, //No operation
             SBC_8IMM_A = 0xDE, //Subtract 8 bit immediate value and CARRY flag from A
-            RST_18 = 0xDF, //Call routine at MemoryUnit location 0x0018
-            LDH_A_IMMadr = 0xE0, //Load contents of A into MemoryUnit location pointed to by (0xFF00 + 8 bit immediate value)
+            RST_18 = 0xDF, //Call routine at memoryUnit location 0x0018
+            LDH_A_IMMadr = 0xE0, //Load contents of A into memoryUnit location pointed to by (0xFF00 + 8 bit immediate value)
             POP_HL = 0xE1, //Pop stack into HL
-            LDH_A_C = 0xE2, //Load contents of A into MemoryUnit location pointed to by (0xFF00 + C)
+            LDH_A_C = 0xE2, //Load contents of A into memoryUnit location pointed to by (0xFF00 + C)
             //        XX = 0xE3, //No operation
             //        XX = 0xE4, //No operation
             PUSH_HL = 0xE5, //Push contents of HL into the stack
             AND_8IMM_A = 0xE6, //Logical 8 Bit immediate AND A
-            RST_20 = 0xE7, //Call routine at MemoryUnit location 0x0020
+            RST_20 = 0xE7, //Call routine at memoryUnit location 0x0020
             ADD_SIMM_SP = 0xE8, //Add signed 8 bit immediate value to SP
             JMP_adrHL = 0xE9, //Jump to address pointed by HL
             LD_A_adr = 0xEA, //Load A into specified 16 bit address
@@ -307,15 +304,15 @@ namespace FuuGB
             //        XX = 0xEC, //No operation
             //        XX = 0xED, //No operation
             XOR_8IMM_A = 0xEE, //Logical 8 bit immediate XOR A
-            RST_28 = 0xEF, //Call routine at MemoryUnit location 0x0028
-            LDH_IMMadr_A = 0xF0, //Load Contents of MemoryUnit at location (0xFF00 + 8bit immediate) into A
+            RST_28 = 0xEF, //Call routine at memoryUnit location 0x0028
+            LDH_IMMadr_A = 0xF0, //Load Contents of memoryUnit at location (0xFF00 + 8bit immediate) into A
             POP_AF = 0xF1, //Pop stack into AF
             //    XX = 0xF2 , //No operation
             DISABLE_INT = 0xF3, //Disable interupts
             //        XX = 0xF4, //No operation
             PUSH_AF = 0xF5, //Push contents of AF into stack
             OR_8IMM_A = 0xF6, //Logical 8 bit immediate OR A
-            RST_30 = 0xF7, //Call routine at MemoryUnit location 0x0030
+            RST_30 = 0xF7, //Call routine at memoryUnit location 0x0030
             LDHL_S_8IMM_SP_HL = 0xF8, // Add 8 bit immediate value to SP and then save result into HL
             LD_HL_SP = 0xF9, //Load HL into SP
             LD_16adr_A = 0xFA, //Load specified 16 bit address into A
@@ -323,7 +320,7 @@ namespace FuuGB
             //            XX = 0xFC, //No operation
             //        XX = 0xFD, //No operation
             CMP_8IMM_A = 0xFE, //Compare 8 bit immediate to A
-            RST_38 = 0xFF //Call routine at MemoryUnit location 0x0038
+            RST_38 = 0xFF //Call routine at memoryUnit location 0x0038
         };
 
         enum ExtendedOpCode
@@ -586,38 +583,38 @@ namespace FuuGB
             SET_8_A = 0xFF //Set bit 8 in reg n
         };
         
-        void increment16BitRegister(uWORD & reg);
-        void increment8BitRegister(uBYTE & reg);
-        void decrement8BitRegister(uBYTE & reg);
-        void decrement16BitRegister(uWORD & reg);
-        void add16BitRegister(uWORD & host, uWORD operand);
-        void add8BitRegister(uBYTE & host, uBYTE operand);
-        void add8BitRegister(uBYTE & host, uBYTE operand, bool carry);
-        void sub8BitRegister(uBYTE & host, uBYTE operand);
-        void sub8BitRegister(uBYTE & host, uBYTE operand, bool carry);
-        void and8BitRegister(uBYTE & host, uBYTE operand);
-        void xor8BitRegister(uBYTE & host, uBYTE operand);
-        void or8BitRegister(uBYTE & host, uBYTE operand);
-        void cmp8BitRegister(uBYTE host, uBYTE operand);
-        bool TestBitInByte(uBYTE byte, int pos);
-        bool TestBitInWord(uWORD word, int pos);
-        bool checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte);
-        bool checkCarryFromBit_Word(int pos, uWORD word, uWORD addedWord);
-        bool checkBorrowFromBit_Byte(int pos, uBYTE byte, uBYTE subtractedByte);
-        bool checkBorrowFromBit_Word(int pos, uWORD word, uWORD subtractedWord);
-        uBYTE twoComp_Byte(uBYTE byte);
-        uWORD twoComp_Word(uWORD word);        
-        void rotateReg(bool direction, bool withCarry, uBYTE & reg);
-        void shiftReg(bool direction, bool keepMSB, uBYTE & reg);
-        void swapReg(uBYTE & reg);
-        void Flag_set(int flag);
-        void Flag_reset(int flag);
-        bool Flag_test(int flag);
-        void test_bit(int pos, uBYTE reg);
-        void reset_bit(int pos, uBYTE & reg);
-        void set_bit(int pos, uBYTE & reg);
-        void updateDivider(int);
-        void adjustDAA(uBYTE& reg);
+        uWORD   increment16BitRegister(uWORD);
+        uWORD   decrement16BitRegister(uWORD);
+        uWORD   add16BitRegister(uWORD, uWORD);
+        uWORD   twoComp_Word(uWORD);        
+        uBYTE   increment8BitRegister(uBYTE);
+        uBYTE   decrement8BitRegister(uBYTE);
+        uBYTE   add8BitRegister(uBYTE, uBYTE);
+        uBYTE   add8BitRegister(uBYTE, uBYTE, bool);
+        uBYTE   sub8BitRegister(uBYTE, uBYTE);
+        uBYTE   sub8BitRegister(uBYTE, uBYTE, bool);
+        uBYTE   and8BitRegister(uBYTE, uBYTE);
+        uBYTE   xor8BitRegister(uBYTE, uBYTE);
+        uBYTE   or8BitRegister(uBYTE, uBYTE);
+        uBYTE   twoComp_Byte(uBYTE);
+        uBYTE   rotateReg(bool, bool, uBYTE);
+        uBYTE   shiftReg(bool, bool, uBYTE);
+        uBYTE   swapReg(uBYTE);
+        uBYTE   resetBit(int, uBYTE);
+        uBYTE   setBit(int, uBYTE);
+        uBYTE   adjustDAA(uBYTE);
+        void    cmp8BitRegister(uBYTE, uBYTE);
+        void    flagSet(int);
+        void    testBit(int, uBYTE);
+        void    flagReset(int);
+        void    updateDivider(int);
+        bool    flagTest(int);
+        bool    testBitInByte(uBYTE, int);
+        bool    testBitInWord(uWORD, int);
+        bool    checkCarryFromBit_Byte(int, uBYTE, uBYTE);
+        bool    checkCarryFromBit_Word(int, uWORD, uWORD);
+        bool    checkBorrowFromBit_Byte(int, uBYTE, uBYTE);
+        bool    checkBorrowFromBit_Word(int, uWORD, uWORD);
     };
 }
 

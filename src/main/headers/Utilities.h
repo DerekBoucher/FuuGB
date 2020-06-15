@@ -19,11 +19,11 @@ namespace FuuGB {
     static HMENU hFile;
     static HMENU hMenuBar;
 
-    HWND getSDLWinHandle(SDL_Window* win);
-    HINSTANCE getHinst(SDL_Window* win);
-    void ActivateMenu(HWND windowRef);
-    char* OpenFile(SDL_Window* win);
-    Cartridge* GetRom(char* path, SDL_Window* win);
+    HWND        getSDLWinHandle(SDL_Window* win);
+    HINSTANCE   getHinst(SDL_Window* win);
+    void        ActivateMenu(HWND windowRef);
+    char*       OpenFile(SDL_Window* win);
+    Cartridge*  GetRom(char* path, SDL_Window* win);
 }
 
 #endif

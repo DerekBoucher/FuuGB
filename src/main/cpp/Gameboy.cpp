@@ -5,64 +5,78 @@ namespace FuuGB
 {
     Gameboy::Gameboy(SDL_Window* windowPtr, Cartridge* cart)
     {
-        running = true;
-        this->MemoryUnit = new Memory(cart);
-        this->PpuUnit = new PPU(windowPtr, this->MemoryUnit);
-        this->CpuUnit = new CPU(this->MemoryUnit);
-        globalPause = false;
-        GameboyThread = new std::thread(&Gameboy::Run, this);
+        running     = true;
+        memoryUnit  = new Memory(cart);
+        ppuUnit     = new PPU(windowPtr, this->memoryUnit);
+        cpuUnit     = new CPU(this->memoryUnit);
+        pause       = false;
+        thread      = new std::thread(&Gameboy::Run, this);
     }
 
     Gameboy::~Gameboy()
     {
         running = false;
-        GameboyThread->join();
-        delete GameboyThread;
-        delete PpuUnit;
-        delete MemoryUnit;
-        delete CpuUnit;
+        thread->join();
+        delete thread;
+        delete ppuUnit;
+        delete memoryUnit;
+        delete cpuUnit;
     }
 
     void Gameboy::Run()
     {
+        const int MAXCYCLES = 69905;
+
         while (running)
         {
-            const int MAXCYCLES = 69905;
-            int cyclesthisupdate = 0;
-            while (cyclesthisupdate <= MAXCYCLES)
+            int cyclesThisUpdate = 0;
+            while (cyclesThisUpdate <= MAXCYCLES)
             {
                 int cycles = 0;
-                if (globalPause)
+                if (pause)
                 {
-                    std::unique_lock<std::mutex> pauseLock(Shared::mu_GB);
-                    Shared::cv_GB.wait(pauseLock);
-                    pauseLock.unlock();
-                    globalPause = false;
+                    wait();
                 }
-                if (CpuUnit->CpuHalted)
+                if (cpuUnit->Halted)
                 {
-                    CpuUnit->Halt();
+                    cpuUnit->Halt();
                     cycles = 4;
                 }
-                else
-                    cycles = CpuUnit->ExecuteNextOpCode();
-                cyclesthisupdate += cycles;
-                CpuUnit->UpdateTimers(cycles);
-                PpuUnit->UpdateGraphics(cycles);
-                if(!CpuUnit->CpuHalted)
-                    CpuUnit->CheckInterupts();
+                else 
+                {
+                    cycles = cpuUnit->ExecuteNextOpCode();
+                }
+
+                cyclesThisUpdate += cycles;
+
+                cpuUnit->UpdateTimers(cycles);
+                ppuUnit->UpdateGraphics(cycles);
+                memoryUnit->UpdateDmaCycles(cycles);
+
+                if(!cpuUnit->Halted) 
+                {
+                    cpuUnit->CheckInterupts();
+                }
             }
-            PpuUnit->RenderScreen();
+            ppuUnit->RenderScreen();
         }
     }
 
     void Gameboy::Pause()
     {
-        globalPause = true;
+        pause = true;
     }
 
     void Gameboy::Resume()
     {
         Shared::cv_GB.notify_all();
+    }
+
+    void Gameboy::wait()
+    {
+        std::unique_lock<std::mutex> pauseLock(Shared::mu_GB);
+        Shared::cv_GB.wait(pauseLock);
+        pauseLock.unlock();
+        pause = false;
     }
 }

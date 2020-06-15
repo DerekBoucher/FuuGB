@@ -10,8 +10,8 @@
 #define EXT_SIZE_Y          256
 #define PPU_CLOCK_PERIOD_NS 239
 #define TILE_BYTE_LENGTH    16
-#define LCDC_ADR                0xFF40
-#define STAT_ADR                0xFF41
+#define LCDC_ADR            0xFF40
+#define STAT_ADR            0xFF41
 
 namespace FuuGB
 {
@@ -23,8 +23,6 @@ namespace FuuGB
         void DrawScanLine();
         void RenderScreen();
         void UpdateGraphics(int);
-        std::bitset<8> GetSTAT();
-        std::bitset<8> GetLCDC();
 
     private:
         SDL_Renderer*   renderer;
@@ -35,10 +33,12 @@ namespace FuuGB
         std::bitset<8>  LCDC;
         std::bitset<8>  STAT;
 
-        void drawScanline();
-        void renderTiles();
-        void renderSprites();
-        void setLCDStatus();
+        void            drawScanline();
+        void            renderTiles();
+        void            renderSprites();
+        void            setLCDStatus();
+        std::bitset<8>  getStat();
+        std::bitset<8>  getLCDC();
     };
 }
 #endif

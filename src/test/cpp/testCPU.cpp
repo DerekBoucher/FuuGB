@@ -50,12 +50,12 @@ namespace CpuTests {
         
         for (auto i = 0x0; i <= MAX_WORD; i++) {
             expected = i + 1;
-            increment16BitRegister(AF.data);
-            increment16BitRegister(BC.data);
-            increment16BitRegister(DE.data);
-            increment16BitRegister(HL.data);
-            increment16BitRegister(SP);
-            increment16BitRegister(PC);
+            AF.data = increment16BitRegister(AF.data);
+            BC.data = increment16BitRegister(BC.data);
+            DE.data = increment16BitRegister(DE.data);
+            HL.data = increment16BitRegister(HL.data);
+            SP      = increment16BitRegister(SP);
+            PC      = increment16BitRegister(PC);
             assert(AF.data == expected);
             assert(BC.data == expected);
             assert(DE.data == expected);
@@ -72,13 +72,13 @@ namespace CpuTests {
         
         for (auto i = 0x0; i <= MAX_BYTE; i++) {
             expected = i + 1;
-            increment8BitRegister(AF.hi);
-            increment8BitRegister(BC.hi);
-            increment8BitRegister(BC.lo);
-            increment8BitRegister(DE.hi);
-            increment8BitRegister(DE.lo);
-            increment8BitRegister(HL.hi);
-            increment8BitRegister(HL.lo);
+            AF.hi = increment8BitRegister(AF.hi);
+            BC.hi = increment8BitRegister(BC.hi);
+            BC.lo = increment8BitRegister(BC.lo);
+            DE.hi = increment8BitRegister(DE.hi);
+            DE.lo = increment8BitRegister(DE.lo);
+            HL.hi = increment8BitRegister(HL.hi);
+            HL.lo = increment8BitRegister(HL.lo);
             assert(AF.hi == expected);
             assert(BC.hi == expected);
             assert(BC.lo == expected);
@@ -110,12 +110,12 @@ namespace CpuTests {
         
         for (auto i = 0x0; i <= MAX_WORD; i++) {
             expected = MAX_WORD - i;
-            decrement16BitRegister(AF.data);
-            decrement16BitRegister(BC.data);
-            decrement16BitRegister(DE.data);
-            decrement16BitRegister(HL.data);
-            decrement16BitRegister(SP);
-            decrement16BitRegister(PC);
+            AF.data = decrement16BitRegister(AF.data);
+            BC.data = decrement16BitRegister(BC.data);
+            DE.data = decrement16BitRegister(DE.data);
+            HL.data = decrement16BitRegister(HL.data);
+            SP      = decrement16BitRegister(SP);
+            PC      = decrement16BitRegister(PC);
             assert(AF.data == expected);
             assert(BC.data == expected);
             assert(DE.data == expected);
@@ -132,13 +132,13 @@ namespace CpuTests {
         
         for (auto i = 0x0; i <= MAX_BYTE; i++) {
             expected = MAX_BYTE - i;
-            decrement8BitRegister(AF.hi);
-            decrement8BitRegister(BC.hi);
-            decrement8BitRegister(BC.lo);
-            decrement8BitRegister(DE.hi);
-            decrement8BitRegister(DE.lo);
-            decrement8BitRegister(HL.hi);
-            decrement8BitRegister(HL.lo);
+            AF.hi = decrement8BitRegister(AF.hi);
+            BC.hi = decrement8BitRegister(BC.hi);
+            BC.lo = decrement8BitRegister(BC.lo);
+            DE.hi = decrement8BitRegister(DE.hi);
+            DE.lo = decrement8BitRegister(DE.lo);
+            HL.hi = decrement8BitRegister(HL.hi);
+            HL.lo = decrement8BitRegister(HL.lo);
             assert(AF.hi == expected);
             assert(BC.hi == expected);
             assert(BC.lo == expected);
@@ -176,16 +176,16 @@ namespace CpuTests {
             operand1 = std::rand()%0xFFFF;
             operand2 = std::rand()%0xFFFF;
             expected = operand1 + operand2;
-            add16BitRegister(BC.data, operand1);
-            add16BitRegister(BC.data, operand2);
-            add16BitRegister(DE.data, operand1);
-            add16BitRegister(DE.data, operand2);
-            add16BitRegister(HL.data, operand1);
-            add16BitRegister(HL.data, operand2);
-            add16BitRegister(SP, operand1);
-            add16BitRegister(SP, operand2);
-            add16BitRegister(PC, operand1);
-            add16BitRegister(PC, operand2);
+            BC.data = add16BitRegister(BC.data, operand1);
+            BC.data = add16BitRegister(BC.data, operand2);
+            DE.data = add16BitRegister(DE.data, operand1);
+            DE.data = add16BitRegister(DE.data, operand2);
+            HL.data = add16BitRegister(HL.data, operand1);
+            HL.data = add16BitRegister(HL.data, operand2);
+            SP      = add16BitRegister(SP, operand1);
+            SP      = add16BitRegister(SP, operand2);
+            PC      = add16BitRegister(PC, operand1);
+            PC      = add16BitRegister(PC, operand2);
             assert(BC.data == expected);
             assert(DE.data == expected);
             assert(HL.data == expected);
@@ -223,12 +223,12 @@ namespace CpuTests {
             operand1 = std::rand()%0xFF;
             operand2 = std::rand()%0xFF;
             expected = operand1 + operand2;
-            add8BitRegister(BC.hi, operand1);
-            add8BitRegister(BC.hi, operand2);
-            add8BitRegister(DE.hi, operand1);
-            add8BitRegister(DE.hi, operand2);
-            add8BitRegister(HL.hi, operand1);
-            add8BitRegister(HL.hi, operand2);
+            BC.hi = add8BitRegister(BC.hi, operand1);
+            BC.hi = add8BitRegister(BC.hi, operand2);
+            DE.hi = add8BitRegister(DE.hi, operand1);
+            DE.hi = add8BitRegister(DE.hi, operand2);
+            HL.hi = add8BitRegister(HL.hi, operand1);
+            HL.hi = add8BitRegister(HL.hi, operand2);
             assert(BC.hi == expected);
             assert(DE.hi == expected);
             assert(HL.hi == expected);
@@ -277,7 +277,7 @@ namespace CpuTests {
                 c1 = 0x0;
             }
 
-            add8BitRegister(BC.hi, operand1, CPU_FLAG_BIT_TEST(C_FLAG));
+            BC.hi = add8BitRegister(BC.hi, operand1, CPU_FLAG_BIT_TEST(C_FLAG));
 
             if ((AF.lo & 0x10) > 0) {
                 c2 = 0x1;
@@ -286,7 +286,7 @@ namespace CpuTests {
                 c2 = 0x0;
             }
 
-            add8BitRegister(BC.hi, operand2, CPU_FLAG_BIT_TEST(C_FLAG));
+            BC.hi = add8BitRegister(BC.hi, operand2, CPU_FLAG_BIT_TEST(C_FLAG));
             assert(BC.hi == expected);
 
             if ((((operand1 + c1) & 0x0F) + ((operand2 + c2) & 0x0F)) > 0x0F) {
@@ -329,7 +329,7 @@ namespace CpuTests {
 
             BC.hi = operand1;
 
-            sub8BitRegister(BC.hi, operand2);
+            BC.hi = sub8BitRegister(BC.hi, operand2);
             assert(BC.hi == expected);
 
             if (((operand1 & 0x0F) < (operand2 & 0x0F))) {
@@ -383,7 +383,7 @@ namespace CpuTests {
             expected = operand1 - operand2 - c;
             BC.hi = operand1;
 
-            sub8BitRegister(BC.hi, operand2, CPU_FLAG_BIT_TEST(C_FLAG));
+            BC.hi = sub8BitRegister(BC.hi, operand2, CPU_FLAG_BIT_TEST(C_FLAG));
             assert(BC.hi == expected);
 
             if (((operand1 & 0x0F) < ((operand2 + c) & 0x0F))) {
@@ -426,7 +426,7 @@ namespace CpuTests {
             expected = operand1 & operand2;
             BC.hi = operand1;
 
-            and8BitRegister(BC.hi, operand2);
+            BC.hi = and8BitRegister(BC.hi, operand2);
             assert(BC.hi == expected);
 
             if (expected == 0x0) {
@@ -459,7 +459,7 @@ namespace CpuTests {
             expected = operand1 ^ operand2;
             BC.hi = operand1;
 
-            xor8BitRegister(BC.hi, operand2);
+            BC.hi = xor8BitRegister(BC.hi, operand2);
             assert(BC.hi == expected);
 
             if (expected == 0x0) {
@@ -492,7 +492,7 @@ namespace CpuTests {
             expected = operand1 | operand2;
             BC.hi = operand1;
 
-            or8BitRegister(BC.hi, operand2);
+            BC.hi = or8BitRegister(BC.hi, operand2);
             assert(BC.hi == expected);
 
             if (expected == 0x0) {
@@ -553,14 +553,14 @@ namespace CpuTests {
         resetRegisters();
         uBYTE operand = 0x7B;
 
-        assert(TestBitInByte(operand, 0) == 1);
-        assert(TestBitInByte(operand, 1) == 1);
-        assert(TestBitInByte(operand, 2) == 0);
-        assert(TestBitInByte(operand, 3) == 1);
-        assert(TestBitInByte(operand, 4) == 1);
-        assert(TestBitInByte(operand, 5) == 1);
-        assert(TestBitInByte(operand, 6) == 1);
-        assert(TestBitInByte(operand, 7) == 0);
+        assert(testBitInByte(operand, 0) == 1);
+        assert(testBitInByte(operand, 1) == 1);
+        assert(testBitInByte(operand, 2) == 0);
+        assert(testBitInByte(operand, 3) == 1);
+        assert(testBitInByte(operand, 4) == 1);
+        assert(testBitInByte(operand, 5) == 1);
+        assert(testBitInByte(operand, 6) == 1);
+        assert(testBitInByte(operand, 7) == 0);
     }
 
     void Test::test_TestBitInWord() {
@@ -568,22 +568,22 @@ namespace CpuTests {
         resetRegisters();
         uWORD operand = 0x7B7B;
 
-        assert(TestBitInWord(operand, 0) == 1);
-        assert(TestBitInWord(operand, 1) == 1);
-        assert(TestBitInWord(operand, 2) == 0);
-        assert(TestBitInWord(operand, 3) == 1);
-        assert(TestBitInWord(operand, 4) == 1);
-        assert(TestBitInWord(operand, 5) == 1);
-        assert(TestBitInWord(operand, 6) == 1);
-        assert(TestBitInWord(operand, 7) == 0);
-        assert(TestBitInWord(operand, 8) == 1);
-        assert(TestBitInWord(operand, 9) == 1);
-        assert(TestBitInWord(operand, 10) == 0);
-        assert(TestBitInWord(operand, 11) == 1);
-        assert(TestBitInWord(operand, 12) == 1);
-        assert(TestBitInWord(operand, 13) == 1);
-        assert(TestBitInWord(operand, 14) == 1);
-        assert(TestBitInWord(operand, 15) == 0);
+        assert(testBitInWord(operand, 0) == 1);
+        assert(testBitInWord(operand, 1) == 1);
+        assert(testBitInWord(operand, 2) == 0);
+        assert(testBitInWord(operand, 3) == 1);
+        assert(testBitInWord(operand, 4) == 1);
+        assert(testBitInWord(operand, 5) == 1);
+        assert(testBitInWord(operand, 6) == 1);
+        assert(testBitInWord(operand, 7) == 0);
+        assert(testBitInWord(operand, 8) == 1);
+        assert(testBitInWord(operand, 9) == 1);
+        assert(testBitInWord(operand, 10) == 0);
+        assert(testBitInWord(operand, 11) == 1);
+        assert(testBitInWord(operand, 12) == 1);
+        assert(testBitInWord(operand, 13) == 1);
+        assert(testBitInWord(operand, 14) == 1);
+        assert(testBitInWord(operand, 15) == 0);
     }
 
     void Test::test_twoComp_Byte() {
@@ -617,22 +617,22 @@ namespace CpuTests {
         uBYTE expectedRightCarry[] = {0xC0, 0x60, 0x30, 0x18, 0x0C, 0x06, 0x03, 0x01};
 
         for (auto i = 0x0; i < 8; i++) {
-            rotateReg(true, false, operand);
+            operand = rotateReg(true, false, operand);
             assert(operand == expectedLeft[i]);
         }
         for (auto i = 0x0; i < 8; i++) {
-            rotateReg(false, false, operand);
+            operand = rotateReg(false, false, operand);
             assert(operand == expectedRight[i]);
         }
 
         AF.lo = 0x10;
 
         for (auto i = 0x0; i < 8; i++) {
-            rotateReg(true, true, operand);
+            operand = rotateReg(true, true, operand);
             assert(operand == expectedLeftCarry[i]);
         }
         for (auto i = 0x0; i < 8; i++) {
-            rotateReg(false, true, operand);
+            operand = rotateReg(false, true, operand);
             assert(operand == expectedRightCarry[i]);
         }
     }
@@ -646,7 +646,7 @@ namespace CpuTests {
         uBYTE expectedRightMSB[] = {0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0xFF, 0xFF};
 
         for (auto i = 0x0; i < 8; i++) {
-            shiftReg(true, false, operand);
+            operand = shiftReg(true, false, operand);
             assert(operand == expectedLeft[i]);
             if(expectedLeft[i] == 0x00) {
                 assert(CPU_FLAG_BIT_TEST(C_FLAG) == 1);
@@ -663,7 +663,7 @@ namespace CpuTests {
         }
         operand = 0x80;
         for (auto i = 0x0; i < 8; i++) {
-            shiftReg(false, false, operand);
+            operand = shiftReg(false, false, operand);
             assert(operand == expectedRight[i]);
             if(expectedRight[i] == 0x00) {
                 assert(CPU_FLAG_BIT_TEST(C_FLAG) == 1);
@@ -682,7 +682,7 @@ namespace CpuTests {
         AF.lo = 0x10;
         operand = 0x80;
         for (auto i = 0x0; i < 8; i++) {
-            shiftReg(false, true, operand);
+            operand = shiftReg(false, true, operand);
             assert(operand == expectedRightMSB[i]);
             if(i == 7) {
                 assert(CPU_FLAG_BIT_TEST(C_FLAG) == 1);
@@ -706,7 +706,7 @@ namespace CpuTests {
         uBYTE operand = 0xF0;
         uBYTE expected = 0x0F;
 
-        swapReg(operand);
+        operand = swapReg(operand);
         assert(operand == expected);
         assert(CPU_FLAG_BIT_TEST(C_FLAG) == 0);
         assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
@@ -721,7 +721,7 @@ namespace CpuTests {
         uBYTE operand = 0x0F;
         uBYTE expected = 0x15;
 
-        adjustDAA(operand);
+        operand = adjustDAA(operand);
         assert(operand == expected);
         assert(CPU_FLAG_BIT_TEST(C_FLAG) == 0);
         assert(CPU_FLAG_BIT_TEST(H_FLAG) == 0);
@@ -777,7 +777,7 @@ namespace CpuTests {
         tempRomFile.write((char*)testProgram, sizeof(testProgram));
         tempRomFile.close();
         FILE* tempRom = fopen("temprom.bin", "rb");
-        MemoryUnit = new FuuGB::Memory(new FuuGB::Cartridge(tempRom));
+        memoryUnit = new FuuGB::Memory(new FuuGB::Cartridge(tempRom));
         PC = 0x0000;
         AF.hi = 0x67;
         SP = 0x000D;
@@ -789,7 +789,7 @@ namespace CpuTests {
         assert(ExecuteNextOpCode() == 12);
         assert(BC.data == 0x1110);
         assert(ExecuteNextOpCode() == 8);
-        assert(MemoryUnit->DMA_read(BC.data) == 0x0);
+        assert(memoryUnit->DmaRead(BC.data) == 0x0);
         assert(ExecuteNextOpCode() == 8);
         assert(BC.data == 0x1111);
         assert(ExecuteNextOpCode() == 4);
@@ -801,10 +801,10 @@ namespace CpuTests {
         assert(ExecuteNextOpCode() == 4);
         assert(AF.hi == 0xCE);
         assert(ExecuteNextOpCode() == 20);
-        assert(MemoryUnit->DMA_read(0xC001) == 0xC0);
+        assert(memoryUnit->DmaRead(0xC001) == 0xC0);
         assert(ExecuteNextOpCode() == 8);
         assert(HL.data == 0x9911);
-        MemoryUnit->DMA_write(BC.data, 0x71);
+        memoryUnit->DmaWrite(BC.data, 0x71);
         assert(ExecuteNextOpCode() == 8);
         assert(AF.hi == 0x71);
         assert(ExecuteNextOpCode() == 8);
@@ -820,7 +820,7 @@ namespace CpuTests {
         assert(ExecuteNextOpCode() == 12);
         assert(DE.data == 0x8179);
         assert(ExecuteNextOpCode() == 8);
-        assert(MemoryUnit->DMA_read(DE.data) == AF.hi);
+        assert(memoryUnit->DmaRead(DE.data) == AF.hi);
         assert(ExecuteNextOpCode() == 8);
         assert(DE.data == 0x817A);
         assert(ExecuteNextOpCode() == 4);
@@ -837,6 +837,6 @@ namespace CpuTests {
 
         fclose(tempRom);
         remove("temprom.bin");
-        delete MemoryUnit;
+        delete memoryUnit;
     }
 }

@@ -1,18 +1,22 @@
 #include "Core.h"
 #include "Cartridge.h"
 
-namespace FuuGB
+namespace FuuGB 
 {
-    Cartridge::Cartridge(FILE* input)
+    Cartridge::Cartridge(FILE* input) 
     {
-        ROM = new uBYTE[0x200000];
-        memset(this->ROM, 0x0, 0x200000);
-        fread(this->ROM, 0x1, 0x200000, input);
+        // Read in rom file
+        memset(Rom, 0x0, 0x200000);
+        fread(Rom, 0x1, 0x200000, input);
 
-        switch (ROM[0x147])
-        {
+        // Define default rom and ram bank
+        CurrentRomBank = 0x01;
+        CurrentRamBank = 0x01;
+
+        // Determine cart type
+        switch (Rom[0x147]) {
         case 0x00:
-            ROMM = true;
+            ROM = true;
             break;
         case 0x01:
             MBC1 = true;
@@ -34,11 +38,11 @@ namespace FuuGB
             BATTERY = true;
             break;
         case 0x08:
-            ROMM = true;
+            ROM = true;
             RAM = true;
             break;
         case 0x09:
-            ROMM = true;
+            ROM = true;
             RAM = true;
             BATTERY = true;
             break;
@@ -136,72 +140,80 @@ namespace FuuGB
             break;
         }
 
-        switch (ROM[0x148])
-        {
+        // Determine amount and size of the rom banks
+        switch (Rom[0x148]) {
         case 0x00:
-            ROM_BANK_CNT = 0;
+            RomBankCount = 0;
             break;
         case 0x01:
-            ROM_BANK_CNT = 4;
+            RomBankCount = 4;
             break;
         case 0x02:
-            ROM_BANK_CNT = 8;
+            RomBankCount = 8;
             break;
         case 0x03:
-            ROM_BANK_CNT = 16;
+            RomBankCount = 16;
             break;
         case 0x04:
-            ROM_BANK_CNT = 32;
+            RomBankCount = 32;
             break;
         case 0x05:
-            ROM_BANK_CNT = 64;
+            RomBankCount = 64;
             break;
         case 0x06:
-            ROM_BANK_CNT = 128;
+            RomBankCount = 128;
             break;
         case 0x07:
-            ROM_BANK_CNT = 256;
+            RomBankCount = 256;
             break;
         case 0x52:
-            ROM_BANK_CNT = 72;
+            RomBankCount = 72;
             break;
         case 0x53:
-            ROM_BANK_CNT = 80;
+            RomBankCount = 80;
             break;
         case 0x54:
-            ROM_BANK_CNT = 96;
+            RomBankCount = 96;
             break;
         default:
-#ifndef FUUGB_UNIT_TEST
-            //Invalid Value
             exit(-8);
-#endif
             break;
         }
 
-        switch (ROM[0x149])
-        {
+        // Determine amount and size of the ram banks
+        switch (Rom[0x149]) {
         case 0x00:
-            RAM_SIZE = 2;
-            RAM_BANK_CNT = 0;
+            RamBankSize = 0;
+            RamBankCount = 0;
             break;
         case 0x01:
-            RAM_SIZE = 8;
-            RAM_BANK_CNT = 0;
+            RamBankSize = 0x800;
+            RamBankCount = 1;
+            break;
+        case 0x02:
+            RamBankSize = 0x2000;
+            RamBankCount = 1;
+            break;
         case 0x03:
-            RAM_SIZE = 32;
-            RAM_BANK_CNT = 4;
+            RamBankSize - 0x2000;
+            RamBankCount = 4;
+            break;
+        case 0x04:
+            RamBankSize = 0x2000;
+            RamBankCount = 16;
+            break;
+        case 0x05:
+            RamBankSize = 0x2000;
+            RamBankCount = 8;
         default:
-            //Invalid Value
-            //exit(-9);
+            exit(-9);
             break;
         }
-        extRamEnabled = false;
-        mode = false;
+
+        RamEnabled = false;
+        Mode = false;
     }
 
-    Cartridge::~Cartridge()
-    {
-        delete[] ROM;
+    Cartridge::~Cartridge() {
     }
 }

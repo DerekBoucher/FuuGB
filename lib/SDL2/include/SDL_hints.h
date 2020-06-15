@@ -841,7 +841,7 @@ extern "C" {
  *
  *  Internally, Windows Phone sends back button events as parameters to
  *  special back-button-press callback functions.  Apps that need to respond
- *  to back-button-press events are expected to register one or more
+ *  to back-button-press events are expected to reg one or more
  *  callback functions for such, shortly after being launched (during the
  *  app's initialization phase).  After the back button is pressed, the OS
  *  will invoke these callbacks.  If the app's callback(s) do not explicitly
@@ -864,7 +864,7 @@ extern "C" {
  *  being pressed.
  *
  *  In order to get notified when a back button is pressed, SDL apps should
- *  register a callback function with SDL_AddEventWatch(), and have it listen
+ *  reg a callback function with SDL_AddEventWatch(), and have it listen
  *  for SDL_KEYDOWN events that have a scancode of SDL_SCANCODE_AC_BACK.
  *  (Alternatively, SDL_KEYUP events can be listened-for.  Listening for
  *  either event type is suitable.)  Any value of SDL_HINT_WINRT_HANDLE_BACK_BUTTON

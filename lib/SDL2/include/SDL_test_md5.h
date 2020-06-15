@@ -35,7 +35,7 @@
  ** Revised: 12/27/90 SRD,AJ,BSK,JT Reference C version               **
  ** Revised (for MD5): RLR 4/27/91                                    **
  **   -- G modified to have y&~z instead of y&z                       **
- **   -- FF, GG, HH modified to add in last register done             **
+ **   -- FF, GG, HH modified to add in last reg done             **
  **   -- Access pattern: round 2 works mod 5, round 3 works mod 3     **
  **   -- distinct additive constant for each step                     **
  **   -- round 4 added, working mod 7                                 **
