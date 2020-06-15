@@ -114,8 +114,7 @@ model {
                     linker.args         "-framework",
                                         "Cocoa",
                                         "-framework",
-                                        "AppKit",
-                                        "-framework"
+                                        "AppKit"
                 }
                 if(OperatingSystem.current().isWindows()) {
                     cppCompiler.args    "/FS",
