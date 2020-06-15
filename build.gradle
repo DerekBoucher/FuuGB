@@ -29,14 +29,14 @@ def sdl2Dll
 /*
     Determine Platform Specific Library Paths
  */
- sdl2Include = 'lib/SDL2/include'
+ sdl2Include = 'lib/sdl2/include'
  
 if (OperatingSystem.current().isWindows()) {
-    sdl2Lib = file(OperatingSystem.current().getStaticLibraryName('lib/SDL2/windows/x64/SDL2'))
-    sdl2Dll = file(OperatingSystem.current().getSharedLibraryName('lib/SDL2/windows/x64/SDL2'))
+    sdl2Lib = file(OperatingSystem.current().getStaticLibraryName('lib/sdl2/windows/x64/sdl2'))
+    sdl2Dll = file(OperatingSystem.current().getSharedLibraryName('lib/sdl2/windows/x64/sdl2'))
 }
 if (OperatingSystem.current().isMacOsX()) {
-    sdl2Lib = file(OperatingSystem.current().getSharedLibraryName('lib/SDL2/osx/SDL2'))
+    sdl2Lib = file(OperatingSystem.current().getSharedLibraryName('lib/sdl2/osx/sdl2'))
 }
 
 /*
@@ -57,7 +57,7 @@ model {
     }
     repositories {
         libs(PrebuiltLibraries) {
-            SDL2 {
+            sdl2 {
                 headers.srcDirs sdl2Include
                 binaries.withType(SharedLibraryBinary) {
                     sharedLibraryFile = sdl2Lib
@@ -82,7 +82,7 @@ model {
                             srcDirs "src/main/headers"
                             include "**/*.h", "**/*.hpp"
                         }
-                        lib library: "SDL2", linkage: "shared"
+                        lib library: "sdl2", linkage: "shared"
                     }
                 }
                 if (OperatingSystem.current().isWindows()) {
@@ -96,7 +96,7 @@ model {
                             srcDirs "src/main/headers"
                             include "**/*.h", "**/*.hpp"
                         }
-                        lib library: "SDL2", linkage: "shared"
+                        lib library: "sdl2", linkage: "shared"
                     }
                 }
             }
@@ -111,8 +111,7 @@ model {
                                         "-pthread",
                                         "-O3"
 
-                    linker.args         "-L./lib/SDL2_Image/osx",       
-                                        "-framework",
+                    linker.args         "-framework",
                                         "Cocoa",
                                         "-framework",
                                         "AppKit",
@@ -146,7 +145,7 @@ model {
                     }
                     if (OperatingSystem.current().isWindows()) {
                         copy {
-                            from 'lib/sdl2/windows/x64/SDL2.dll'
+                            from 'lib/sdl2/windows/x64/sdl2.dll'
                             into 'build/exe/fuuGBemu'
                         }
                     }
@@ -212,7 +211,7 @@ model {
                     }
                     if (OperatingSystem.current().isWindows()) {
                         copy {
-                            from 'lib/sdl2/windows/x64/SDL2.dll'
+                            from 'lib/sdl2/windows/x64/sdl2.dll'
                             into 'build/exe/test'
                         }
                     }
@@ -228,7 +227,7 @@ model {
                     }
                     if (OperatingSystem.current().isWindows()) {
                         copy {
-                            from 'lib/sdl2/windows/x64/SDL2.dll'
+                            from 'lib/sdl2/windows/x64/sdl2.dll'
                             into 'build/install/test/lib'
                         }
                     } 
