@@ -75,7 +75,7 @@ model {
                     targetPlatform "macosx_x64"
                     objcpp {
                         source {
-                            srcDirs "src/main/cpp", "src/main/MacOSX"
+                            srcDirs "src/main/cpp", "src/main/osx"
                             include "**/*.mm", "**/*.m", "**/*.cpp"
                         }
                         exportedHeaders {
@@ -89,7 +89,7 @@ model {
                     targetPlatform "windows_x64"
                     cpp {
                         source {
-                            srcDirs "src/main/cpp", "src/main/Windows"
+                            srcDirs "src/main/cpp", "src/main/windows"
                             include "**/*.cpp"
                         }
                         exportedHeaders {
@@ -111,7 +111,7 @@ model {
                                         "-pthread",
                                         "-O3"
 
-                    linker.args         "-L./lib/SDL2_Image/MacOsX",       
+                    linker.args         "-L./lib/SDL2_Image/osx",       
                                         "-framework",
                                         "Cocoa",
                                         "-framework",
@@ -140,13 +140,13 @@ model {
                 doLast {
                     if (OperatingSystem.current().isMacOsX()) {
                         copy {
-                            from 'lib/SDL2/osx/libSDL2.dylib'
+                            from 'lib/sdl2/osx/libSDL2.dylib'
                             into 'build/exe/fuuGBemu'
                         }
                     }
                     if (OperatingSystem.current().isWindows()) {
                         copy {
-                            from 'lib/SDL2/windows/x64/SDL2.dll'
+                            from 'lib/sdl2/windows/x64/SDL2.dll'
                             into 'build/exe/fuuGBemu'
                         }
                     }
@@ -206,13 +206,13 @@ model {
                 doLast {
                     if (OperatingSystem.current().isMacOsX()) {
                         copy {
-                            from 'lib/SDL2/osx/libSDL2.dylib'
+                            from 'lib/sdl2/osx/libSDL2.dylib'
                             into 'build/exe/test'
                         }
                     }
                     if (OperatingSystem.current().isWindows()) {
                         copy {
-                            from 'lib/SDL2/windows/x64/SDL2.dll'
+                            from 'lib/sdl2/windows/x64/SDL2.dll'
                             into 'build/exe/test'
                         }
                     }
@@ -222,13 +222,13 @@ model {
                 doLast {
                     if (OperatingSystem.current().isMacOsX()) {
                         copy {
-                            from 'lib/SDL2/osx/libSDL2.dylib'
+                            from 'lib/sdl2/osx/libSDL2.dylib'
                             into 'build/install/test/lib'
                         }
                     }
                     if (OperatingSystem.current().isWindows()) {
                         copy {
-                            from 'lib/SDL2/windows/x64/SDL2.dll'
+                            from 'lib/sdl2/windows/x64/SDL2.dll'
                             into 'build/install/test/lib'
                         }
                     } 
