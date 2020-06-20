@@ -1,3 +1,4 @@
+#ifdef FUUGB_SYSTEM_MACOS
 #include "MacApplication.h"
 
 namespace FuuGB
@@ -70,3 +71,4 @@ namespace FuuGB
         FUUGB_QUIT();
     }
 }
+#endif

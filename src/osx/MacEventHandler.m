@@ -1,3 +1,4 @@
+#ifdef FUUGB_SYSTEM_MACOS
 #import "MacEventHandler.h"
 
 @implementation MacEventHandler
@@ -30,3 +31,4 @@
 }
 
 @end
+#endif

@@ -1,3 +1,4 @@
+#ifdef FUUGB_SYSTEM_MACOS
 #import "CocoaWindow.h"
 
 @implementation CocoaWindow
@@ -26,3 +27,4 @@
 }
 
 @end
+#endif

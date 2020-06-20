@@ -9,10 +9,6 @@
         #include <Cocoa/Cocoa.h>
     #endif
 
-    #ifdef FUUGB_SYSTEM_LINUX
-        #include <condition_variable>
-    #endif
-
     #ifndef FUUGB_SYSTEM_MACOS
         #include <iostream>
         #include <string>
@@ -22,6 +18,10 @@
         #include <mutex>
         #include <chrono>
         #include <cassert>
+    #endif
+
+    #ifdef FUUGB_SYSTEM_LINUX
+        #include <condition_variable>
     #endif
 
     #include <SDL_syswm.h>
