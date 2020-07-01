@@ -37,6 +37,33 @@ namespace FuuGB
 
     int CPU::ExecuteNextOpCode()
     {
+        if(PC == 0x100) {
+            printf("");
+        }
+        if(PC == 0xC246) {
+            printf("");
+        }
+        if(PC == 0xC24F) {
+            printf("");
+        }
+        if(PC == 0xC252) {
+            printf("");
+        }
+        if (PC == 0xC36B) {
+            printf("");
+        }
+        if (PC == 0xC3AE) {
+            printf("");
+        }
+        if (PC == 0xC3FC) {
+            printf("");
+        }
+        if (PC == 0xC38F) {
+            printf("");
+        }
+        if (PC == 0xC36B) {
+            printf("");
+        }
         timerUpdateCounter = 0;
         uBYTE byte = memoryUnit->Read(PC++);
         uBYTE SP_data = 0x0;
@@ -3424,15 +3451,13 @@ namespace FuuGB
     }
 
     bool CPU::testBitInByte(uBYTE byte, int pos)
-    {
-        std::bitset<8> BitField(byte);
-        return BitField.test(pos);
+    {;
+        return (byte & (1 << pos));
     }
 
     bool CPU::testBitInWord(uWORD word, int pos)
     {
-        std::bitset<16> BitField(word);
-        return BitField.test(pos);
+        return (word & (1 << pos));
     }
 
     bool CPU::checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte)
@@ -3450,10 +3475,10 @@ namespace FuuGB
             case 7: mask = 0x7F; break;
         }
         
-        std::bitset<8> a(byte & mask);
-        std::bitset<8> b(addedByte & mask);
+        uBYTE a = (byte & mask);
+        uBYTE b = (addedByte & mask);
         
-        if(a.to_ulong() + b.to_ulong() > mask)
+        if(a + b > mask)
             return true;
         else
             return false;
@@ -3482,10 +3507,10 @@ namespace FuuGB
             case 15: mask = 0x7FFF; break;
         }
         
-        std::bitset<16> a(word & mask);
-        std::bitset<16> b(addedWord & mask);
+        uWORD a = (word & mask);
+        uWORD b = (addedWord & mask);
         
-        if(a.to_ulong() + b.to_ulong() > mask)
+        if(a + b > mask)
             return true;
         else
             return false;
@@ -3506,10 +3531,10 @@ namespace FuuGB
         case 7: mask = 0x7F; break;
         }
 
-        byte = byte & mask;
-        subtractedByte = subtractedByte & mask;
+        uBYTE a = (byte & mask);
+        uBYTE b = (subtractedByte & mask);
 
-        if (byte < subtractedByte)
+        if (a < b)
             return true;
         else
             return false;
@@ -3538,10 +3563,10 @@ namespace FuuGB
         case 15: mask = 0x7FFF; break;
         }
 
-        std::bitset<16> a(word & mask);
-        std::bitset<16> b(subtractedWord & mask);
+        uWORD a = (word & mask);
+        uWORD b = (subtractedWord & mask);
 
-        if (a.to_ulong() < b.to_ulong())
+        if (a < b)
             return true;
         else
             return false;
@@ -3549,24 +3574,12 @@ namespace FuuGB
 
     uBYTE CPU::twoComp_Byte(uBYTE byte)
     {
-        std::bitset<8> twoCompByte(byte);
-
-        twoCompByte.flip();
-        
-        uBYTE result = twoCompByte.to_ulong() + 0x01;
-
-        return result;
+        return (~byte) + 0x01;
     }
 
     uWORD CPU::twoComp_Word(uWORD word)
     {
-        std::bitset<16> twoCompWord(word);
-
-        twoCompWord.flip();
-
-        uWORD result = twoCompWord.to_ulong() + 0x01;
-
-        return result;
+        return (~word) + 0x01;
     }
 
     uBYTE CPU::add8BitRegister(uBYTE host, uBYTE operand)
@@ -3743,11 +3756,10 @@ namespace FuuGB
 
     uBYTE CPU::rotateReg(bool direction, bool withCarry, uBYTE reg)
     {
-        std::bitset<8> BitField(reg);
         if (direction) //left
         {
             bool oldCarry = CPU_FLAG_BIT_TEST(C_FLAG);
-            bool MSB = BitField[7];
+            bool MSB = (reg & (1 << 7));
 
             if (MSB)
                 CPU_FLAG_BIT_SET(C_FLAG);
@@ -3766,7 +3778,7 @@ namespace FuuGB
         else //Right
         {
             bool oldCarry = CPU_FLAG_BIT_TEST(C_FLAG);
-            bool LSB = BitField[0];
+            bool LSB = (reg & (1 << 0));
 
             if (LSB)
                 CPU_FLAG_BIT_SET(C_FLAG);
@@ -3799,12 +3811,10 @@ namespace FuuGB
 
     uBYTE CPU::shiftReg(bool direction, bool keepMSB, uBYTE reg)
     {
-        std::bitset<8> BitField(reg);
+        bool oldMSB = (reg & (1 << 7));
         if (direction) //left
         {
-            bool oldMSB = BitField[7];
-
-            if (BitField[7])
+            if (oldMSB)
                 CPU_FLAG_BIT_SET(C_FLAG);
             else
                 CPU_FLAG_BIT_RESET(C_FLAG);
@@ -3813,8 +3823,7 @@ namespace FuuGB
         }
         else //Right
         {
-            bool oldMSB = BitField[7];
-            if (BitField[0])
+            if (reg & (1 << 0))
                 CPU_FLAG_BIT_SET(C_FLAG);
             else
                 CPU_FLAG_BIT_RESET(C_FLAG);
@@ -3844,24 +3853,9 @@ namespace FuuGB
 
     uBYTE CPU::swapReg(uBYTE reg)
     {
-        std::bitset<8> BitField(reg);
-        bool lowNibble[4];
-        bool hiNibble[4];
+        uBYTE result = ((reg & 0x0F) << 4) | ((reg & 0xF0) >> 4);
 
-        for (int i = 0; i < 4; ++i)
-            lowNibble[i] = BitField[i];
-        for (int i = 0; i < 4; ++i)
-            hiNibble[i] = BitField[i + 4];
-
-        for (int i = 0; i < 4; ++i)
-            BitField[i] = hiNibble[i];
-
-        for (int i = 0; i < 4; ++i)
-            BitField[i + 4] = lowNibble[i];
-
-        reg = BitField.to_ulong();
-
-        if (reg == 0x00)
+        if (result == 0x00)
             CPU_FLAG_BIT_SET(Z_FLAG);
         else
             CPU_FLAG_BIT_RESET(Z_FLAG);
@@ -3871,33 +3865,41 @@ namespace FuuGB
         CPU_FLAG_BIT_RESET(H_FLAG);
         CPU_FLAG_BIT_RESET(C_FLAG);
 
-        return reg;
+        return result;
     }
 
     void CPU::flagSet(int flag)
     {
-        std::bitset<8> FlagBits(AF.lo);
-        FlagBits.set(flag);
-        AF.lo = FlagBits.to_ulong();
+        uBYTE result = AF.lo;
+        result |= (1 << flag);
+        AF.lo = result;
     }
 
     void CPU::flagReset(int flag)
     {
-        std::bitset<8> FlagBits(AF.lo);
-        FlagBits.reset(flag);
-        AF.lo = FlagBits.to_ulong();
+        uBYTE mask = 0x00;
+        for (uBYTE i = 0; i < 8; i++) 
+        {
+            if (i == flag) 
+            {
+                mask |= (0 << i);
+            }
+            else
+            {
+                mask |= (1 << i);
+            }
+        }
+        AF.lo &= mask;
     }
 
     bool CPU::flagTest(int flag)
     {
-        std::bitset<8> FlagBits(AF.lo);
-        return FlagBits.test(flag);
+        return (AF.lo & (1 << flag));
     }
 
     void CPU::testBit(int pos, uBYTE reg)
     {
-        std::bitset<8> BitField(reg);
-        if (!BitField.test(pos))
+        if (!(reg & (1 << pos)))
             CPU_FLAG_BIT_SET(Z_FLAG);
         else
             CPU_FLAG_BIT_RESET(Z_FLAG);
@@ -3908,21 +3910,25 @@ namespace FuuGB
 
     uBYTE CPU::resetBit(int pos, uBYTE reg)
     {
-        std::bitset<8> BitField(reg);
-        BitField.reset(pos);
+        uBYTE mask = 0x00;
+        for (uBYTE i = 0; i < 8; i++) 
+        {
+            if (i == pos) 
+            {
+                mask |= (0 << i);
+            }
+            else
+            {
+                mask |= (1 << i);
+            }
+        }
 
-        reg = BitField.to_ulong();
-
-        return reg;
+        return (reg & mask);
     }
 
     uBYTE CPU::setBit(int pos, uBYTE reg)
     {
-        std::bitset<8> BitField(reg);
-        BitField.set(pos);
-
-        reg = BitField.to_ulong();
-        return reg;
+        return (reg | (1 << pos));
     }
 
     void CPU::CheckInterupts()
@@ -3930,55 +3936,55 @@ namespace FuuGB
         if (!IME)
             return;
 
-        std::bitset<8> IE(memoryUnit->Read(INTERUPT_EN_REGISTER_ADR));
-        std::bitset<8> IF(memoryUnit->Read(INTERUPT_FLAG_REG));
+        uBYTE IE = memoryUnit->Read(INTERUPT_EN_REGISTER_ADR);
+        uBYTE IF = memoryUnit->Read(INTERUPT_FLAG_REG);
         reg Temp;
 
-        if (IF[0] && IE[0]) //V-Blank
+        if ((IF & (1 << 0)) && (IE & (1 << 0))) //V-Blank
         {
             IME = false;
-            IF.reset(0);
-            memoryUnit->Write(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
+            IF &= 0xFE;
+            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
             PC = VBLANK_INT;
         }
-        else if (IF[1] && IE[1]) // LCDC
+        else if ((IF & (1 << 1)) && (IE & (1 << 1))) // LCDC
         {
             IME = false;
-            IF.reset(1);
-            memoryUnit->Write(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
+            IF &= 0xFD;
+            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
             PC = LCDC_INT;
         }
-        else if (IF[2] && IE[2]) // Timer Overflow
+        else if ((IF & (1 << 2)) && (IE & (1 << 2))) // Timer Overflow
         {
             IME = false;
-            IF.reset(2);
-            memoryUnit->Write(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
+            IF &= 0xFB;
+            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
             PC = TIMER_OVER_INT;
         }
-        else if (IF[3] && IE[3]) // Serial I/O Complete
+        else if ((IF & (1 << 3)) && (IE & (1 << 3))) // Serial I/O Complete
         {
             IME = false;
-            IF.reset(3);
-            memoryUnit->Write(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
+            IF &= 0xF7;
+            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
             PC = SER_TRF_INT;
         }
-        else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
+        else if ((IF & (1 << 4)) && (IE & (1 << 4))) //Pin 10 - 13 hi to lo (Control Input)
         {
             IME = false;
-            IF.reset(4);
-            memoryUnit->Write(INTERUPT_FLAG_REG, (uBYTE)IF.to_ulong());
+            IF &= 0xEF;
+            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
@@ -3988,13 +3994,11 @@ namespace FuuGB
 
     void CPU::UpdateTimers(int cycles)
     {
-        std::bitset<8> TMC(memoryUnit->Read(0xFF07));
-        std::bitset<8> TMA(memoryUnit->Read(0xFF06));
-        std::bitset<8> TIMA(memoryUnit->Read(0xFF05));
+        uBYTE TMC  = memoryUnit->Read(0xFF07);
         
         updateDivider(cycles);
         
-        if(TMC.test(2)) // Check if clock is enabled
+        if(TMC & (1 << 2)) // Check if clock is enabled
         {
             memoryUnit->TimerCounter -= cycles;
             
@@ -4068,25 +4072,25 @@ namespace FuuGB
     
     void CPU::Halt()
     {
-        std::bitset<8> IE(memoryUnit->DmaRead(INTERUPT_EN_REGISTER_ADR));
-        std::bitset<8> IF(memoryUnit->DmaRead(INTERUPT_FLAG_REG));
-        if (IF[0] && IE[0]) //V-Blank
+        uBYTE IE = memoryUnit->DmaRead(INTERUPT_EN_REGISTER_ADR);
+        uBYTE IF = memoryUnit->DmaRead(INTERUPT_FLAG_REG);
+        if ((IF & (1 << 0)) && (IE & (1 << 0))) //V-Blank
         {
             Halted = false;
         }
-        else if (IF[1] && IE[1]) // LCDC
+        else if ((IF & (1 << 1)) && (IE & (1 << 1))) // LCDC
         {
             Halted = false;
         }
-        else if (IF[2] && IE[2]) // Timer Overflow
+        else if ((IF & (1 << 2)) && (IE & (1 << 2))) // Timer Overflow
         {
             Halted = false;
         }
-        else if (IF[3] && IE[3]) // Serial I/O Complete
+        else if ((IF & (1 << 3)) && (IE & (1 << 3))) // Serial I/O Complete
         {
             Halted = false;
         }
-        else if (IF[4] && IE[4]) //Pin 10 - 13 hi to lo (Control Input)
+        else if ((IF & (1 << 4)) && (IE & (1 << 4))) //Pin 10 - 13 hi to lo (Control Input)
         {
             Halted = false;
         }

@@ -43,7 +43,7 @@ namespace FuuGB
     {
         LCDC = getLCDC();
 
-        if(!LCDC.test(7))
+        if(!(LCDC & (1 << 7)))
             return;
         
         SDL_RenderPresent(renderer);
@@ -56,7 +56,7 @@ namespace FuuGB
 
         setLCDStatus();
         
-        if(LCDC.test(7))
+        if(LCDC & (1 << 7))
         {
             scanlineCounter -= cycles;
         }
@@ -93,11 +93,11 @@ namespace FuuGB
     {
         LCDC = getLCDC();
 
-        if(LCDC.test(0))
+        if(LCDC & (1 << 0))
         {
             renderTiles();
         }
-        if(LCDC.test(1))
+        if(LCDC & (1 << 1))
         {
             renderSprites();
         }
@@ -111,7 +111,7 @@ namespace FuuGB
         uWORD tileMapPtr    = 0x0;
         uWORD winMapPtr     = 0x0;
         
-        bool winEnabled = false;
+        bool winEnabled = LCDC & (1 << 5);
         bool unsignedID = false;
         
         // Determine The offsets to use when retrieving the Tile Identifiers from
@@ -123,19 +123,19 @@ namespace FuuGB
         
         
         // Determine base address of tile data for BG & window
-        if(LCDC.test(4))
+        if(LCDC & (1 << 4))
         {
             tileDataPtr = 0x8000;
             unsignedID  = true;
         }
         else
         {
-            tileDataPtr = 0x8800;
+            tileDataPtr = 0x9000;
             unsignedID = false;
         }
         
         // Determine the base address tile Mappings for BG & window
-        if(LCDC.test(3))
+        if(LCDC & (1 << 3))
         {
             tileMapPtr = 0x9C00;
         }
@@ -146,7 +146,7 @@ namespace FuuGB
         
         // Determine if the window is to be rendered
         // The window is rendered above the background
-        if(LCDC.test(5))
+        if(LCDC & (1 << 5))
         {
             winEnabled = true;
         }
@@ -156,16 +156,13 @@ namespace FuuGB
         }
         
         // If Window is to be rendered, determine its Maping ptr in memoryUnit
-        if(winEnabled)
+        if(LCDC & (1 << 6))
         {
-            if(LCDC.test(6))
-            {
-                winMapPtr = 0x9C00;
-            }
-            else
-            {
-                winMapPtr = 0x9800;
-            }
+            winMapPtr = 0x9C00;
+        }
+        else
+        {
+            winMapPtr = 0x9800;
         }
         
         // Determine the current scanline we are on
@@ -207,98 +204,94 @@ namespace FuuGB
             uWORD tileColumn = xPos / 8;
 
             // Determine the address for the tile ID
-            uWORD currentTileMapAdr = tileMapPtr + tileColumn + tileRow;
+            uWORD currentTileMapAdr = 0x0000;
+
+            if (winEnabled)
+            {
+                currentTileMapAdr = winMapPtr + tileColumn + tileRow;
+            }
+            else
+            {
+                currentTileMapAdr = tileMapPtr + tileColumn + tileRow;
+            }
             
             // Fetch the tile ID
             uBYTE tileID = memoryRef->DmaRead(currentTileMapAdr);
             
             // Determine the current pixel data from the tile data
-            uBYTE tileLineOffset = (yPos % 8) * 2; //Each line is 2 bytes
+            uWORD tileLineOffset = (yPos % 8) * 2; //Each line is 2 bytes
             uWORD tileDataAdr;
-            uBYTE data1, data2;
 
             if(unsignedID)
             {
                 tileDataAdr = tileDataPtr + (tileID * 16);
-                data1 = memoryRef->DmaRead(tileDataAdr + tileLineOffset);
-                data2 = memoryRef->DmaRead(tileDataAdr + tileLineOffset + 1);
             }
             else
             {
                 if (tileID & 0x80)
                 {
                     tileID = ~tileID;
-                    tileID += 0x01;
+                    tileID += 1;
                     tileDataAdr = tileDataPtr - (tileID * 16);
                 }
                 else
                 {
                     tileDataAdr = tileDataPtr + (tileID * 16);
                 }
-                
-                data1 = memoryRef->DmaRead(tileDataAdr + tileLineOffset);
-                data2 = memoryRef->DmaRead(tileDataAdr + tileLineOffset + 1);
             }
+
+            uBYTE data1 = memoryRef->DmaRead(tileDataAdr + tileLineOffset);
+            uBYTE data2 = memoryRef->DmaRead(tileDataAdr + tileLineOffset + 1);
             
             int currentBitPosition = (((pixel % 8) - 7)* -1);
             
-            std::bitset<8> d1(data1);
-            std::bitset<8> d2(data2);
-            std::bitset<2> ColorCode;
+            uBYTE ColorCode = 0x00;
 
-            if(d2.test(currentBitPosition))
+            if(data2 & (1 << currentBitPosition))
             {
-                ColorCode.set(1);
-            }
-            else
-            {
-                ColorCode.reset(1);
+                ColorCode |= 0x02;
             }
             
-            if(d1.test(currentBitPosition))
+            if(data1 & (1 << currentBitPosition))
             {
-                ColorCode.set(0);
-            }
-            else
-            {
-                ColorCode.reset(0);
+                 ColorCode |= 0x01;
             }
             
-            int R = 0x0;
-            int G = 0x0;
-            int B = 0x0;
+            uBYTE R = 0x00;
+            uBYTE G = 0x00;
+            uBYTE B = 0x00;
 
-            std::bitset<2> Color_00(memoryRef->DmaRead(0xFF47) & 0x03);
-            std::bitset<2> Color_01((memoryRef->DmaRead(0xFF47)>>2) & 0x03);
-            std::bitset<2> Color_10((memoryRef->DmaRead(0xFF47)>>4) & 0x03);
-            std::bitset<2> Color_11((memoryRef->DmaRead(0xFF47)>>6) & 0x03);
+            uBYTE Color_00 = memoryRef->DmaRead(0xFF47) & 0x03;
+            uBYTE Color_01 = ((memoryRef->DmaRead(0xFF47)>>2) & 0x03);
+            uBYTE Color_10 = ((memoryRef->DmaRead(0xFF47)>>4) & 0x03);
+            uBYTE Color_11 = ((memoryRef->DmaRead(0xFF47)>>6) & 0x03);
             
-            //Determine actual color for pixel via Color Pallete reg
-            switch(ColorCode.to_ulong())
+            // Determine actual color for pixel via Color Pallete reg
+            switch(ColorCode)
             {
                 case 0x00:
-                    if(Color_00.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_00.to_ulong() == 0x1) { R = 211; G = 211; B = 211; }
-                    else if(Color_00.to_ulong() == 0x2) { R = 169; G = 169; B = 169; }
-                    else if(Color_00.to_ulong() == 0x3) { R = 0; G = 0; B = 0; }
+                    if(Color_00 == 0x00) { R = 255; G = 255; B = 255; }
+                    else if(Color_00 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_00 == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_00 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 case 0x01:
-                    if(Color_01.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_01.to_ulong() == 0x1) { R = 211; G = 211; B = 211; }
-                    else if(Color_01.to_ulong() == 0x2) { R = 169; G = 169; B = 169; }
-                    else if(Color_01.to_ulong() == 0x3) { R = 0; G = 0; B = 0; }
+                    if(Color_01 == 0x00) { R = 255; G = 255; B = 255; }
+                    else if(Color_01 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_01 == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_01 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 case 0x02:
-                    if(Color_10.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_10.to_ulong() == 0x1) { R = 211; G = 211; B = 211; }
-                    else if(Color_10.to_ulong() == 0x2) { R = 169; G = 169; B = 169; }
-                    else if(Color_10.to_ulong() == 0x3) { R = 0; G = 0; B = 0; }
+                    if(Color_10 == 0x00) { R = 255; G = 255; B = 255; }
+                    else if(Color_10 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_10 == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_10 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 case 0x03:
-                    if(Color_11.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_11.to_ulong() == 0x1) { R = 211; G = 211; B = 211; }
-                    else if(Color_11.to_ulong() == 0x2) { R = 169; G = 169; B = 169; }
-                    else if(Color_11.to_ulong() == 0x3) { R = 0; G = 0; B = 0; }
+                    if(Color_11 == 0x00) { R = 255; G = 255; B = 255; }
+                    else if(Color_11 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_11 == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_11 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 default:
                     break;
@@ -321,7 +314,7 @@ namespace FuuGB
         
         bool u_8x16 = false;
         
-        if(LCDC.test(2))
+        if(LCDC & (1 << 2))
         {
             u_8x16 = true;
         }
@@ -334,10 +327,8 @@ namespace FuuGB
             uBYTE tileLocation  = memoryRef->DmaRead(0xFFE0 + index + 2);
             uBYTE attributes    = memoryRef->DmaRead(0xFFE0 + index + 3);
             
-            std::bitset<8> attr(attributes);
-            
-            bool yFlip = attr.test(6);
-            bool xFlip = attr.test(5);
+            bool yFlip = (attributes & (1 << 6));
+            bool xFlip = (attributes & (1 << 5));
             
             currentScanline = memoryRef->DmaRead(0xFF44);
             
@@ -364,65 +355,74 @@ namespace FuuGB
                 uBYTE data1     = memoryRef->DmaRead(dataaddr);
                 uBYTE data2     = memoryRef->DmaRead(dataaddr + 1);
                 
-                for(int tilepixel =7 ; tilepixel >= 0; tilepixel--)
+                for(int tilepixel = 7; tilepixel >= 0; tilepixel--)
                 {
-                    int colorbit = tilepixel;
+                    int ColorBit = tilepixel;
                     
                     if(xFlip)
                     {
-                        colorbit -= 7;
-                        colorbit *= -1;
+                        ColorBit -= 7;
+                        ColorBit *= -1;
+                    }
+                        
+                    uBYTE ColorCode = 0x00;
+
+                    if(data2 & (1 << ColorBit))
+                    {
+                        ColorCode |= 0x02;
                     }
                     
-                    std::bitset<8> d2(data2);
-                    std::bitset<8> d1(data1);
-                    int ColorEncoding = d2.test(colorbit);
+                    if(data1 & (1 << ColorBit))
+                    {
+                        ColorCode |= 0x01;
+                    }
                     
-                    ColorEncoding <<= 1;
-                    
-                    ColorEncoding |= d1.test(colorbit);
-                    
-                    uWORD coloradr;
-                    if(attr.test(4))
+                    uWORD coloradr = 0x0000;
+
+                    if(attributes & (1 << 4))
+                    {
                         coloradr = 0xFF49;
+                    }
                     else
+                    {
                         coloradr = 0xFF48;
+                    }
                     
-                    int R = 0x0;
-                    int G = 0x0;
-                    int B = 0x0;
+                    uBYTE R = 0x0;
+                    uBYTE G = 0x0;
+                    uBYTE B = 0x0;
                     
-                    std::bitset<2> Color_00(memoryRef->DmaRead(coloradr) & 0x03);
-                    std::bitset<2> Color_01((memoryRef->DmaRead(coloradr) >> 2) & 0x03);
-                    std::bitset<2> Color_10((memoryRef->DmaRead(coloradr) >> 4) & 0x03);
-                    std::bitset<2> Color_11((memoryRef->DmaRead(coloradr) >> 6) & 0x03);
+                    uBYTE Color_00 = (memoryRef->DmaRead(coloradr) & 0x03);
+                    uBYTE Color_01 = ((memoryRef->DmaRead(coloradr) >> 2) & 0x03);
+                    uBYTE Color_10 = ((memoryRef->DmaRead(coloradr) >> 4) & 0x03);
+                    uBYTE Color_11 = ((memoryRef->DmaRead(coloradr) >> 6) & 0x03);
                     
                     //Determine actual color for pixel via Color Pallete reg
-                    switch(ColorEncoding)
+                    switch(ColorCode)
                     {
                         case 0x00:
-                            if(Color_00.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                            else if(Color_00.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_00.to_ulong() == 0x02) { R = 169; G = 169; B = 169; }
-                            else if(Color_00.to_ulong() == 0x03) { R = 0; G = 0; B = 0; }
+                            if(Color_00 == 0x00) { R = 255; G = 255; B = 255; }
+                            else if(Color_00 == 0x01) { R = 211; G = 211; B = 211; }
+                            else if(Color_00 == 0x02) { R = 169; G = 169; B = 169; }
+                            else if(Color_00 == 0x03) { R = 0; G = 0; B = 0; }
                             break;
                         case 0x01:
-                            if(Color_01.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                            else if(Color_01.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_01.to_ulong() == 0x02) { R = 169; G = 169; B = 169; }
-                            else if(Color_01.to_ulong() == 0x03) { R = 0; G = 0; B = 0; }
+                            if(Color_01 == 0x00) { R = 255; G = 255; B = 255; }
+                            else if(Color_01 == 0x01) { R = 211; G = 211; B = 211; }
+                            else if(Color_01 == 0x02) { R = 169; G = 169; B = 169; }
+                            else if(Color_01 == 0x03) { R = 0; G = 0; B = 0; }
                             break;
                         case 0x02:
-                            if(Color_10.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                            else if(Color_10.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_10.to_ulong() == 0x02) { R = 169; G = 169; B = 169; }
-                            else if(Color_10.to_ulong() == 0x03) { R = 0; G = 0; B = 0; }
+                            if(Color_10 == 0x00) { R = 255; G = 255; B = 255; }
+                            else if(Color_10 == 0x01) { R = 211; G = 211; B = 211; }
+                            else if(Color_10 == 0x02) { R = 169; G = 169; B = 169; }
+                            else if(Color_10 == 0x03) { R = 0; G = 0; B = 0; }
                             break;
                         case 0x03:
-                            if(Color_11.to_ulong() == 0x00) { R = 255; G = 255; B = 255; }
-                            else if(Color_11.to_ulong() == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_11.to_ulong() == 0x02) { R = 169; G = 169; B = 169; }
-                            else if(Color_11.to_ulong() == 0x03) { R = 0; G = 0; B = 0; }
+                            if(Color_11 == 0x00) { R = 255; G = 255; B = 255; }
+                            else if(Color_11 == 0x01) { R = 211; G = 211; B = 211; }
+                            else if(Color_11 == 0x02) { R = 169; G = 169; B = 169; }
+                            else if(Color_11 == 0x03) { R = 0; G = 0; B = 0; }
                             break;
                     }
                     
@@ -450,18 +450,17 @@ namespace FuuGB
         LCDC = getLCDC();
         STAT = getStat();
         
-        if(!LCDC.test(7))
+        if(!(LCDC & (1 << 7)))
         {
             scanlineCounter = 456;
             memoryRef->DmaWrite(0xFF44, 0x00);
-            STAT.reset(0);
-            STAT.reset(0);
-            memoryRef->DmaWrite(STAT_ADR, STAT.to_ulong());
+            STAT &= 0xFC;
+            memoryRef->DmaWrite(STAT_ADR, STAT);
             return;
         }
         
         currentScanline = memoryRef->DmaRead(0xFF44);
-        uBYTE currentMode = STAT.to_ulong() & 0x03;
+        uBYTE currentMode = STAT & 0x03;
         
         uBYTE mode = 0;
         bool reqInt = false;
@@ -470,9 +469,9 @@ namespace FuuGB
         if(currentScanline >= 144)
         {
             mode = 0x01;
-            STAT.reset(1);
-            STAT.set(0);
-            reqInt = STAT.test(5);
+            STAT &= 0xFC;
+            STAT |= mode;
+            reqInt = (STAT & (1 << 5));
         }
         else
         {
@@ -483,24 +482,24 @@ namespace FuuGB
             if (scanlineCounter >= mode2BOUND)
             {
                 mode = 0x02;
-                STAT.set(1);
-                STAT.reset(0);
-                reqInt = STAT.test(5);
+                STAT &= 0xFC;
+                STAT |= mode;
+                reqInt = (STAT & (1 << 5));
             }
             // Mode 3
             else if (scanlineCounter >= mode3BOUND)
             {
                 mode = 0x03;
-                STAT.set(1);
-                STAT.set(0);
+                STAT &= 0xFC;
+                STAT |= mode;
             }
             // Mode 0
             else
             {
                 mode = 0x00;
-                STAT.reset(1);
-                STAT.reset(0);
-                reqInt = STAT.test(3);
+                STAT &= 0xFC;
+                STAT |= mode;
+                reqInt = (STAT & (1 << 3));
             }
         }
             
@@ -511,24 +510,24 @@ namespace FuuGB
             
         if(memoryRef->DmaRead(0xFF44) == memoryRef->DmaRead(0xFF45))
         {
-            STAT.set(2);
-            if(STAT.test(6)) {
+            STAT |= 0x04;
+            if(STAT & (1 << 6)) {
                 memoryRef->RequestInterupt(1);
             }
         }
         else
         {
-            STAT.reset(2);
+            STAT &= 0xFB;
         }
 
-        memoryRef->DmaWrite(STAT_ADR, STAT.to_ulong());
+        memoryRef->DmaWrite(STAT_ADR, STAT);
     }
 
-    std::bitset<8> PPU::getLCDC() {
-        return std::bitset<8>(memoryRef->DmaRead(LCDC_ADR));
+    uBYTE PPU::getLCDC() {
+        return memoryRef->DmaRead(LCDC_ADR);
     }
 
-    std::bitset<8> PPU::getStat() {
-        return std::bitset<8>(memoryRef->DmaRead(STAT_ADR));
+    uBYTE PPU::getStat() {
+        return memoryRef->DmaRead(STAT_ADR);
     }
 }

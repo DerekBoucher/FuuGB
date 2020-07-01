@@ -30,7 +30,6 @@
     #include <stdlib.h>
     #include <stdio.h>
     #include <time.h>
-    #include <bitset>
     #include <limits.h>
 
     typedef unsigned char uBYTE;

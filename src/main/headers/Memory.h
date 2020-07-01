@@ -16,9 +16,9 @@ namespace FuuGB
         void    Write(uWORD, uBYTE);
         void    DmaWrite(uWORD, uBYTE);
         void    RequestInterupt(int);
+        void    UpdateDmaCycles(int);
         uBYTE   Read(uWORD);
         uBYTE   DmaRead(uWORD);
-        void    UpdateDmaCycles(int);
 
         int TimerCounter;
 
@@ -32,7 +32,7 @@ namespace FuuGB
         uBYTE   getStatMode();  
 
         uBYTE*      mainMemory;
-        Cartridge*  cartMemory;
+        Cartridge*  cart;
         bool        bootRomClosed;
         bool        dmaTransferInProgress;
         int         dmaCyclesCompleted;

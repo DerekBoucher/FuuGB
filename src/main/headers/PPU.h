@@ -30,15 +30,15 @@ namespace FuuGB
         Memory*         memoryRef;
         int             currentScanline;
         int             scanlineCounter;
-        std::bitset<8>  LCDC;
-        std::bitset<8>  STAT;
+        uBYTE           LCDC;
+        uBYTE           STAT;
 
         void            drawScanline();
         void            renderTiles();
         void            renderSprites();
         void            setLCDStatus();
-        std::bitset<8>  getStat();
-        std::bitset<8>  getLCDC();
+        uBYTE           getStat();
+        uBYTE           getLCDC();
     };
 }
 #endif
