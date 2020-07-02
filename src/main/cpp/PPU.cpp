@@ -270,27 +270,27 @@ namespace FuuGB
             switch(ColorCode)
             {
                 case 0x00:
-                    if(Color_00 == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_00 == 0x1) { R = 211; G = 211; B = 211; }
-                    else if(Color_00 == 0x2) { R = 169; G = 169; B = 169; }
+                    if(Color_00 == 0x00) { R = 224; G = 248; B = 208; }
+                    else if(Color_00 == 0x1) { R = 136; G = 192; B = 112; }
+                    else if(Color_00 == 0x2) { R = 52; G = 104; B = 86; }
                     else if(Color_00 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 case 0x01:
-                    if(Color_01 == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_01 == 0x1) { R = 211; G = 211; B = 211; }
-                    else if(Color_01 == 0x2) { R = 169; G = 169; B = 169; }
+                    if(Color_01 == 0x00) { R = 224; G = 248; B = 208; }
+                    else if(Color_01 == 0x1) { R = 136; G = 192; B = 112; }
+                    else if(Color_01 == 0x2) { R = 52; G = 104; B = 86; }
                     else if(Color_01 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 case 0x02:
-                    if(Color_10 == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_10 == 0x1) { R = 211; G = 211; B = 211; }
-                    else if(Color_10 == 0x2) { R = 169; G = 169; B = 169; }
+                    if(Color_10 == 0x00) { R = 224; G = 248; B = 208; }
+                    else if(Color_10 == 0x1) { R = 136; G = 192; B = 112; }
+                    else if(Color_10 == 0x2) { R = 52; G = 104; B = 86; }
                     else if(Color_10 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 case 0x03:
-                    if(Color_11 == 0x00) { R = 255; G = 255; B = 255; }
-                    else if(Color_11 == 0x1) { R = 211; G = 211; B = 211; }
-                    else if(Color_11 == 0x2) { R = 169; G = 169; B = 169; }
+                    if(Color_11 == 0x00) { R = 224; G = 248; B = 208; }
+                    else if(Color_11 == 0x1) { R = 136; G = 192; B = 112; }
+                    else if(Color_11 == 0x2) { R = 52; G = 104; B = 86; }
                     else if(Color_11 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 default:
@@ -319,23 +319,24 @@ namespace FuuGB
             u_8x16 = true;
         }
         
-        for (int sprite = 0; sprite < 40; sprite++)
+        for (uBYTE sprite = 0; sprite < 40; sprite++)
         {
             uBYTE index         = sprite * 4;
             uBYTE yPos          = memoryRef->DmaRead(0xFE00 + index);
             uBYTE xPos          = memoryRef->DmaRead(0xFE00 + index + 1);
-            uBYTE tileLocation  = memoryRef->DmaRead(0xFFE0 + index + 2);
-            uBYTE attributes    = memoryRef->DmaRead(0xFFE0 + index + 3);
+            uBYTE patternNumber = memoryRef->DmaRead(0xFE00 + index + 2);
+            uBYTE attributes    = memoryRef->DmaRead(0xFE00 + index + 3);
             
             bool yFlip = (attributes & (1 << 6));
             bool xFlip = (attributes & (1 << 5));
             
             currentScanline = memoryRef->DmaRead(0xFF44);
             
-            int ysize = 8;
+            uBYTE ysize = 8;
 
             if(u_8x16)
             {
+                patternNumber &= 0x7F;
                 ysize = 16;
             }
             
@@ -351,7 +352,7 @@ namespace FuuGB
                 
                 line *= 2;
                 
-                uWORD dataaddr  = (0x8000 + (tileLocation * 16)) + line;
+                uWORD dataaddr  = (0x8000 + (patternNumber * 16)) + line;
                 uBYTE data1     = memoryRef->DmaRead(dataaddr);
                 uBYTE data2     = memoryRef->DmaRead(dataaddr + 1);
                 
@@ -401,32 +402,34 @@ namespace FuuGB
                     switch(ColorCode)
                     {
                         case 0x00:
-                            if(Color_00 == 0x00) { R = 255; G = 255; B = 255; }
-                            else if(Color_00 == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_00 == 0x02) { R = 169; G = 169; B = 169; }
-                            else if(Color_00 == 0x03) { R = 0; G = 0; B = 0; }
+                            if(Color_00 == 0x00) { R = 224; G = 248; B = 208; }
+                            else if(Color_00 == 0x1) { R = 136; G = 192; B = 112; }
+                            else if(Color_00 == 0x2) { R = 52; G = 104; B = 86; }
+                            else if(Color_00 == 0x3) { R = 0; G = 0; B = 0; }
                             break;
                         case 0x01:
-                            if(Color_01 == 0x00) { R = 255; G = 255; B = 255; }
-                            else if(Color_01 == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_01 == 0x02) { R = 169; G = 169; B = 169; }
-                            else if(Color_01 == 0x03) { R = 0; G = 0; B = 0; }
+                            if(Color_01 == 0x00) { R = 224; G = 248; B = 208; }
+                            else if(Color_01 == 0x1) { R = 136; G = 192; B = 112; }
+                            else if(Color_01 == 0x2) { R = 52; G = 104; B = 86; }
+                            else if(Color_01 == 0x3) { R = 0; G = 0; B = 0; }
                             break;
                         case 0x02:
-                            if(Color_10 == 0x00) { R = 255; G = 255; B = 255; }
-                            else if(Color_10 == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_10 == 0x02) { R = 169; G = 169; B = 169; }
-                            else if(Color_10 == 0x03) { R = 0; G = 0; B = 0; }
+                            if(Color_10 == 0x00) { R = 224; G = 248; B = 208; }
+                            else if(Color_10 == 0x1) { R = 136; G = 192; B = 112; }
+                            else if(Color_10 == 0x2) { R = 52; G = 104; B = 86; }
+                            else if(Color_10 == 0x3) { R = 0; G = 0; B = 0; }
                             break;
                         case 0x03:
-                            if(Color_11 == 0x00) { R = 255; G = 255; B = 255; }
-                            else if(Color_11 == 0x01) { R = 211; G = 211; B = 211; }
-                            else if(Color_11 == 0x02) { R = 169; G = 169; B = 169; }
-                            else if(Color_11 == 0x03) { R = 0; G = 0; B = 0; }
+                            if(Color_11 == 0x00) { R = 224; G = 248; B = 208; }
+                            else if(Color_11 == 0x1) { R = 136; G = 192; B = 112; }
+                            else if(Color_11 == 0x2) { R = 52; G = 104; B = 86; }
+                            else if(Color_11 == 0x3) { R = 0; G = 0; B = 0; }
+                            break;
+                        default:
                             break;
                     }
                     
-                    if(R == 255 && G == 255 && B == 255)
+                    if(R == 224 && G == 248 && B == 208)
                     {
                         continue;
                     }

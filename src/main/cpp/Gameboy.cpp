@@ -1,5 +1,5 @@
-#include "Core.h"
 #include "Gameboy.h"
+using namespace std::chrono;
 
 namespace FuuGB
 {
@@ -26,9 +26,10 @@ namespace FuuGB
     void Gameboy::Run()
     {
         const int MAXCYCLES = 69905;
-
+        duration<double> screenRefreshCycle = std::chrono::nanoseconds(150 * MAXCYCLES);
         while (running)
-        {
+        {   
+            high_resolution_clock::time_point start = high_resolution_clock::now();
             int cyclesThisUpdate = 0;
             while (cyclesThisUpdate <= MAXCYCLES)
             {
@@ -57,6 +58,12 @@ namespace FuuGB
                 {
                     cpuUnit->CheckInterupts();
                 }
+            }
+            high_resolution_clock::time_point end = high_resolution_clock::now();
+            duration<double> timeSpan = duration_cast<duration<double>>(end-start);
+            if(timeSpan < screenRefreshCycle)
+            {
+                std::this_thread::sleep_for(screenRefreshCycle - timeSpan);
             }
             ppuUnit->RenderScreen();
         }

@@ -2,6 +2,8 @@
 #define GAMEBOY_H_
 #include "CPU.h"
 #include "PPU.h"
+#include "Core.h"
+#include <chrono>
 
 namespace FuuGB
 {

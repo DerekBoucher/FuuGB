@@ -17,7 +17,7 @@ namespace FuuGB
         200,
         SDL_WINDOWPOS_CENTERED,
         WINW,
-        WINH,
+        WINH+20,
         0);
 
         // Configure Application Window
