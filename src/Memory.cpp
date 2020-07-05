@@ -48,7 +48,7 @@ namespace FuuGB
     {
         if ((addr < 0x8000) && !dmaTransferInProgress) // Cart ROM
         {
-            if ((addr >= 0x0000) && (addr < 0x2000)) 
+            if (addr < 0x2000) 
             {
                 toggleRam(addr, data);
             }
@@ -58,7 +58,7 @@ namespace FuuGB
             }
             else if ((addr >= 0x4000) && (addr < 0x6000))
             {
-                changeRamBank(addr, data);
+                changeRamBank(data);
             }
             else if ((addr >= 0x6000) && (addr < 0x8000))
             {
@@ -335,7 +335,7 @@ namespace FuuGB
 
     uBYTE Memory::Read(uWORD addr)
     {
-        if ((addr >= 0x0000) && (addr < 0x4000) && !dmaTransferInProgress) // Cart ROM Bank 0
+        if ((addr < 0x4000) && !dmaTransferInProgress) // Cart ROM Bank 0
         { 
             return mainMemory[addr];
         }
@@ -407,7 +407,6 @@ namespace FuuGB
 
     void Memory::changeRomBank(uWORD addr, uBYTE data)
     {
-        uBYTE original = cart->CurrentRomBank;
         if (cart->ROM)
             return;
         if (cart->MBC1)
@@ -475,7 +474,7 @@ namespace FuuGB
             cart->Mode = false;
     }
 
-    void Memory::changeRamBank(uWORD addr, uBYTE data)
+    void Memory::changeRamBank(uBYTE data)
     {
         if (cart->MBC1)
         {

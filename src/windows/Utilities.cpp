@@ -71,13 +71,13 @@ namespace FuuGB
         GetOpenFileName(&ofn);
 
         char* path = new char[255];
-        sprintf(path, "%ws", ofn.lpstrFile);
+        sprintf(path, "%ls", ofn.lpstrFile);
         printf("Loading ROM: %s\n", path);
         SDL_SetWindowTitle(win, path);
         return path;
     }
 
-    Cartridge* GetRom(char* path, SDL_Window* win)
+    Cartridge* GetRom(char* path)
     {
         FILE* romFile;
         if (path[0] == '\0')

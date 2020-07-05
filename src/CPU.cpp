@@ -3438,7 +3438,7 @@ namespace FuuGB
 
     bool CPU::checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte)
     {
-        uBYTE mask;
+        uBYTE mask = 0x00;
         
         switch(pos)
         {
@@ -3460,9 +3460,9 @@ namespace FuuGB
             return false;
     }
 
-        bool CPU::checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte, uBYTE carry)
+    bool CPU::checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte, uBYTE carry)
     {
-        uBYTE mask;
+        uBYTE mask = 0x00;
         
         switch(pos)
         {
@@ -3487,7 +3487,7 @@ namespace FuuGB
     
     bool CPU::checkCarryFromBit_Word(int pos, uWORD word, uWORD addedWord)
     {
-        uWORD mask;
+        uWORD mask = 0x00;
         
         switch(pos)
         {
@@ -3517,9 +3517,9 @@ namespace FuuGB
             return false;
     }
 
-        bool CPU::checkCarryFromBit_Word(int pos, uWORD word, uWORD addedWord, uWORD carry)
+    bool CPU::checkCarryFromBit_Word(int pos, uWORD word, uWORD addedWord, uWORD carry)
     {
-        uWORD mask;
+        uWORD mask = 0x00;
         
         switch(pos)
         {
@@ -3552,7 +3552,7 @@ namespace FuuGB
     
     bool CPU::checkBorrowFromBit_Byte(int pos, uBYTE byte, uBYTE subtractedByte)
     {
-        uBYTE mask;
+        uBYTE mask = 0x00;
 
         switch (pos)
         {
@@ -3576,7 +3576,7 @@ namespace FuuGB
 
     bool CPU::checkBorrowFromBit_Byte(int pos, uBYTE byte, uBYTE subtractedByte, uBYTE carry)
     {
-        uBYTE mask;
+        uBYTE mask = 0x00;
 
         switch (pos)
         {
@@ -3601,7 +3601,7 @@ namespace FuuGB
     
     bool CPU::checkBorrowFromBit_Word(int pos, uWORD word, uWORD subtractedWord)
     {
-        uWORD mask;
+        uWORD mask = 0x00;
 
         switch (pos)
         {
@@ -3633,7 +3633,7 @@ namespace FuuGB
 
     bool CPU::checkBorrowFromBit_Word(int pos, uWORD word, uWORD subtractedWord, uWORD carry)
     {
-        uWORD mask;
+        uWORD mask = 0x00;
 
         switch (pos)
         {

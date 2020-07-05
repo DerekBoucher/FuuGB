@@ -24,7 +24,7 @@ namespace FuuGB
 
     private:
         void    changeRomBank(uWORD, uBYTE);
-        void    changeRamBank(uWORD, uBYTE);
+        void    changeRamBank(uBYTE);
         void    toggleRam(uWORD, uBYTE);
         void    changeMode(uBYTE);
         void    dmaTransfer(uBYTE);

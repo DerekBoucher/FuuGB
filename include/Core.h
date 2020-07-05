@@ -3,6 +3,7 @@
 
     #ifdef FUUGB_SYSTEM_WINDOWS
         #include <Windows.h>
+        #include <condition_variable>
     #endif
 
     #ifdef FUUGB_SYSTEM_MACOS

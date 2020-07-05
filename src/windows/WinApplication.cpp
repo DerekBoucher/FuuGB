@@ -8,9 +8,6 @@ namespace FuuGB
         // Initialize SDL
         FUUGB_INIT();
 
-        // Enable Configurations
-        bool extDisp = false;
-
         // Instantiate Application Window
         SDL_SysWMinfo* NativeWindowInfo = new SDL_SysWMinfo;
         SDL_Window* _SDLwindow = SDL_CreateWindow("FuuGBemu",

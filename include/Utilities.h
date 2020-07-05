@@ -1,7 +1,7 @@
-#ifdef FUUGB_SYSTEM_WINDOWS
-
 #ifndef Utilities_h
 #define Utilities_h
+#ifdef FUUGB_SYSTEM_WINDOWS
+
 #define ID_LOADROM 1
 #define ID_ABOUT 2
 #define ID_EXIT 3
@@ -23,9 +23,8 @@ namespace FuuGB {
     HINSTANCE   getHinst(SDL_Window* win);
     void        ActivateMenu(HWND windowRef);
     char*       OpenFile(SDL_Window* win);
-    Cartridge*  GetRom(char* path, SDL_Window* win);
+    Cartridge*  GetRom(char* path);
 }
 
 #endif
-
 #endif

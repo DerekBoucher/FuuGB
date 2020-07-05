@@ -195,7 +195,7 @@ namespace FuuGB
             RamBankCount = 1;
             break;
         case 0x03:
-            RamBankSize - 0x2000;
+            RamBankSize = 0x2000;
             RamBankCount = 4;
             break;
         case 0x04:
@@ -205,6 +205,7 @@ namespace FuuGB
         case 0x05:
             RamBankSize = 0x2000;
             RamBankCount = 8;
+            break;
         default:
             exit(-9);
             break;

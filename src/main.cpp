@@ -4,7 +4,7 @@
 
 #include "Sandbox.h"
 
-int main(int argc, char** argv)
+int main()
 {
     Sandbox* sandbox = new Sandbox();
     sandbox->run();
