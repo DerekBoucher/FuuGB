@@ -1,16 +1,13 @@
-name: MacOS 64-Bit Build
+name: Mac OSX 64-Bit Build
+
 on: push
+
 jobs:
-  gradle:
+  build:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
         submodules: 'recursive'
-    - uses: actions/setup-java@v1
-      with:
-        java-version: 11
-    - uses: eskatos/gradle-command-action@v1
-      with:
-        gradle-version: current
-        arguments: FuuGBemuExecutable
+    - name: make
+      run: make debug

@@ -9,7 +9,6 @@ bin/
 bin-int/
 *.DS_Store
 .vscode/
-*Makefile
 *.hint
 .gradle/
 .gitattributes
@@ -19,4 +18,5 @@ build/
 gradle/
 gradlew
 gradlew.bat
-roms/real/
+real/
+FuuGBemu

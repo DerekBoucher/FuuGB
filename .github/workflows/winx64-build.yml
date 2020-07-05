@@ -1,16 +1,18 @@
 name: Windows 64-Bit Build
+
 on: push
+
 jobs:
-  gradle:
+  build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
         submodules: 'recursive'
-    - uses: actions/setup-java@v1
+    - name: make
+      run: make debug
+    - name: upload binary
+      uses: actions/upload-artifact@v2
       with:
-        java-version: 11
-    - uses: eskatos/gradle-command-action@v1
-      with:
-        gradle-version: current
-        arguments: FuuGBemuExecutable
+        name: build
+        path: ${{github.workspace}}\build\bin\
