@@ -1,0 +1,23 @@
+name: Win 64-Bit Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  tagged-release:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: make
+      run: make debug
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        files: |
+          ${{github.workspace}}\build\bin\FuuGBemu.exe
+          ${{github.workspace}}\build\bin\SDL2.dll
