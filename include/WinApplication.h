@@ -22,7 +22,7 @@ namespace FuuGB
     class WinApplication : public Application
     {
     public:
-        void run();
+        void run(int, char**);
     private:
         Cartridge* ROM;
     };

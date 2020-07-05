@@ -6,7 +6,7 @@ namespace FuuGB
     class Application
     {
     public:
-        virtual void run() = 0;
+        virtual void run(int, char**) = 0;
     };
 }
 

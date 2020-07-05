@@ -3,7 +3,7 @@
 
 namespace FuuGB
 {
-    void WinApplication::run()
+    void WinApplication::run(int argc, char** argv)
     {
         // Initialize SDL
         FUUGB_INIT();
@@ -24,6 +24,13 @@ namespace FuuGB
 
         // Declare a Gameboy Pointer
         Gameboy* gameBoy = nullptr;
+
+        // Open a rom on startup if command line argument was sent
+        if(argc > 1)
+        {
+            ROM = GetRom(argv[1]);
+            gameBoy = new Gameboy(_SDLwindow, ROM);
+        }
 
         while (FUUGB_RUNNING) {
 
