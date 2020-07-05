@@ -58,7 +58,7 @@ ifeq ($(OSFLAG), LINUX)
 endif
 ifeq ($(OSFLAG), OSX)
 	COMPILE_FLAGS += -DFUUGB_SYSTEM_MACOS -x objective-c++
-	LIBS += -framework Cocoa
+	LIBS += -framework Cocoa -Llib/sdl2/osx
 	LIBTOCP = lib/sdl2/osx/libSDL2.dylib
 endif
 ifeq ($(OSFLAG), WINDOWS)
