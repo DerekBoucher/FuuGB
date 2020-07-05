@@ -241,7 +241,7 @@ namespace FuuGB
                     mainMemory[addr] = data;
                 }
             }
-            else if (addr == 0xFF40) // STAT Register
+            else if (addr == 0xFF40) // LCDC Register
             {
                 uBYTE mode = getStatMode();
                 if(!(data & 0x80))
@@ -253,7 +253,7 @@ namespace FuuGB
                 }
                 mainMemory[addr] = data;
             }
-            else if (addr == 0xFF41) // LCDC Register
+            else if (addr == 0xFF41) // STAT Register
             {
                 uBYTE temp = mainMemory[addr] & 0x07;
                 data |= 0x80;

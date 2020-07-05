@@ -1,8 +1,10 @@
 #include "Gameboy.h"
 using namespace std::chrono;
-
 namespace FuuGB
 {
+    std::condition_variable Shared::cv_GB;
+    std::mutex Shared::mu_GB;
+    
     Gameboy::Gameboy(SDL_Window* windowPtr, Cartridge* cart)
     {
         running     = true;

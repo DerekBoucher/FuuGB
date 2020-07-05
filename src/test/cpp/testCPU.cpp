@@ -19,28 +19,28 @@ namespace CpuTests {
     }
 
     void Test::RunAllTests() {
-        test_increment16BitRegister();
-        test_increment8BitRegister();
-        test_decrement16BitRegister();
-        test_decrement8BitRegister();
-        test_add16BitRegister();
-        test_add8BitRegister();
-        test_add8BitRegisterWithCarry();
-        test_sub8BitRegister();
-        test_sub8BitRegisterWithCarry();
-        test_and8BitRegister();
-        test_xor8BitRegister();
-        test_or8BitRegister();
-        test_cmp8BitRegister();
-        test_TestBitInByte();
-        test_TestBitInWord();
-        test_twoComp_Word();
-        test_twoComp_Byte();
-        test_rotateReg();
-        test_shiftReg();
-        test_swapReg();
-        test_adjustDAA();
-        test_executeNextOpCode();
+        // test_increment16BitRegister();
+        // test_increment8BitRegister();
+        // test_decrement16BitRegister();
+        // test_decrement8BitRegister();
+        // test_add16BitRegister();
+        // test_add8BitRegister();
+        // test_add8BitRegisterWithCarry();
+        // test_sub8BitRegister();
+        // test_sub8BitRegisterWithCarry();
+        // test_and8BitRegister();
+        // test_xor8BitRegister();
+        // test_or8BitRegister();
+        // test_cmp8BitRegister();
+        // test_TestBitInByte();
+        // test_TestBitInWord();
+        // test_twoComp_Word();
+        // test_twoComp_Byte();
+        // test_rotateReg();
+        // test_shiftReg();
+        // test_swapReg();
+        // test_adjustDAA();
+        //test_executeNextOpCode();
     }
 
     void Test::test_increment16BitRegister() {

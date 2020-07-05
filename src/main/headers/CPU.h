@@ -40,13 +40,17 @@ namespace FuuGB
         int     ExecuteNextOpCode();
         
     protected:
-        union reg {
+        union reg 
+        {
             uWORD data;
-            struct {
+            struct 
+            {
                 uBYTE lo;
                 uBYTE hi;
             };
-            void operator = (uWORD data) {
+
+            void operator = (uWORD data) 
+            {
                 this->data = data;
             }
         };
@@ -59,9 +63,12 @@ namespace FuuGB
         uWORD   PC;
 
         bool        IME;
-        int         timerUpdateCounter;
+        int         cyclesExecuted;
         int         dividerRegisterCounter;
         Memory*     memoryUnit;
+        uBYTE       byte;
+
+        reg         temp;
 
         enum opCode
         {
@@ -307,7 +314,7 @@ namespace FuuGB
             RST_28 = 0xEF, //Call routine at memoryUnit location 0x0028
             LDH_IMMadr_A = 0xF0, //Load Contents of memoryUnit at location (0xFF00 + 8bit immediate) into A
             POP_AF = 0xF1, //Pop stack into AF
-            //    XX = 0xF2 , //No operation
+            LDH_C_A = 0xF2, //Load contents of memoryUnit location pointed to by (0xFF00 + C) into A
             DISABLE_INT = 0xF3, //Disable interupts
             //        XX = 0xF4, //No operation
             PUSH_AF = 0xF5, //Push contents of AF into stack
@@ -317,7 +324,7 @@ namespace FuuGB
             LD_HL_SP = 0xF9, //Load HL into SP
             LD_16adr_A = 0xFA, //Load specified 16 bit address into A
             ENABLE_INT = 0xFB, //Enable interrupts
-            //            XX = 0xFC, //No operation
+            //        XX = 0xFC, //No operation
             //        XX = 0xFD, //No operation
             CMP_8IMM_A = 0xFE, //Compare 8 bit immediate to A
             RST_38 = 0xFF //Call routine at memoryUnit location 0x0038
@@ -598,6 +605,7 @@ namespace FuuGB
         uBYTE   or8BitRegister(uBYTE, uBYTE);
         uBYTE   twoComp_Byte(uBYTE);
         uBYTE   rotateReg(bool, bool, uBYTE);
+        uBYTE   rotateRegExt(bool, bool, uBYTE);
         uBYTE   shiftReg(bool, bool, uBYTE);
         uBYTE   swapReg(uBYTE);
         uBYTE   resetBit(int, uBYTE);
@@ -612,9 +620,13 @@ namespace FuuGB
         bool    testBitInByte(uBYTE, int);
         bool    testBitInWord(uWORD, int);
         bool    checkCarryFromBit_Byte(int, uBYTE, uBYTE);
+        bool    checkCarryFromBit_Byte(int, uBYTE, uBYTE, uBYTE);
         bool    checkCarryFromBit_Word(int, uWORD, uWORD);
+        bool    checkCarryFromBit_Word(int, uWORD, uWORD, uWORD);
         bool    checkBorrowFromBit_Byte(int, uBYTE, uBYTE);
+        bool    checkBorrowFromBit_Byte(int, uBYTE, uBYTE, uBYTE);
         bool    checkBorrowFromBit_Word(int, uWORD, uWORD);
+        bool    checkBorrowFromBit_Word(int, uWORD, uWORD, uWORD);
     };
 }
 
