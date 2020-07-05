@@ -1,5 +1,5 @@
 # FuuGBemu
-![Windows 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Windows%2064-Bit%20Build/badge.svg?event=push)    ![MacOS 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/MacOS%2064-Bit%20Build/badge.svg?event=push)
+![Windows 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Windows%2064-Bit%20Build/badge.svg?event=push)    ![Mac OSX 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Mac%20OSX%2064-Bit%20Build/badge.svg?event=push)
 
 C/C++ DMG GameBoy emulator using SDL2 Libraries.
 
