@@ -6,7 +6,7 @@ namespace FuuGB
 
     MacApplication::~MacApplication(){}
 
-    void MacApplication::run()
+    void MacApplication::run(int argc, char** argv)
     {
         // Initialize SDL
         FUUGB_INIT();

@@ -26,24 +26,26 @@ BIN_PATH = $(BUILD_PATH)/bin
 BIN_NAME = FuuGBemu
 
 # File extensions to scan for
-SRC_EXT = cpp
+CPP_SRC_EXT = cpp
 OBJ_C_SRC_EXT = m
 OBJ_CPP_SRC_EXT = mm
 
 # Find all source files in the source directory, sorted by
 # most recently modified
-SOURCES = $(shell find $(SRC_PATH) -name '*.$(SRC_EXT)' | sort -k 1nr | cut -f2-)
+CPP_SOURCES = $(shell find $(SRC_PATH) -name '*.$(CPP_SRC_EXT)' | sort -k 1nr | cut -f2-)
+OBJ_C_SOUCRES =
+OBJ_CPP_SOURCES = 
 ifeq ($(OSFLAG), OSX)
-	SOURCES += $(shell find $(SRC_PATH) -name '*.$(OBJ_C_SRC_EXT)' | sort -k 1nr | cut -f2-)
-	SOURCES += $(shell find $(SRC_PATH) -name '*.$(OBJ_CPP_SRC_EXT)' | sort -k 1nr | cut -f2-)
+	OBJ_C_SOUCRES += $(shell find $(SRC_PATH)/osx -name '*.$(OBJ_C_SRC_EXT)' | sort -k 1nr | cut -f2-)
+	OBJ_CPP_SOURCES += $(shell find $(SRC_PATH)/osx -name '*.$(OBJ_CPP_SRC_EXT)' | sort -k 1nr | cut -f2-)
 endif
 
 # Set the object file names, with the source directory stripped
 # from the path, and the build path prepended in its place
-OBJECTS = $(SOURCES:$(SRC_PATH)/%.$(SRC_EXT)=$(BUILD_PATH)/%.o)
+OBJECTS = $(CPP_SOURCES:$(SRC_PATH)/%.$(CPP_SRC_EXT)=$(BUILD_PATH)/%.o)
 ifeq ($(OSFLAG), OSX)
-	OBJECTS += $(SOURCES:$(SRC_PATH)/%.$(OBJ_C_SRC_EXT)=$(BUILD_PATH)/%.o)
-	OBJECTS += $(SOURCES:$(SRC_PATH)/%.$(OBJ_CPP_SRC_EXT)=$(BUILD_PATH)/%.o)
+	OBJECTS += $(OBJ_C_SOUCRES:$(SRC_PATH)/osx/%.$(OBJ_C_SRC_EXT)=$(BUILD_PATH)/%.o)
+	OBJECTS += $(OBJ_CPP_SOURCES:$(SRC_PATH)/osx/%.$(OBJ_CPP_SRC_EXT)=$(BUILD_PATH)/%.o)
 endif
 
 # Set the dependency files that will be used to add header dependencies
@@ -55,7 +57,8 @@ ifeq ($(OSFLAG), LINUX)
 	COMPILE_FLAGS += -DFUUGB_SYSTEM_LINUX
 endif
 ifeq ($(OSFLAG), OSX)
-	COMPILE_FLAGS += -DFUUGB_SYSTEM_MACOS
+	COMPILE_FLAGS += -DFUUGB_SYSTEM_MACOS -x objective-c++
+	LIBS += -framework Cocoa
 	LIBTOCP = lib/sdl2/osx/libSDL2.dylib
 endif
 ifeq ($(OSFLAG), WINDOWS)
@@ -110,7 +113,15 @@ $(BIN_PATH)/$(BIN_NAME): $(OBJECTS)
 # Source file rules
 # After the first compilation they will be joined with the rules from the
 # dependency files to provide header dependencies
-$(BUILD_PATH)/%.o: $(SRC_PATH)/%.$(SRC_EXT)
+$(BUILD_PATH)/%.o: $(SRC_PATH)/%.$(CPP_SRC_EXT)
+	@echo "Compiling: $< -> $@"
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -MP -MMD -c $< -o $@
+
+$(BUILD_PATH)/%.o: $(SRC_PATH)/osx/%.$(OBJ_C_SRC_EXT)
+	@echo "Compiling: $< -> $@"
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -MP -MMD -c $< -o $@
+
+$(BUILD_PATH)/%.o: $(SRC_PATH)/osx/%.$(OBJ_CPP_SRC_EXT)
 	@echo "Compiling: $< -> $@"
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -MP -MMD -c $< -o $@
 
