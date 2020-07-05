@@ -17,7 +17,8 @@ jobs:
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
+        prerelease: true
         files: |
           ${{github.workspace}}\build\bin\FuuGBemu.exe
           ${{github.workspace}}\build\bin\SDL2.dll
+        title: win_x86-64_${{github.ref}}
