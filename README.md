@@ -1,5 +1,5 @@
 # FuuGBemu
-![Tests](https://github.com/DerekBoucher/FuuGBemu/workflows/Tests/badge.svg?event=push)    ![Windows 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Windows%2064-Bit%20Build/badge.svg?event=push)    ![MacOS 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/MacOS%2064-Bit%20Build/badge.svg?event=push)    ![languages](https://img.shields.io/github/languages/top/DerekBoucher/FuuGBemu)
+![Windows 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Windows%2064-Bit%20Build/badge.svg?event=push)    ![MacOS 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/MacOS%2064-Bit%20Build/badge.svg?event=push)
 
 C/C++ DMG GameBoy emulator using SDL2 Libraries.
 
@@ -9,9 +9,7 @@ All credit goes to codeslinger!
 
 Early Alpha Development
 
-![](images/DrMario.JPG)
-![](images/Flipull.JPG)
-![](images/PipeDream.JPG)
+<img src="images/DrMario.JPG" width=30% height=30%> <img src="images/Flipull.JPG" width=30% height=30%> <img src="images/PipeDream.JPG" width=30% height=30%>
 
 ## How To Build
     MAC OS X
