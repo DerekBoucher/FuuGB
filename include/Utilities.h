@@ -13,11 +13,14 @@
 namespace FuuGB {
 
     //Namespace variables/Defines
-    static HMENU hHelp;
-    static HMENU hEdit;
-    static HMENU hOptions;
-    static HMENU hFile;
-    static HMENU hMenuBar;
+    struct handles 
+    {
+        static HMENU hHelp;
+        static HMENU hEdit;
+        static HMENU hOptions;
+        static HMENU hFile;
+        static HMENU hMenuBar;
+    };
 
     HWND        getSDLWinHandle(SDL_Window* win);
     HINSTANCE   getHinst(SDL_Window* win);

@@ -3,6 +3,12 @@
 
 namespace FuuGB
 {
+    HMENU handles::hHelp;
+    HMENU handles::hEdit;
+    HMENU handles::hOptions;
+    HMENU handles::hFile;
+    HMENU handles::hMenuBar;
+
     //Function which retrieves the address/Handle of an SDL window
     //Also retrieves the specific subsystem used by SDL to create that window which is platform specific (Windows, MAC OS x, IOS, etc...)
     HWND getSDLWinHandle(SDL_Window* win)
@@ -30,27 +36,27 @@ namespace FuuGB
     //Initializes the native windows drop down menu elements of the window
     void ActivateMenu(HWND windowRef)
     {
-        hMenuBar = CreateMenu();
-        hFile = CreateMenu();
-        hEdit = CreateMenu();
-        hOptions = CreateMenu();
-        hHelp = CreateMenu();
+        handles::hMenuBar = CreateMenu();
+        handles::hFile = CreateMenu();
+        handles::hEdit = CreateMenu();
+        handles::hOptions = CreateMenu();
+        handles::hHelp = CreateMenu();
 
-        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hFile, L"File");
-        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hEdit, L"Edit");
-        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hOptions, L"Options");
-        AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hHelp, L"Help");
+        AppendMenu(handles::hMenuBar, MF_POPUP, (UINT_PTR)handles::hFile, L"File");
+        AppendMenu(handles::hMenuBar, MF_POPUP, (UINT_PTR)handles::hEdit, L"Edit");
+        AppendMenu(handles::hMenuBar, MF_POPUP, (UINT_PTR)handles::hOptions, L"Options");
+        AppendMenu(handles::hMenuBar, MF_POPUP, (UINT_PTR)handles::hHelp, L"Help");
         
-        AppendMenu(hFile, MF_STRING, ID_LOADROM, L"Load ROM");
-        AppendMenu(hFile, MF_STRING, ID_EXIT, L"Exit");
+        AppendMenu(handles::hFile, MF_STRING, ID_LOADROM, L"Load ROM");
+        AppendMenu(handles::hFile, MF_STRING, ID_EXIT, L"Exit");
         
-        AppendMenu(hEdit, MF_STRING, ID_CONTROLS, L"Configure Controls");
+        AppendMenu(handles::hEdit, MF_STRING, ID_CONTROLS, L"Configure Controls");
 
-        AppendMenu(hOptions, MF_STRING, ID_EXT_DISPLAY, L"Extend Display");
+        AppendMenu(handles::hOptions, MF_STRING, ID_EXT_DISPLAY, L"Extend Display");
         
-        AppendMenu(hHelp, MF_STRING, ID_ABOUT, L"About");
+        AppendMenu(handles::hHelp, MF_STRING, ID_ABOUT, L"About");
         
-        SetMenu(windowRef, hMenuBar);
+        SetMenu(windowRef, handles::hMenuBar);
     }
 
     char* OpenFile(SDL_Window* win)
