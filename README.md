@@ -38,14 +38,14 @@ Early Alpha Development
 ## Blargg's CPU Instruction Tests
 | Test 		| Fail/Pass |
 |------			|-------|
-|01-special		| Fail	|
+|01-special		| Pass	|
 |02-interrupts		| Pass	|
-|03-op sp,hl		| Fail	|
-|04-op r,imm		| Fail	|
-|05-op rp		| Fail	|
-|06-ld r,r		| Fail	|
-|07-jr,jp,call,ret,rst	| Fail	|
-|08-misc instrs		| inf. loop? |
-|09-op r,r		| Fail	|
-|10-bit ops		| Fail	|
-|11-op a,(hl)		| Fail	|
+|03-op sp,hl		| Pass	|
+|04-op r,imm		| Pass	|
+|05-op rp		| Pass	|
+|06-ld r,r		| Pass	|
+|07-jr,jp,call,ret,rst	| Pass	|
+|08-misc instrs		| Pass |
+|09-op r,r		| Pass	|
+|10-bit ops		| Pass	|
+|11-op a,(hl)		| Pass	|
