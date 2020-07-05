@@ -16,10 +16,3 @@ jobs:
       with:
         name: build
         path: ${{github.workspace}}\build\bin\
-  test:
-    runs-on: windows-latest
-    steps:
-    - name: 01-special.gb
-      run: |
-        cd ${{github.workspace}}\build\bin\
-        until FuuGBemu ..\..\gb-test-roms\cpu_instrs\individual\01-special.gb | grep -m 1 "Passed"; do sleep 1; done
