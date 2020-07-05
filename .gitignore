@@ -9,7 +9,6 @@ bin/
 bin-int/
 *.DS_Store
 .vscode/
-*Makefile
 *.hint
 .gradle/
 .gitattributes
