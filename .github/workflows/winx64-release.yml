@@ -3,22 +3,39 @@ name: Win 64-Bit Release
 on:
   push:
     tags:
-      - "v*"
+    - 'v*'
+
+name: Upload Release Asset
 
 jobs:
-  tagged-release:
-    runs-on: windows-latest
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: 'recursive'
-    - name: make
-      run: make debug
-    - uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: true
-        files: |
-          ${{github.workspace}}\build\bin\FuuGBemu.exe
-          ${{github.workspace}}\build\bin\SDL2.dll
-        title: win_x86-64_${{github.ref}}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build project
+        run: |
+          make debug
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: true
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{github.workspace}}\build\bin
+          asset_name: |
+            FuuGBemu.exe
+            SDL2.dll
+          asset_content_type: application/zip
