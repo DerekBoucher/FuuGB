@@ -19,4 +19,4 @@ build/
 gradle/
 gradlew
 gradlew.bat
-roms/real/
+real/
