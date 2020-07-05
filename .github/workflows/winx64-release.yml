@@ -32,7 +32,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{github.workspace}}\build\bin
+          asset_path: ${{github.workspace}}\build\bin\FuuGBemu.exe
           asset_name: FuuGBemu.exe
           asset_content_type: application/zip
       - name: Upload SDL2 Shared Lib
@@ -42,6 +42,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{github.workspace}}\build\bin
+          asset_path: ${{github.workspace}}\build\bin\SDL2.dll
           asset_name: SDL2.dll
           asset_content_type: application/zip
