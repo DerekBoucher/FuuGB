@@ -408,7 +408,6 @@ namespace FuuGB
         {
             cart->CurrentRomBank = data & 0x1F;
 
-
             if (cart->CurrentRomBank == 0x00 ||
                 cart->CurrentRomBank == 0x20 ||
                 cart->CurrentRomBank == 0x40 ||
@@ -442,7 +441,7 @@ namespace FuuGB
 
     void Memory::toggleRam(uWORD addr, uBYTE data)
     {
-        if (cart->MBC1 || cart->MBC3 || cart->MBC5)
+        if (cart->MBC1 || cart->MBC3 || cart->MBC5 || cart->ROM)
         {
             if ((data & 0x0F) == 0x0A)
                 cart->RamEnabled = true;

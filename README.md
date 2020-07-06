@@ -38,14 +38,14 @@ Early Alpha Development
 ## Blargg's CPU Instruction Tests
 | Test 		| Fail/Pass |
 |------			|-------|
-|01-special		| Pass	|
-|02-interrupts		| Pass	|
-|03-op sp,hl		| Pass	|
-|04-op r,imm		| Pass	|
-|05-op rp		| Pass	|
-|06-ld r,r		| Pass	|
-|07-jr,jp,call,ret,rst	| Pass	|
-|08-misc instrs		| Pass |
-|09-op r,r		| Pass	|
-|10-bit ops		| Pass	|
-|11-op a,(hl)		| Pass	|
+|01-special		| :heavy_check_mark:	|
+|02-interrupts		| :heavy_check_mark:	|
+|03-op sp,hl		| :heavy_check_mark:	|
+|04-op r,imm		| :heavy_check_mark:	|
+|05-op rp		| :heavy_check_mark:	|
+|06-ld r,r		| :heavy_check_mark:	|
+|07-jr,jp,call,ret,rst	| :heavy_check_mark:	|
+|08-misc instrs		| :heavy_check_mark: |
+|09-op r,r		| :heavy_check_mark:	|
+|10-bit ops		| :heavy_check_mark:	|
+|11-op a,(hl)		| :heavy_check_mark:	|
