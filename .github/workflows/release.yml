@@ -40,7 +40,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.createRelease.outputs.upload_url }}
-          asset_path: ${{github.workspace}}\build\bin\FuuGBemu.tar.gz
+          asset_path: ${{github.workspace}}\build\FuuGBemu.tar.gz
           asset_name: win_x86-64_FuuGBemu.tar.gz
           asset_content_type: application/zip
   build-macos:
@@ -61,6 +61,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.createRelease.outputs.upload_url }}
-          asset_path: ${{github.workspace}}/build/bin/FuuGBemu.tar.gz
+          asset_path: ${{github.workspace}}/build/FuuGBemu.tar.gz
           asset_name: macos_x86-64_FuuGBemu.tar.gz
           asset_content_type: application/zip
