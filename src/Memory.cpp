@@ -9,18 +9,13 @@ namespace FuuGB
         mainMemory  = new uBYTE[0x10000];
         memset(mainMemory, 0x0, 0x10000);
 
-#ifndef FUUGB_UNIT_TEST
         for (int i = 0x0; i < 0x100; i++) {
             mainMemory[i] = bootRom[i];
         }
         for (int i = 0x100; i < 0x4000; i++) {
             mainMemory[i] = cart->Rom[i];
         }
-#else
-        for (int i = 0x00; i < 0x4000; i++) {
-            mainMemory[i] = cart->Rom[i];
-        }
-#endif
+
         dmaTransferInProgress   = false;
         bootRomClosed           = false;
         TimerCounter            = 1024;
