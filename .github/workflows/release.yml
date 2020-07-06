@@ -32,7 +32,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ jobs.create_release.steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.createRelease.steps.create_release.outputs.upload_url }}
           asset_path: ${{github.workspace}}\build\bin\FuuGBemu.exe
           asset_name: win_x86-64_FuuGBemu_${{ github.ref }}
           asset_content_type: application/zip
@@ -42,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ jobs.create_release.steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.createRelease.steps.create_release.outputs.upload_url }}
           asset_path: ${{github.workspace}}\build\bin\SDL2.dll
           asset_name: SDL2
           asset_content_type: application/zip
@@ -57,7 +57,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.createRelease.steps.create_release.outputs.upload_url }}
           asset_path: ${{github.workspace}}/build/bin/FuuGBemu
           asset_name: macos_x86-64_FuuGBemu_${{ github.ref }}
           asset_content_type: application/zip
@@ -67,7 +67,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.createRelease.steps.create_release.outputs.upload_url }}
           asset_path: ${{github.workspace}}\build\bin\SDL2.dylib
           asset_name: SDL2
           asset_content_type: application/zip
