@@ -1,4 +1,4 @@
-name: Win 64-Bit Release
+name: Tagged Release
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
     - 'v*'
 
 jobs:
-  build-windows:
-    name: Upload Release Asset
+  createRelease:
+    name: Create Release
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -25,6 +25,10 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: true
+  build-windows:
+    name: Upload Windows
+    runs-on: windows-latest
+    steps:
       - name: Upload FuuGBemu Binary
         id: upload-FuuGBemu
         uses: actions/upload-release-asset@v1
@@ -45,25 +49,10 @@ jobs:
           asset_path: ${{github.workspace}}\build\bin\SDL2.dll
           asset_name: SDL2
           asset_content_type: application/zip
-  build-macosx:
-    name: Upload Release Asset
+  build-macos:
+    name: Upload Windows
     runs-on: macos-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Build project
-        run: |
-          make debug
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: true
       - name: Upload FuuGBemu Binary
         id: upload-FuuGBemu
         uses: actions/upload-release-asset@v1
