@@ -7,7 +7,6 @@ on:
 
 jobs:
   createRelease:
-    id: create_release
     name: Create Release
     runs-on: windows-latest
     steps:
