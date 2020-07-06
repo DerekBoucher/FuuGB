@@ -26,6 +26,7 @@ jobs:
           draft: false
           prerelease: true
   build-windows:
+    needs: createRelease
     name: Upload Windows
     runs-on: windows-latest
     steps:
@@ -50,7 +51,8 @@ jobs:
           asset_name: SDL2
           asset_content_type: application/zip
   build-macos:
-    name: Upload Windows
+    needs: createRelease
+    name: Upload OSX
     runs-on: macos-latest
     steps:
       - name: Upload FuuGBemu Binary
