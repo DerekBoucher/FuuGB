@@ -5,16 +5,13 @@ namespace FuuGB
 {
     Cartridge::Cartridge(FILE* input) 
     {
-        // Read in rom file
-        memset(Rom, 0x0, 0x200000);
-        fread(Rom, 0x1, 0x200000, input);
-
         // Define default rom and ram bank
         CurrentRomBank = 0x01;
         CurrentRamBank = 0x01;
 
+        fseek(input, 0x147, SEEK_SET);
         // Determine cart type
-        switch (Rom[0x147]) {
+        switch (fgetc(input)) {
         case 0x00:
             ROM = true;
             break;
@@ -140,40 +137,56 @@ namespace FuuGB
             break;
         }
 
-        // Determine amount and size of the rom banks
-        switch (Rom[0x148]) {
+        // Determine amount of rom banks
+        fseek(input, 0x148, SEEK_SET);
+        switch (fgetc(input)) {
         case 0x00:
             RomBankCount = 0;
+            RomSize = 0x8000;
             break;
         case 0x01:
             RomBankCount = 4;
+            RomSize = 0x10000;
             break;
         case 0x02:
             RomBankCount = 8;
+            RomSize = 0x20000;
             break;
         case 0x03:
             RomBankCount = 16;
+            RomSize = 0x40000;
             break;
         case 0x04:
             RomBankCount = 32;
+            RomSize = 0x80000;
             break;
         case 0x05:
             RomBankCount = 64;
+            RomSize = 0x100000;
             break;
         case 0x06:
             RomBankCount = 128;
+            RomSize = 0x200000;
             break;
         case 0x07:
             RomBankCount = 256;
+            RomSize = 0x400000;
+            break;
+        case 0x08:
+            RomBankCount = 512;
+            RomSize = 0x800000;
             break;
         case 0x52:
             RomBankCount = 72;
+            RomSize = 0x120000;
             break;
         case 0x53:
             RomBankCount = 80;
+            RomSize = 0x133334;
             break;
         case 0x54:
             RomBankCount = 96;
+            RomSize = 0x180000;
             break;
         default:
             exit(-8);
@@ -181,7 +194,8 @@ namespace FuuGB
         }
 
         // Determine amount and size of the ram banks
-        switch (Rom[0x149]) {
+        fseek(input, 0x149, SEEK_SET);
+        switch (fgetc(input)) {
         case 0x00:
             RamBankSize = 0;
             RamBankCount = 0;
@@ -207,14 +221,21 @@ namespace FuuGB
             RamBankCount = 8;
             break;
         default:
-            exit(-9);
+            exit(-9);     
             break;
         }
+
+        RamSize = RamBankCount * RamBankSize;
+
+        Rom = new uBYTE[RomSize];
+        fseek(input, 0x0, SEEK_SET);
+        fread(Rom, 0x1, RomSize, input);
 
         RamEnabled = false;
         Mode = false;
     }
 
     Cartridge::~Cartridge() {
+        delete Rom;
     }
 }

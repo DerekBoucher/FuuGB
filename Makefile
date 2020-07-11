@@ -52,7 +52,7 @@ endif
 DEPS = $(OBJECTS:.o=.d)
 
 # flags #
-COMPILE_FLAGS = -std=c++11 -Wall -Wextra -g -pthread
+COMPILE_FLAGS = -std=c++11 -Wall -Wextra -pthread
 ifeq ($(OSFLAG), LINUX)
 	COMPILE_FLAGS += -DFUUGB_SYSTEM_LINUX
 endif
@@ -75,7 +75,7 @@ LIBS += -lSDL2 -lpthread
 default_target: debug
 
 .PHONY: debug
-debug: export COMPILE_FLAGS := $(COMPILE_FLAGS) -DFUUGB_DEBUG -g
+debug: export COMPILE_FLAGS := $(COMPILE_FLAGS) -DFUUGB_DEBUG -g3
 debug: export CXXFLAGS := $(CXXFLAGS) $(COMPILE_FLAGS)
 debug: dirs
 	@$(MAKE) all
