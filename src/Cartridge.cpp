@@ -236,6 +236,5 @@ namespace FuuGB
     }
 
     Cartridge::~Cartridge() {
-        delete Rom;
     }
 }

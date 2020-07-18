@@ -270,27 +270,27 @@ namespace FuuGB
             switch(ColorCode)
             {
                 case 0x00:
-                    if(Color_00 == 0x00) { R = 224; G = 248; B = 208; }
-                    else if(Color_00 == 0x1) { R = 136; G = 192; B = 112; }
-                    else if(Color_00 == 0x2) { R = 52; G = 104; B = 86; }
+                    if(Color_00 == 0x00) { R = 245; G = 245; B = 245; }
+                    else if(Color_00 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_00 == 0x2) { R = 169; G = 169; B = 169; }
                     else if(Color_00 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 case 0x01:
-                    if(Color_01 == 0x00) { R = 224; G = 248; B = 208; }
-                    else if(Color_01 == 0x1) { R = 136; G = 192; B = 112; }
-                    else if(Color_01 == 0x2) { R = 52; G = 104; B = 86; }
+                    if(Color_01 == 0x00) { R = 245; G = 245; B = 245; }
+                    else if(Color_01 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_01 == 0x2) { R = 169; G = 169; B = 169; }
                     else if(Color_01 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 case 0x02:
-                    if(Color_10 == 0x00) { R = 224; G = 248; B = 208; }
-                    else if(Color_10 == 0x1) { R = 136; G = 192; B = 112; }
-                    else if(Color_10 == 0x2) { R = 52; G = 104; B = 86; }
+                    if(Color_10 == 0x00) { R = 245; G = 245; B = 245; }
+                    else if(Color_10 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_10 == 0x2) { R = 169; G = 169; B = 169; }
                     else if(Color_10 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 case 0x03:
-                    if(Color_11 == 0x00) { R = 224; G = 248; B = 208; }
-                    else if(Color_11 == 0x1) { R = 136; G = 192; B = 112; }
-                    else if(Color_11 == 0x2) { R = 52; G = 104; B = 86; }
+                    if(Color_11 == 0x00) { R = 245; G = 245; B = 245; }
+                    else if(Color_11 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_11 == 0x2) { R = 169; G = 169; B = 169; }
                     else if(Color_11 == 0x3) { R = 0; G = 0; B = 0; }
                     break;
                 default:
@@ -322,7 +322,7 @@ namespace FuuGB
         for (uBYTE sprite = 0; sprite < 40; sprite++)
         {
             uBYTE index         = sprite * 4;
-            uBYTE yPos          = memoryRef->DmaRead(0xFE00 + index);
+            uBYTE yPos          = memoryRef->DmaRead(0xFE00 + index) - 0x10;
             uBYTE xPos          = memoryRef->DmaRead(0xFE00 + index + 1);
             uBYTE patternNumber = memoryRef->DmaRead(0xFE00 + index + 2);
             uBYTE attributes    = memoryRef->DmaRead(0xFE00 + index + 3);
@@ -336,7 +336,7 @@ namespace FuuGB
 
             if(u_8x16)
             {
-                patternNumber &= 0x7F;
+                patternNumber &= 0xFE;
                 ysize = 16;
             }
             
@@ -402,27 +402,27 @@ namespace FuuGB
                     switch(ColorCode)
                     {
                         case 0x00:
-                            if(Color_00 == 0x00) { R = 224; G = 248; B = 208; }
-                            else if(Color_00 == 0x1) { R = 136; G = 192; B = 112; }
-                            else if(Color_00 == 0x2) { R = 52; G = 104; B = 86; }
+                            if(Color_00 == 0x00) { R = 245; G = 245; B = 245; }
+                            else if(Color_00 == 0x1) { R = 211; G = 211; B = 211; }
+                            else if(Color_00 == 0x2) { R = 169; G = 169; B = 169; }
                             else if(Color_00 == 0x3) { R = 0; G = 0; B = 0; }
                             break;
                         case 0x01:
-                            if(Color_01 == 0x00) { R = 224; G = 248; B = 208; }
-                            else if(Color_01 == 0x1) { R = 136; G = 192; B = 112; }
-                            else if(Color_01 == 0x2) { R = 52; G = 104; B = 86; }
+                            if(Color_01 == 0x00) { R = 245; G = 245; B = 245; }
+                            else if(Color_01 == 0x1) { R = 211; G = 211; B = 211; }
+                            else if(Color_01 == 0x2) { R = 169; G = 169; B = 169; }
                             else if(Color_01 == 0x3) { R = 0; G = 0; B = 0; }
                             break;
                         case 0x02:
-                            if(Color_10 == 0x00) { R = 224; G = 248; B = 208; }
-                            else if(Color_10 == 0x1) { R = 136; G = 192; B = 112; }
-                            else if(Color_10 == 0x2) { R = 52; G = 104; B = 86; }
+                            if(Color_10 == 0x00) { R = 245; G = 245; B = 245; }
+                            else if(Color_10 == 0x1) { R = 211; G = 211; B = 211; }
+                            else if(Color_10 == 0x2) { R = 169; G = 169; B = 169; }
                             else if(Color_10 == 0x3) { R = 0; G = 0; B = 0; }
                             break;
                         case 0x03:
-                            if(Color_11 == 0x00) { R = 224; G = 248; B = 208; }
-                            else if(Color_11 == 0x1) { R = 136; G = 192; B = 112; }
-                            else if(Color_11 == 0x2) { R = 52; G = 104; B = 86; }
+                            if(Color_11 == 0x00) { R = 245; G = 245; B = 245; }
+                            else if(Color_11 == 0x1) { R = 211; G = 211; B = 211; }
+                            else if(Color_11 == 0x2) { R = 169; G = 169; B = 169; }
                             else if(Color_11 == 0x3) { R = 0; G = 0; B = 0; }
                             break;
                         default:
@@ -434,11 +434,14 @@ namespace FuuGB
                         continue;
                     }
                     
-                    int xPix = 0 - tilepixel;
-                    
-                    xPix += 7;
+                    int xPix = 0 - tilepixel - 1;
                     
                     int pixel = xPos + xPix;
+
+                    if(currentScanline < 0 || currentScanline > 143 || pixel < 0 || pixel > 159 || ColorCode == 0x00)
+                    {
+                        continue;
+                    }
                     
                     SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
                     SDL_RenderFillRect(renderer, &pixels[pixel][currentScanline]);

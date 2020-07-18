@@ -9,17 +9,11 @@ namespace FuuGB
         mainMemory  = new uBYTE[0x10000];
         memset(mainMemory, 0x0, 0x10000);
 
-        for (int i = 0x0; i < 0x100; i++) {
-            mainMemory[i] = bootRom[i];
-        }
-        for (int i = 0x100; i < 0x4000; i++) {
-            mainMemory[i] = cart->Rom[i];
-        }
-
         dmaTransferInProgress   = false;
         bootRomClosed           = false;
         TimerCounter            = 1024;
         dmaCyclesCompleted      = 0;
+        translatedAddr          = 0x0000;
     }
 
     Memory::~Memory()
@@ -68,6 +62,7 @@ namespace FuuGB
         }
         else if ((addr >= 0xA000) && (addr < 0xC000) && !dmaTransferInProgress) // External RAM
         {
+            translatedAddr = addr - 0xA000;
             if (cart->RamEnabled)
             {
                 if (cart->ROM)
@@ -78,7 +73,7 @@ namespace FuuGB
                 {
                     if (cart->Mode)
                     {
-                        cart->Rom[addr*cart->CurrentRamBank] = data;
+                        cart->Rom[translatedAddr + (0xA000 * cart->CurrentRamBank)] = data;
                     }
                     else
                     {
@@ -343,8 +338,10 @@ namespace FuuGB
     {
         if ((addr < 0x4000) && !dmaTransferInProgress) // Cart ROM Bank 0
         { 
-            if (!bootRomClosed)
-                return mainMemory[addr];
+            if (!bootRomClosed && (addr < 0x100))
+            {
+                return bootRom[addr];
+            }
             else
             {
                 if (cart->Mode)
@@ -383,7 +380,8 @@ namespace FuuGB
         }
         else if ((addr >= 0x4000) && (addr < 0x8000) && !dmaTransferInProgress) // Cart ROM Bank n
         { 
-            return cart->Rom[(addr*cart->CurrentRomBank)];
+            translatedAddr = addr - 0x4000;
+            return cart->Rom[translatedAddr + (0x4000 * cart->CurrentRomBank)];
         }
         else if((addr >= 0x8000) && (addr < 0xA000) && !dmaTransferInProgress) // Video RAM
         {
@@ -391,6 +389,7 @@ namespace FuuGB
         }
         else if ((addr >= 0xA000) && (addr < 0xC000) && !dmaTransferInProgress) // External RAM
         {
+            translatedAddr = addr - 0xA000;
             if (cart->RamEnabled)
             {
                 if (cart->ROM)
@@ -401,7 +400,7 @@ namespace FuuGB
                 {
                     if (cart->Mode)
                     {
-                        return cart->Rom[addr*cart->CurrentRamBank];
+                        return cart->Rom[translatedAddr + (0xA000 * cart->CurrentRamBank)];
                     }
                     else
                     {
@@ -447,10 +446,8 @@ namespace FuuGB
         {
             return mainMemory[addr];
         }
-        else // Interrupt Enable Register
-        {
-            return mainMemory[addr];
-        }
+        // Interrupt Enable Register 0xFFFF
+        return mainMemory[addr];
     }
 
     uBYTE Memory::DmaRead(uWORD addr)
@@ -476,10 +473,7 @@ namespace FuuGB
     
         if (cart->MBC1)
         {
-            if (!cart->Mode)
-                cart->CurrentRomBank = (cart->CurrentRamBank << 5) | (data & 0x1F);
-            else
-                cart->CurrentRomBank = (data & 0x1F);
+            cart->CurrentRomBank = (data & 0x1F);
 
             if (cart->CurrentRomBank > cart->RomBankCount)
                 cart->CurrentRomBank &= (cart->RomBankCount - 1);
@@ -538,7 +532,8 @@ namespace FuuGB
 
     void Memory::changeMode(uBYTE data)
     {
-        if (cart->MBC1) {
+        if (cart->MBC1) 
+        {
             if (data & 0x01)
                 cart->Mode = true;
             else
@@ -557,6 +552,9 @@ namespace FuuGB
             else
             {
                 cart->CurrentRamBank = 0x01;
+                cart->CurrentRomBank |= ((data & 0x03) << 5);
+                if (cart->CurrentRomBank > cart->RomBankCount)
+                    cart->CurrentRomBank &= (cart->RomBankCount - 1);
             }
             
         }
@@ -593,22 +591,16 @@ namespace FuuGB
     {
         dmaTransferInProgress = true;
 
-        // Divide start address by 100h
-        uWORD addr = data >> 8;
-
         // Check if source prefix is outside of allowed source addresses
-        if (addr > 0x00F1) 
+        if (data > 0xF1) 
         {
-            addr = 0x00F1;
+            data = 0xF1;
         }
-
-        // Shift back addr
-        addr = addr << 8;
 
         // Begin Transfer
         for(uBYTE i = 0; i < 0xA0; i++)
         {
-            mainMemory[0xFE00+i] = mainMemory[addr & i];
+            mainMemory[0xFE00+i] = mainMemory[(data << 8) | i];
         }
     }
     
