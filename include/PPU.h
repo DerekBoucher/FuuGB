@@ -33,9 +33,17 @@ namespace FuuGB
         uBYTE           LCDC;
         uBYTE           STAT;
 
+        struct sprite {
+            uBYTE yPos;
+            uBYTE xPos;
+            uBYTE patternNumber;
+            uBYTE attributes;
+        };
+
         void            drawScanline();
         void            renderTiles();
         void            renderSprites();
+        sprite*         processSprites();
         void            setLCDStatus();
         uBYTE           getStat();
         uBYTE           getLCDC();

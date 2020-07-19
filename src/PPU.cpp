@@ -318,17 +318,13 @@ namespace FuuGB
         {
             u_8x16 = true;
         }
+
+        sprite* sprites = processSprites();
         
-        for (uBYTE sprite = 0; sprite < 40; sprite++)
-        {
-            uBYTE index         = sprite * 4;
-            uBYTE yPos          = memoryRef->DmaRead(0xFE00 + index) - 0x10;
-            uBYTE xPos          = memoryRef->DmaRead(0xFE00 + index + 1);
-            uBYTE patternNumber = memoryRef->DmaRead(0xFE00 + index + 2);
-            uBYTE attributes    = memoryRef->DmaRead(0xFE00 + index + 3);
-            
-            bool yFlip = (attributes & (1 << 6));
-            bool xFlip = (attributes & (1 << 5));
+        for (uBYTE i = 0; i < 40; i++)
+        {   
+            bool yFlip = (sprites[i].attributes & (1 << 6));
+            bool xFlip = (sprites[i].attributes & (1 << 5));
             
             currentScanline = memoryRef->DmaRead(0xFF44);
             
@@ -336,13 +332,13 @@ namespace FuuGB
 
             if(u_8x16)
             {
-                patternNumber &= 0xFE;
+                sprites[i].patternNumber &= 0xFE;
                 ysize = 16;
             }
             
-            if((currentScanline >= yPos) && (currentScanline < (yPos + ysize)))
+            if((currentScanline >= sprites[i].yPos) && (currentScanline < (sprites[i].yPos + ysize)))
             {
-                int line = currentScanline - yPos;
+                int line = currentScanline - sprites[i].yPos;
                 
                 if(yFlip)
                 {
@@ -352,7 +348,7 @@ namespace FuuGB
                 
                 line *= 2;
                 
-                uWORD dataaddr  = (0x8000 + (patternNumber * 16)) + line;
+                uWORD dataaddr  = (0x8000 + (sprites[i].patternNumber * 16)) + line;
                 uBYTE data1     = memoryRef->DmaRead(dataaddr);
                 uBYTE data2     = memoryRef->DmaRead(dataaddr + 1);
                 
@@ -380,7 +376,7 @@ namespace FuuGB
                     
                     uWORD coloradr = 0x0000;
 
-                    if(attributes & (1 << 4))
+                    if(sprites[i].attributes & (1 << 4))
                     {
                         coloradr = 0xFF49;
                     }
@@ -436,7 +432,7 @@ namespace FuuGB
                     
                     int xPix = 0 - tilepixel - 1;
                     
-                    int pixel = xPos + xPix;
+                    int pixel = sprites[i].xPos + xPix;
 
                     if(currentScanline < 0 || currentScanline > 143 || pixel < 0 || pixel > 159 || ColorCode == 0x00)
                     {
@@ -535,5 +531,40 @@ namespace FuuGB
 
     uBYTE PPU::getStat() {
         return memoryRef->DmaRead(STAT_ADR);
+    }
+
+    PPU::sprite* PPU::processSprites() {
+
+        sprite* processedSprites = new sprite[40];
+        sprite  temp;
+
+        for(uBYTE i = 40; i != 255; i--) {
+
+            uBYTE index = i * 4;
+
+            processedSprites[i].yPos          = memoryRef->DmaRead(0xFE00 + index) - 0x10;
+            processedSprites[i].xPos          = memoryRef->DmaRead(0xFE00 + index + 1);
+            processedSprites[i].patternNumber = memoryRef->DmaRead(0xFE00 + index + 2);
+            processedSprites[i].attributes    = memoryRef->DmaRead(0xFE00 + index + 3);
+        }
+
+        // for(uBYTE i = 0; i < 40; i++) {
+        //     for(uBYTE j = 0; j < 40; j++) {
+        //         if (i == j) {
+        //             continue;
+        //         }
+
+        //         for (uBYTE k = 1; k < 8; k++) {
+        //             if ((processedSprites[j].xPos + k) == processedSprites[i].xPos) {
+        //                 temp = processedSprites[i];
+        //                 processedSprites[i] = processedSprites[j];
+        //                 processedSprites[j] = temp;
+        //                 break;
+        //             }
+        //         }
+        //     }
+        // }
+
+        return processedSprites;
     }
 }
