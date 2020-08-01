@@ -27,7 +27,7 @@ namespace FuuGB
 
     void Gameboy::Run()
     {
-        const int MAXCYCLES = 69905;
+        const int MAXCYCLES = 70221;
         duration<double> screenRefreshCycle = std::chrono::nanoseconds(150 * MAXCYCLES);
         while (running)
         {   
@@ -36,10 +36,12 @@ namespace FuuGB
             while (cyclesThisUpdate <= MAXCYCLES)
             {
                 int cycles = 0;
+
                 if (pause)
                 {
                     wait();
                 }
+
                 if (cpuUnit->Halted)
                 {
                     cpuUnit->Halt();

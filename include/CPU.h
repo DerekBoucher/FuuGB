@@ -119,7 +119,7 @@ namespace FuuGB
             INC_L = 0x2C, //Increment L
             DEC_L = 0x2D, //Decrement L
             LD_8IMM_L = 0x2E, //Load 8 bit immediate value into L
-            NOT_A = 0x2F, //Logical NOT on A (One's complement)
+            CPL_A = 0x2F, //Logical Compliment of A = A xor 0xFF
             RJmp_NOCARRY = 0x30, //Jump to address specified by (PC+e) if last result did not generate a carry
             LD_16IM_SP = 0x31, //Load 16 bit immediate value into SP
             LDD_A_adrHL = 0x32, //Load contents of A into address pointed by HL, then decrement HL afterwards.

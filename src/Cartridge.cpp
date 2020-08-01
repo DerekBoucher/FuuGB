@@ -141,7 +141,7 @@ namespace FuuGB
         fseek(input, 0x148, SEEK_SET);
         switch (fgetc(input)) {
         case 0x00:
-            RomBankCount = 0;
+            RomBankCount = 1;
             RomSize = 0x8000;
             break;
         case 0x01:
@@ -197,8 +197,8 @@ namespace FuuGB
         fseek(input, 0x149, SEEK_SET);
         switch (fgetc(input)) {
         case 0x00:
-            RamBankSize = 0;
-            RamBankCount = 0;
+            RamBankSize = 0x800;
+            RamBankCount = 1;
             break;
         case 0x01:
             RamBankSize = 0x800;

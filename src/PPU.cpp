@@ -93,11 +93,15 @@ namespace FuuGB
     {
         LCDC = getLCDC();
 
-        if(LCDC & (1 << 0))
+        if (LCDC & (1 << 0))
         {
             renderTiles();
         }
-        if(LCDC & (1 << 1))
+        if ((LCDC & (1 << 5)) && (LCDC & (1 << 0)))
+        {
+            renderWindow();
+        }
+        if (LCDC & (1 << 1))
         {
             renderSprites();
         }
@@ -109,19 +113,14 @@ namespace FuuGB
 
         uWORD tileDataPtr   = 0x0;
         uWORD tileMapPtr    = 0x0;
-        uWORD winMapPtr     = 0x0;
         
-        bool winEnabled = LCDC & (1 << 5);
         bool unsignedID = false;
         
         // Determine The offsets to use when retrieving the Tile Identifiers from
         // Tile Map address space.
         uBYTE scrollX   = memoryRef->DmaRead(0xFF43);
         uBYTE scrollY   = memoryRef->DmaRead(0xFF42);
-        uBYTE winX      = memoryRef->DmaRead(0xFF4B) - 7;
-        uBYTE winY      = memoryRef->DmaRead(0xFF4A);
-        
-        
+
         // Determine base address of tile data for BG & window
         if(LCDC & (1 << 4))
         {
@@ -143,44 +142,12 @@ namespace FuuGB
         {
             tileMapPtr = 0x9800;
         }
-        
-        // Determine if the window is to be rendered
-        // The window is rendered above the background
-        if(LCDC & (1 << 5))
-        {
-            winEnabled = true;
-        }
-        else
-        {
-            winEnabled = false;
-        }
-        
-        // If Window is to be rendered, determine its Maping ptr in memoryUnit
-        if(LCDC & (1 << 6))
-        {
-            winMapPtr = 0x9C00;
-        }
-        else
-        {
-            winMapPtr = 0x9800;
-        }
-        
+
         // Determine the current scanline we are on
         currentScanline = memoryRef->DmaRead(0xFF44);
 
-        uWORD yPos;
-
-        // If window is not enabled, then add scrollY to current scanline,
-        // else 
-        if (!winEnabled)
-        {
-            yPos = scrollY + currentScanline;
-        }
-        else
-        {
-            yPos = currentScanline - winY;
-        }
-
+        // Calculate which row in the tile to render
+        uWORD yPos = scrollY + currentScanline;
         uWORD tileRow = (yPos / 8) * 32;
         
         // Start Rendering the scanline
@@ -193,27 +160,10 @@ namespace FuuGB
 
             uWORD xPos = pixel + scrollX;
 
-            if(winEnabled)
-            {
-                if (pixel >= winX)
-                {
-                    xPos = pixel - winX;
-                }
-            }
-
             uWORD tileColumn = xPos / 8;
 
             // Determine the address for the tile ID
-            uWORD currentTileMapAdr = 0x0000;
-
-            if (winEnabled)
-            {
-                currentTileMapAdr = winMapPtr + tileColumn + tileRow;
-            }
-            else
-            {
-                currentTileMapAdr = tileMapPtr + tileColumn + tileRow;
-            }
+            uWORD currentTileMapAdr = tileMapPtr + tileColumn + tileRow;
             
             // Fetch the tile ID
             uBYTE tileID = memoryRef->DmaRead(currentTileMapAdr);
@@ -305,6 +255,143 @@ namespace FuuGB
             SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
             SDL_RenderFillRect(renderer, &pixels[pixel][currentScanline]);
             SDL_RenderDrawRect(renderer, &pixels[pixel][currentScanline]);
+
+            // Update pixel data
+            pixelData[pixel][currentScanline] = ColorCode;
+        }
+    }
+
+    void PPU::renderWindow()
+    {
+        LCDC = getLCDC();
+
+        uBYTE winY = memoryRef->DmaRead(0xFF4A);
+        uBYTE winX = memoryRef->DmaRead(0xFF4B) - 7;
+        uWORD tileMapPtr = 0x9800;
+        uWORD tileDataPtr = 0x9000;
+        bool unsignedID = false;
+
+        if (LCDC & (1 << 6)) 
+        {
+            tileMapPtr = 0x9C00;
+        }
+
+        if(LCDC & (1 << 4))
+        {
+            tileDataPtr = 0x8000;
+            unsignedID  = true;
+        }
+
+        // Determine the current scanline we are on
+        currentScanline = memoryRef->DmaRead(0xFF44);
+
+        // Calculate which row in the tile to render
+        uWORD yPos = winY + currentScanline;
+        uWORD tileRow = (yPos / 8) * 32;
+        
+        // Start Rendering the scanline
+        for(int pixel = 0; pixel < 160; pixel++) 
+        {
+            uWORD xPos = pixel + winX;
+
+            uWORD tileColumn = xPos / 8;
+
+            // Determine the address for the tile ID
+            uWORD currentTileMapAdr = tileMapPtr + tileColumn + tileRow;
+            
+            // Fetch the tile ID
+            uBYTE tileID = memoryRef->DmaRead(currentTileMapAdr);
+            
+            // Determine the current pixel data from the tile data
+            uWORD tileLineOffset = (yPos % 8) * 2; //Each line is 2 bytes
+            uWORD tileDataAdr;
+
+            if(unsignedID)
+            {
+                tileDataAdr = tileDataPtr + (tileID * 16);
+            }
+            else
+            {
+                if (tileID & 0x80)
+                {
+                    tileID = ~tileID;
+                    tileID += 1;
+                    tileDataAdr = tileDataPtr - (tileID * 16);
+                }
+                else
+                {
+                    tileDataAdr = tileDataPtr + (tileID * 16);
+                }
+            }
+
+            uBYTE data1 = memoryRef->DmaRead(tileDataAdr + tileLineOffset);
+            uBYTE data2 = memoryRef->DmaRead(tileDataAdr + tileLineOffset + 1);
+            
+            int currentBitPosition = (((pixel % 8) - 7)* -1);
+            
+            uBYTE ColorCode = 0x00;
+
+            if(data2 & (1 << currentBitPosition))
+            {
+                ColorCode |= 0x02;
+            }
+            
+            if(data1 & (1 << currentBitPosition))
+            {
+                 ColorCode |= 0x01;
+            }
+            
+            uBYTE R = 0x00;
+            uBYTE G = 0x00;
+            uBYTE B = 0x00;
+
+            uBYTE Color_00 = memoryRef->DmaRead(0xFF47) & 0x03;
+            uBYTE Color_01 = ((memoryRef->DmaRead(0xFF47)>>2) & 0x03);
+            uBYTE Color_10 = ((memoryRef->DmaRead(0xFF47)>>4) & 0x03);
+            uBYTE Color_11 = ((memoryRef->DmaRead(0xFF47)>>6) & 0x03);
+            
+            // Determine actual color for pixel via Color Pallete reg
+            switch(ColorCode)
+            {
+                case 0x00:
+                    if(Color_00 == 0x00) { R = 245; G = 245; B = 245; }
+                    else if(Color_00 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_00 == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_00 == 0x3) { R = 0; G = 0; B = 0; }
+                    break;
+                case 0x01:
+                    if(Color_01 == 0x00) { R = 245; G = 245; B = 245; }
+                    else if(Color_01 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_01 == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_01 == 0x3) { R = 0; G = 0; B = 0; }
+                    break;
+                case 0x02:
+                    if(Color_10 == 0x00) { R = 245; G = 245; B = 245; }
+                    else if(Color_10 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_10 == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_10 == 0x3) { R = 0; G = 0; B = 0; }
+                    break;
+                case 0x03:
+                    if(Color_11 == 0x00) { R = 245; G = 245; B = 245; }
+                    else if(Color_11 == 0x1) { R = 211; G = 211; B = 211; }
+                    else if(Color_11 == 0x2) { R = 169; G = 169; B = 169; }
+                    else if(Color_11 == 0x3) { R = 0; G = 0; B = 0; }
+                    break;
+                default:
+                    break;
+            }
+            
+            if(currentScanline < 0 || currentScanline > 143 || pixel < 0 || pixel > 159)
+            {
+                continue;
+            }
+            
+            SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
+            SDL_RenderFillRect(renderer, &pixels[pixel][currentScanline]);
+            SDL_RenderDrawRect(renderer, &pixels[pixel][currentScanline]);
+
+            // Update pixel data
+            pixelData[pixel][currentScanline] = ColorCode;
         }
     }
     
@@ -323,8 +410,9 @@ namespace FuuGB
         
         for (uBYTE i = 0; i < 40; i++)
         {   
-            bool yFlip = (sprites[i].attributes & (1 << 6));
-            bool xFlip = (sprites[i].attributes & (1 << 5));
+            bool yFlip      = (sprites[i].attributes & (1 << 6));
+            bool xFlip      = (sprites[i].attributes & (1 << 5));
+            bool priority   = !(sprites[i].attributes & (1 << 7));
             
             currentScanline = memoryRef->DmaRead(0xFF44);
             
@@ -438,6 +526,12 @@ namespace FuuGB
                     {
                         continue;
                     }
+
+                    // Determine if sprite pixel has priority over background or window
+                    if (!priority && pixelData[pixel][currentScanline] != 0x00)
+                    {
+                        continue;
+                    }
                     
                     SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
                     SDL_RenderFillRect(renderer, &pixels[pixel][currentScanline]);
@@ -536,7 +630,6 @@ namespace FuuGB
     PPU::sprite* PPU::processSprites() {
 
         sprite* processedSprites = new sprite[40];
-        sprite  temp;
 
         for(uBYTE i = 40; i != 255; i--) {
 

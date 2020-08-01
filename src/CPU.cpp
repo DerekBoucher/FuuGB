@@ -143,6 +143,7 @@ namespace FuuGB
         case STOP:
             //4 Clock Cycles
             Paused = true;
+            cyclesExecuted = 4;
             break;
 
         case LD_16IMM_DE:
@@ -213,7 +214,7 @@ namespace FuuGB
         case DEC_DE:
             //4 Clock Cycles
             DE.data = decrement16BitRegister(DE.data);
-            cyclesExecuted = 4;
+            cyclesExecuted = 8;
             break;
 
         case INC_E:
@@ -249,8 +250,10 @@ namespace FuuGB
                     PC = PC - twoComp_Byte(byte);
                 else
                     PC = PC + byte;
+                cyclesExecuted = 12;
             }
-            cyclesExecuted = 8;
+            else
+                cyclesExecuted = 8;
             break;
 
         case LD_16IMM_HL:
@@ -269,7 +272,7 @@ namespace FuuGB
         case INC_HL:
             //4 Clock Cycles
             HL.data = increment16BitRegister(HL.data);
-            cyclesExecuted = 4;
+            cyclesExecuted = 8;
             break;
 
         case INC_H:
@@ -305,8 +308,10 @@ namespace FuuGB
                     PC = PC - twoComp_Byte(byte);
                 else
                     PC = PC + byte;
+                cyclesExecuted = 12;
             }
-            cyclesExecuted = 8;
+            else
+                cyclesExecuted = 8;
             break;
 
         case ADD_HL_HL:
@@ -324,7 +329,7 @@ namespace FuuGB
         case DEC_HL:
             //4 Clock Cycles
             HL.data = decrement16BitRegister(HL.data);
-            cyclesExecuted = 4;
+            cyclesExecuted = 8;
             break;
 
         case INC_L:
@@ -345,9 +350,9 @@ namespace FuuGB
             cyclesExecuted = 8;
             break;
 
-        case NOT_A:
+        case CPL_A:
             //4 Clock Cycles
-            AF.hi = ~AF.hi;
+            AF.hi ^= 0xFF;
             CPU_FLAG_BIT_SET(N_FLAG);
             CPU_FLAG_BIT_SET(H_FLAG);
             cyclesExecuted = 4;
@@ -362,8 +367,10 @@ namespace FuuGB
                     PC = PC - twoComp_Byte(byte);
                 else
                     PC = PC + byte;
+                cyclesExecuted = 12;
             }
-            cyclesExecuted = 8;
+            else
+                cyclesExecuted = 8;
             break;
 
         case LD_16IM_SP:
@@ -424,8 +431,10 @@ namespace FuuGB
                     PC = PC - twoComp_Byte(byte);
                 else
                     PC = PC + byte;
+                cyclesExecuted = 12;
             }
-            cyclesExecuted = 8;
+            else
+                cyclesExecuted = 8;
             break;
 
         case ADD_SP_HL:
@@ -1370,1561 +1379,1561 @@ namespace FuuGB
             case RLC_B:
                 //4 clock Cycles
                 BC.hi = rotateRegExt(true, false, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RLC_C:
                 //4 clock Cycles
                 BC.lo = rotateRegExt(true, false, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RLC_D:
                 //4 clock Cycles
                 DE.hi = rotateRegExt(true, false, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RLC_E:
                 //4 clock Cycles
                 DE.lo = rotateRegExt(true, false, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RLC_H:
                 //4 clock Cycles
                 HL.hi = rotateRegExt(true, false, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RLC_L:
                 //4 clock Cycles
                 HL.lo = rotateRegExt(true, false, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RLC_adrHL:
                 //8 clock Cycles
                 byte = rotateRegExt(true, false, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case eRLC_A:
                 //4 clock Cycles
                 AF.hi = rotateRegExt(true, false, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
                 
             case RRC_B:
                 //4 clock Cycles
                 BC.hi = rotateRegExt(false, false, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RRC_C:
                 //4 clock Cycles
                 BC.lo = rotateRegExt(false, false, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RRC_D:
                 //4 clock Cycles
                 DE.hi = rotateRegExt(false, false, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RRC_E:
                 //4 clock Cycles
                 DE.lo = rotateRegExt(false, false, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RRC_H:
                 //4 clock Cycles
                 HL.hi = rotateRegExt(false, false, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RRC_L:
                 //4 clock Cycles
                 HL.lo = rotateRegExt(false, false, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RRC_adrHL:
                 //8 clock Cycles
                 byte = rotateRegExt(false, false, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case eRRC_A:
                 //4 clock Cycles
                 AF.hi = rotateRegExt(false, false, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RL_B:
                 //4 clock Cycles
                 BC.hi = rotateRegExt(true, true, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RL_C:
                 //4 clock Cycles
                 BC.lo = rotateRegExt(true, true, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RL_D:
                 //4 clock Cycles
                 DE.hi = rotateRegExt(true, true, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RL_E:
                 //4 clock Cycles
                 DE.lo = rotateRegExt(true, true, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RL_H:
                 //4 clock Cycles
                 HL.hi = rotateRegExt(true, true, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RL_L:
                 //4 clock Cycles
                 HL.lo = rotateRegExt(true, true, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RL_adrHL:
                 //8 clock Cycles
                 byte = rotateRegExt(true, true, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case eRL_A:
                 //4 clock Cycles
                 AF.hi = rotateRegExt(true, true, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RR_B:
                 //4 clock Cycles
                 BC.hi = rotateRegExt(false, true, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RR_C:
                 //4 clock Cycles
                 BC.lo = rotateRegExt(false, true, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RR_D:
                 //4 clock Cycles
                 DE.hi = rotateRegExt(false, true, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RR_E:
                 //4 clock Cycles
                 DE.lo = rotateRegExt(false, true, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RR_H:
                 //4 clock Cycles
                 HL.hi = rotateRegExt(false, true, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RR_L:
                 //4 clock Cycles
                 HL.lo = rotateRegExt(false, true, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RR_adrHL:
                 //8 clock Cycles
                 byte = rotateRegExt(false, true, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case eRR_A:
                 //4 clock Cycles
                 AF.hi = rotateRegExt(false, true, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SLA_B:
                 //4 clock cycles
                 BC.hi = shiftReg(true, true, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SLA_C:
                 //4 clock cycles
                 BC.lo = shiftReg(true, true, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SLA_D:
                 //4 clock cycles
                 DE.hi = shiftReg(true, true, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SLA_E:
                 //4 clock cycles
                 DE.lo = shiftReg(true, true, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SLA_H:
                 //4 clock cycles
                 HL.hi = shiftReg(true, true, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SLA_L:
                 //4 clock cycles
                 HL.lo = shiftReg(true, true, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SLA_adrHL:
                 //8 Clock Cycles
                 byte = shiftReg(true, true, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SLA_A:
                 //8 Clock Cycles
                 AF.hi = shiftReg(true, true, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRA_B:
                 //4 clock Cycles
                 BC.hi = shiftReg(false, true, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRA_C:
                 //4 clock Cycles
                 BC.lo = shiftReg(false, true, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRA_D:
                 //4 clock Cycles
                 DE.hi = shiftReg(false, true, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRA_E:
                 //4 clock Cycles
                 DE.lo = shiftReg(false, true, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRA_H:
                 //4 clock Cycles
                 HL.hi = shiftReg(false, true, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRA_L:
                 //4 clock Cycles
                 HL.lo = shiftReg(false, true, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRA_adrHL:
                 //8 clock Cycles
                 byte = shiftReg(false, true, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SRA_A:
                 //4 clock Cycles
                 AF.hi = shiftReg(false, true, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SWAP_B:
                 //4 Clock Cycles
                 BC.hi = swapReg(BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SWAP_C:
                 //4 Clock Cycles
                 BC.lo = swapReg(BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SWAP_D:
                 //4 Clock Cycles
                 DE.hi = swapReg(DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SWAP_E:
                 //4 Clock Cycles
                 DE.lo = swapReg(DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SWAP_H:
                 //4 Clock Cycles
                 HL.hi = swapReg(HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SWAP_L:
                 //4 Clock Cycles
                 HL.lo = swapReg(HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SWAP_adrHL:
                 //8 Clock Cycles
                 byte = swapReg(memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SWAP_A:
                 //4 Clock Cycles
                 AF.hi = swapReg(AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRL_B:
                 //4 Clock Cycles
                 BC.hi = shiftReg(false, false, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRL_C:
                 //4 Clock Cycles
                 BC.lo = shiftReg(false, false, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRL_D:
                 //4 Clock Cycles
                 DE.hi = shiftReg(false, false, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRL_E:
                 //4 Clock Cycles
                 DE.lo = shiftReg(false, false, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRL_H:
                 //4 Clock Cycles
                 HL.hi = shiftReg(false, false, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRL_L:
                 //4 Clock Cycles
                 HL.lo = shiftReg(false, false, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SRL_adrHL:
                 //8 Clock Cycles
                 byte = shiftReg(false, false, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SRL_A:
                 //4 Clock Cycles
                 AF.hi = shiftReg(false, false, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_1_B:
                 //4 Clock Cycles
                 testBit(0, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_1_C:
                 //4 Clock Cycles
                 testBit(0, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_1_D:
                 //4 Clock Cycles
                 testBit(0, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_1_E:
                 //4 Clock Cycles
                 testBit(0, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_1_H:
                 //4 Clock Cycles
                 testBit(0, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_1_L:
                 //4 Clock Cycles
                 testBit(0, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_1_adrHL:
                 //8 Clock Cycles
                 testBit(0, memoryUnit->Read(HL.data));
-                cyclesExecuted = 8;
+                cyclesExecuted += 8;
                 break;
 
             case BIT_1_A:
                 //4 Clock Cycles
                 testBit(0, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_2_B:
                 //4 Clock Cycles
                 testBit(1, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_2_C:
                 //4 Clock Cycles
                 testBit(1, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_2_D:
                 //4 Clock Cycles
                 testBit(1, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_2_E:
                 //4 Clock Cycles
                 testBit(1, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_2_H:
                 //4 Clock Cycles
                 testBit(1, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_2_L:
                 //4 Clock Cycles
                 testBit(1, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_2_adrHL:
                 //8 Clock Cycles
                 testBit(1, memoryUnit->Read(HL.data));
-                cyclesExecuted = 8;
+                cyclesExecuted += 8;
                 break;
 
             case BIT_2_A:
                 //4 Clock Cycles
                 testBit(1, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_3_B:
                 //4 Clock Cycles
                 testBit(2, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_3_C:
                 //4 Clock Cycles
                 testBit(2, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_3_D:
                 //4 Clock Cycles
                 testBit(2, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_3_E:
                 //4 Clock Cycles
                 testBit(2, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_3_H:
                 //4 Clock Cycles
                 testBit(2, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_3_L:
                 //4 Clock Cycles
                 testBit(2, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_3_adrHL:
                 //8 Clock Cycles
                 testBit(2, memoryUnit->Read(HL.data));
-                cyclesExecuted = 8;
+                cyclesExecuted += 8;
                 break;
 
             case BIT_3_A:
                 //4 Clock Cycles
                 testBit(2, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_4_B:
                 //4 Clock Cycles
                 testBit(3, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_4_C:
                 //4 Clock Cycles
                 testBit(3, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_4_D:
                 //4 Clock Cycles
                 testBit(3, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_4_E:
                 //4 Clock Cycles
                 testBit(3, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_4_H:
                 //4 Clock Cycles
                 testBit(3, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_4_L:
                 //4 Clock Cycles
                 testBit(3, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_4_adrHL:
                 //8 Clock Cycles
                 testBit(3, memoryUnit->Read(HL.data));
-                cyclesExecuted = 8;
+                cyclesExecuted += 8;
                 break;
 
             case BIT_4_A:
                 //4 Clock Cycles
                 testBit(3, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_5_B:
                 //4 Clock Cycles
                 testBit(4, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_5_C:
                 //4 Clock Cycles
                 testBit(4, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_5_D:
                 //4 Clock Cycles
                 testBit(4, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_5_E:
                 //4 Clock Cycles
                 testBit(4, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_5_H:
                 //4 Clock Cycles
                 testBit(4, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_5_L:
                 //4 Clock Cycles
                 testBit(4, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
             
             case BIT_5_adrHL:
                 //8 Clock Cycles
                 testBit(4, memoryUnit->Read(HL.data));
-                cyclesExecuted = 8;
+                cyclesExecuted += 8;
                 break;
 
             case BIT_5_A:
                 //4 Clock Cycles
                 testBit(4, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_6_B:
                 //4 Clock Cycles
                 testBit(5, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_6_C:
                 //4 Clock Cycles
                 testBit(5, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_6_D:
                 //4 Clock Cycles
                 testBit(5, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_6_E:
                 //4 Clock Cycles
                 testBit(5, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_6_H:
                 //4 Clock Cycles
                 testBit(5, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_6_L:
                 //4 Clock Cycles
                 testBit(5, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_6_adrHL:
                 //8 Clock Cycles
                 testBit(5, memoryUnit->Read(HL.data));
-                cyclesExecuted = 8;
+                cyclesExecuted += 8;
                 break;
                 
             case BIT_6_A:
                 //4 Clock Cycles
                 testBit(5, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_7_B:
                 //4 Clock Cycles
                 testBit(6, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_7_C:
                 //4 Clock Cycles
                 testBit(6, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_7_D:
                 //4 Clock Cycles
                 testBit(6, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_7_E:
                 //4 Clock Cycles
                 testBit(6, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_7_H:
                 //4 Clock Cycles
                 testBit(6, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_7_L:
                 //4 Clock Cycles
                 testBit(6, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_7_adrHL:
                 //8 Clock Cycles
                 testBit(6, memoryUnit->Read(HL.data));
-                cyclesExecuted = 8;
+                cyclesExecuted += 8;
                 break;
 
             case BIT_7_A:
                 //4 Clock Cycles
                 testBit(6, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_8_B:
                 //4 Clock Cycles
                 testBit(7, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_8_C:
                 //4 Clock Cycles
                 testBit(7, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_8_D:
                 //4 Clock Cycles
                 testBit(7, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_8_E:
                 //4 Clock Cycles
                 testBit(7, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_8_H:
                 //4 Clock Cycles
                 testBit(7, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_8_L:
                 //4 Clock Cycles
                 testBit(7, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case BIT_8_adrHL:
                 //8 Clock Cycles
                 testBit(7, memoryUnit->Read(HL.data));
-                cyclesExecuted = 8;
+                cyclesExecuted += 8;
                 break;
 
             case BIT_8_A:
                 //4 Clock Cycles
                 testBit(7, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_1_B:
                 //4 Clock Cycles
                 BC.hi = resetBit(0, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_1_C:
                 //4 Clock Cycles
                 BC.lo = resetBit(0, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_1_D:
                 //4 Clock Cycles
                 DE.hi = resetBit(0, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_1_E:
                 //4 Clock Cycles
                 DE.lo = resetBit(0, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_1_H:
                 //4 Clock Cycles
                 HL.hi = resetBit(0, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_1_L:
                 //4 Clock Cycles
                 HL.lo = resetBit(0, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_1_adrHL:
                 //8 Clock Cycles
                 byte = resetBit(0, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case RES_1_A:
                 //4 Clock Cycles
                 AF.hi = resetBit(0, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_2_B:
                 //4 Clock Cycles
                 BC.hi = resetBit(1, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_2_C:
                 //4 Clock Cycles
                 BC.lo = resetBit(1, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_2_D:
                 //4 Clock Cycles
                 DE.hi = resetBit(1, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_2_E:
                 //4 Clock Cycles
                 DE.lo = resetBit(1, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_2_H:
                 //4 Clock Cycles
                 HL.hi = resetBit(1, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_2_L:
                 //4 Clock Cycles
                 HL.lo = resetBit(1, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_2_adrHL:
                 //8 Clock Cycles
                 byte = resetBit(1, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case RES_2_A:
                 //4 Clock Cycles
                 AF.hi = resetBit(1, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_3_B:
                 //4 Clock Cycles
                 BC.hi = resetBit(2, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_3_C:
                 //4 Clock Cycles
                 BC.lo = resetBit(2, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_3_D:
                 //4 Clock Cycles
                 DE.hi = resetBit(2, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_3_E:
                 //4 Clock Cycles
                 DE.lo = resetBit(2, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_3_H:
                 //4 Clock Cycles
                 HL.hi = resetBit(2, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_3_L:
                 //4 Clock Cycles
                 HL.lo = resetBit(2, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_3_adrHL:
                 //8 Clock Cycles
                 byte = resetBit(2, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case RES_3_A:
                 //4 Clock Cycles
                 AF.hi = resetBit(2, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_4_B:
                 //4 Clock Cycles
                 BC.hi = resetBit(3, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_4_C:
                 //4 Clock Cycles
                 BC.lo = resetBit(3, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_4_D:
                 //4 Clock Cycles
                 DE.hi = resetBit(3, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_4_E:
                 //4 Clock Cycles
                 DE.lo = resetBit(3, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_4_H:
                 //4 Clock Cycles
                 HL.hi = resetBit(3, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_4_L:
                 //4 Clock Cycles
                 HL.lo = resetBit(3, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_4_adrHL:
                 //8 Clock Cycles
                 byte = resetBit(3, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case RES_4_A:
                 //4 Clock Cycles
                 AF.hi = resetBit(3, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_5_B:
                 //4 Clock Cycles
                 BC.hi = resetBit(4, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_5_C:
                 //4 Clock Cycles
                 BC.lo = resetBit(4, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_5_D:
                 //4 Clock Cycles
                 DE.hi = resetBit(4, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_5_E:
                 //4 Clock Cycles
                 DE.lo = resetBit(4, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_5_H:
                 //4 Clock Cycles
                 HL.hi = resetBit(4, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_5_L:
                 //4 Clock Cycles
                 HL.lo = resetBit(4, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_5_adrHL:
                 //8 Clock Cycles
                 byte = resetBit(4, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case RES_5_A:
                 //4 Clock Cycles
                 AF.hi = resetBit(4, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_6_B:
                 //4 Clock Cycles
                 BC.hi = resetBit(5, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_6_C:
                 //4 Clock Cycles
                 BC.lo = resetBit(5, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_6_D:
                 //4 Clock Cycles
                 DE.hi = resetBit(5, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_6_E:
                 //4 Clock Cycles
                 DE.lo = resetBit(5, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_6_H:
                 //4 Clock Cycles
                 HL.hi = resetBit(5, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_6_L:
                 //4 Clock Cycles
                 HL.lo = resetBit(5, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_6_adrHL:
                 //8 Clock Cycles
                 byte = resetBit(5, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case RES_6_A:
                 //4 Clock Cycles
                 AF.hi = resetBit(5, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_7_B:
                 //4 Clock Cycles
                 BC.hi = resetBit(6, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_7_C:
                 //4 Clock Cycles
                 BC.lo = resetBit(6, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_7_D:
                 //4 Clock Cycles
                 DE.hi = resetBit(6, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_7_E:
                 //4 Clock Cycles
                 DE.lo = resetBit(6, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_7_H:
                 //4 Clock Cycles
                 HL.hi = resetBit(6, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_7_L:
                 //4 Clock Cycles
                 HL.lo = resetBit(6, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_7_adrHL:
                 //8 Clock Cycles
                 byte = resetBit(6, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case RES_7_A:
                 //4 Clock Cycles
                 AF.hi = resetBit(6, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_8_B:
                 //4 Clock Cycles
                 BC.hi = resetBit(7, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_8_C:
                 //4 Clock Cycles
                 BC.lo = resetBit(7, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_8_D:
                 //4 Clock Cycles
                 DE.hi = resetBit(7, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_8_E:
                 //4 Clock Cycles
                 DE.lo = resetBit(7, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_8_H:
                 //4 Clock Cycles
                 HL.hi= resetBit(7, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_8_L:
                 //4 Clock Cycles
                 HL.lo = resetBit(7, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case RES_8_adrHL:
                 //8 Clock Cycles
                 byte = resetBit(7, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case RES_8_A:
                 //4 Clock Cycles
                 AF.hi = resetBit(7, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_1_B:
                 //4 Clock Cycles
                 BC.hi = setBit(0, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_1_C:
                 //4 Clock Cycles
                 BC.lo = setBit(0, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_1_D:
                 //4 Clock Cycles
                 DE.hi = setBit(0, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_1_E:
                 //4 Clock Cycles
                 DE.lo = setBit(0, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_1_H:
                 //4 Clock Cycles
                 HL.hi = setBit(0, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_1_L:
                 //4 Clock Cycles
                 HL.lo = setBit(0, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_1_adrHL:
                 //8 Clock Cycles
                 byte = setBit(0, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SET_1_A:
                 //4 Clock Cycles
                 AF.hi = setBit(0, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_2_B:
                 //4 Clock Cycles
                 BC.hi = setBit(1, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_2_C:
                 //4 Clock Cycles
                 BC.lo = setBit(1, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_2_D:
                 //4 Clock Cycles
                 DE.hi = setBit(1, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_2_E:
                 //4 Clock Cycles
                 DE.lo = setBit(1, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_2_H:
                 //4 Clock Cycles
                 HL.hi = setBit(1, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_2_L:
                 //4 Clock Cycles
                 HL.lo = setBit(1, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_2_adrHL:
                 //8 Clock Cycles
                 byte = setBit(1, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SET_2_A:
                 //4 Clock Cycles
                 AF.hi = setBit(1, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_3_B:
                 //4 Clock Cycles
                 BC.hi = setBit(2, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_3_C:
                 //4 Clock Cycles
                 BC.lo = setBit(2, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_3_D:
                 //4 Clock Cycles
                 DE.hi = setBit(2, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_3_E:
                 //4 Clock Cycles
                 DE.lo = setBit(2, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_3_H:
                 //4 Clock Cycles
                 HL.hi = setBit(2, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_3_L:
                 //4 Clock Cycles
                 HL.lo = setBit(2, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_3_adrHL:
                 //8 Clock Cycles
                 byte = setBit(2, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SET_3_A:
                 //4 Clock Cycles
                 AF.hi = setBit(2, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_4_B:
                 //4 Clock Cycles
                 BC.hi = setBit(3, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_4_C:
                 //4 Clock Cycles
                 BC.lo = setBit(3, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_4_D:
                 //4 Clock Cycles
                 DE.hi = setBit(3, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_4_E:
                 //4 Clock Cycles
                 DE.lo = setBit(3, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_4_H:
                 //4 Clock Cycles
                 HL.hi = setBit(3, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_4_L:
                 //4 Clock Cycles
                 HL.lo =setBit(3, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_4_adrHL:
                 //8 Clock Cycles
                 byte = setBit(3, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SET_4_A:
                 //4 Clock Cycles
                 AF.hi = setBit(3, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_5_B:
                 //4 Clock Cycles
                 BC.hi = setBit(4, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_5_C:
                 //4 Clock Cycles
                 BC.lo = setBit(4, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_5_D:
                 //4 Clock Cycles
                 DE.hi = setBit(4, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_5_E:
                 //4 Clock Cycles
                 DE.lo = setBit(4, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_5_H:
                 //4 Clock Cycles
                 HL.hi = setBit(4, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_5_L:
                 //4 Clock Cycles
                 HL.lo = setBit(4, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_5_adrHL:
                 //8 Clock Cycles
                 byte = setBit(4, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SET_5_A:
                 //4 Clock Cycles
                 AF.hi = setBit(4, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_6_B:
                 //4 Clock Cycles
                 BC.hi = setBit(5, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_6_C:
                 //4 Clock Cycles
                 BC.lo = setBit(5, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_6_D:
                 //4 Clock Cycles
                 DE.hi = setBit(5, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_6_E:
                 //4 Clock Cycles
                 DE.lo = setBit(5, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_6_H:
                 //4 Clock Cycles
                 HL.hi = setBit(5, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_6_L:
                 //4 Clock Cycles
                 HL.lo = setBit(5, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_6_adrHL:
                 //8 Clock Cycles
                 byte = setBit(5, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SET_6_A:
                 //4 Clock Cycles
                  AF.hi = setBit(5, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_7_B:
                 //4 Clock Cycles
                 BC.hi = setBit(6, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_7_C:
                 //4 Clock Cycles
                 BC.lo = setBit(6, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_7_D:
                 //4 Clock Cycles
                 DE.hi = setBit(6, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_7_E:
                 //4 Clock Cycles
                 DE.lo = setBit(6, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_7_H:
                 //4 Clock Cycles
                 HL.hi = setBit(6, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_7_L:
                 //4 Clock Cycles
                 HL.lo = setBit(6, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_7_adrHL:
                 //8 Clock Cycles
                 byte = setBit(6, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SET_7_A:
                 //4 Clock Cycles
                 AF.hi = setBit(6, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_8_B:
                 //4 Clock Cycles
                 BC.hi = setBit(7, BC.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_8_C:
                 //4 Clock Cycles
                 BC.lo = setBit(7, BC.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
                 
             case SET_8_D:
                 //4 Clock Cycles
                 DE.hi = setBit(7, DE.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_8_E:
                 //4 Clock Cycles
                 DE.lo = setBit(7, DE.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_8_H:
                 //4 Clock Cycles
                 HL.hi = setBit(7, HL.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_8_L:
                 //4 Clock Cycles
                 HL.lo = setBit(7, HL.lo);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             case SET_8_adrHL:
                 //8 Clock Cycles
                 byte = setBit(7, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
-                cyclesExecuted = 8;
+                cyclesExecuted += 12;
                 break;
 
             case SET_8_A:
                 //4 Clock Cycles
                 AF.hi = setBit(7, AF.hi);
-                cyclesExecuted = 4;
+                cyclesExecuted += 4;
                 break;
 
             default:
@@ -4088,15 +4097,15 @@ namespace FuuGB
         if (!IME)
             return;
 
-        uBYTE IE = memoryUnit->Read(INTERUPT_EN_REGISTER_ADR);
-        uBYTE IF = memoryUnit->Read(INTERUPT_FLAG_REG);
+        uBYTE IE = memoryUnit->DmaRead(INTERUPT_EN_REGISTER_ADR);
+        uBYTE IF = memoryUnit->DmaRead(INTERUPT_FLAG_REG);
         reg Temp;
 
         if ((IF & (1 << 0)) && (IE & (1 << 0))) //V-Blank
         {
             IME = false;
             IF &= 0xFE;
-            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
+            memoryUnit->DmaWrite(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
@@ -4106,7 +4115,7 @@ namespace FuuGB
         {
             IME = false;
             IF &= 0xFD;
-            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
+            memoryUnit->DmaWrite(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
@@ -4116,7 +4125,7 @@ namespace FuuGB
         {
             IME = false;
             IF &= 0xFB;
-            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
+            memoryUnit->DmaWrite(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
@@ -4126,7 +4135,7 @@ namespace FuuGB
         {
             IME = false;
             IF &= 0xF7;
-            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
+            memoryUnit->DmaWrite(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
@@ -4136,7 +4145,7 @@ namespace FuuGB
         {
             IME = false;
             IF &= 0xEF;
-            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
+            memoryUnit->DmaWrite(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
@@ -4146,17 +4155,17 @@ namespace FuuGB
 
     void CPU::UpdateTimers(int cycles)
     {
-        uBYTE TMC  = memoryUnit->Read(0xFF07);
+        uBYTE TAC = memoryUnit->DmaRead(0xFF07);
         
         updateDivider(cycles);
         
-        if(TMC & (1 << 2)) // Check if clock is enabled
+        if(TAC & (1 << 2)) // Check if clock is enabled
         {
             memoryUnit->TimerCounter -= cycles;
             
             if(memoryUnit->TimerCounter <= 0)
             {
-                uBYTE frequency = memoryUnit->Read(0xFF07) & 0x03;
+                uBYTE frequency = (memoryUnit->DmaRead(0xFF07) & 0x03);
                 switch(frequency)
                 {
                     case 0: memoryUnit->TimerCounter = 1024; break;
@@ -4166,27 +4175,26 @@ namespace FuuGB
                 }
                 
                 // Timer Overflow
-                if(memoryUnit->Read(0xFF05) == 255)
+                if(memoryUnit->Read(0xFF05) == 0xFF)
                 {
-                    memoryUnit->Write(0xFF05, memoryUnit->Read(0xFF06));
+                    memoryUnit->DmaWrite(0xFF05, memoryUnit->DmaRead(0xFF06));
                     memoryUnit->RequestInterupt(2);
                 }
                 else
                 {
-                    memoryUnit->Write(0xFF05, memoryUnit->Read(0xFF05)+1);
+                    memoryUnit->DmaWrite(0xFF05, (memoryUnit->DmaRead(0xFF05) + 1));
                 }
             }
         }
-        
     }
 
     void CPU::updateDivider(int cycles)
     {
         dividerRegisterCounter += cycles;
-        if(dividerRegisterCounter >= 255)
+        if(dividerRegisterCounter >= 256)
         {
-            memoryUnit->DmaWrite(0xFF04, memoryUnit->DmaRead(0xFF04)+1);
-            dividerRegisterCounter = 0;
+            memoryUnit->DmaWrite(0xFF04, (memoryUnit->DmaRead(0xFF04) + 1));
+            dividerRegisterCounter -= 256;
         }
     }
 

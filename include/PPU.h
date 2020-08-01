@@ -27,11 +27,12 @@ namespace FuuGB
     private:
         SDL_Renderer*   renderer;
         SDL_Rect        pixels[NATIVE_SIZE_X][NATIVE_SIZE_Y];
+        uBYTE           pixelData[NATIVE_SIZE_X][NATIVE_SIZE_Y];
+        uBYTE           LCDC;
+        uBYTE           STAT;
         Memory*         memoryRef;
         int             currentScanline;
         int             scanlineCounter;
-        uBYTE           LCDC;
-        uBYTE           STAT;
 
         struct sprite {
             uBYTE yPos;
@@ -42,9 +43,10 @@ namespace FuuGB
 
         void            drawScanline();
         void            renderTiles();
+        void            renderWindow();
         void            renderSprites();
-        sprite*         processSprites();
         void            setLCDStatus();
+        sprite*         processSprites();
         uBYTE           getStat();
         uBYTE           getLCDC();
     };
