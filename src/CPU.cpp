@@ -1511,7 +1511,7 @@ namespace FuuGB
                 break;
 
             case RL_adrHL:
-                //8 clock Cycles
+                //12 clock Cycles
                 byte = rotateRegExt(true, true, memoryUnit->Read(HL.data));
                 memoryUnit->Write(HL.data, byte);
                 cyclesExecuted += 12;
@@ -4163,8 +4163,10 @@ namespace FuuGB
         {
             memoryUnit->TimerCounter -= cycles;
             
-            if(memoryUnit->TimerCounter <= 0)
+            while(memoryUnit->TimerCounter <= 0)
             {
+                int remainder = memoryUnit->TimerCounter;
+
                 uBYTE frequency = (memoryUnit->DmaRead(0xFF07) & 0x03);
                 switch(frequency)
                 {
@@ -4173,6 +4175,8 @@ namespace FuuGB
                     case 2: memoryUnit->TimerCounter = 64; break;
                     case 3: memoryUnit->TimerCounter = 256; break;
                 }
+
+                memoryUnit->TimerCounter += remainder;
                 
                 // Timer Overflow
                 if(memoryUnit->Read(0xFF05) == 0xFF)

@@ -11,7 +11,8 @@ namespace FuuGB
 
         fseek(input, 0x147, SEEK_SET);
         // Determine cart type
-        switch (fgetc(input)) {
+        switch (fgetc(input)) 
+        {
         case 0x00:
             ROM = true;
             break;
@@ -139,7 +140,8 @@ namespace FuuGB
 
         // Determine amount of rom banks
         fseek(input, 0x148, SEEK_SET);
-        switch (fgetc(input)) {
+        switch (fgetc(input)) 
+        {
         case 0x00:
             RomBankCount = 1;
             RomSize = 0x8000;
@@ -195,7 +197,8 @@ namespace FuuGB
 
         // Determine amount and size of the ram banks
         fseek(input, 0x149, SEEK_SET);
-        switch (fgetc(input)) {
+        switch (fgetc(input)) 
+        {
         case 0x00:
             RamBankSize = 0x800;
             RamBankCount = 1;
