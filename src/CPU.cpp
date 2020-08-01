@@ -1197,7 +1197,7 @@ namespace FuuGB
         case OR_adrHL_A:
             //8 Clock Cycles
             AF.hi = or8BitRegister(AF.hi, memoryUnit->Read(HL.data));
-            cyclesExecuted = 4;
+            cyclesExecuted = 8;
             break;
 
         case OR_A_A:
