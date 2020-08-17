@@ -7,8 +7,8 @@
 class Sandbox : public FUUGB_APP
 {
 public:
-    Sandbox(){}
-    virtual ~Sandbox(){}
+    Sandbox() {}
+    virtual ~Sandbox() {}
 };
 
 #endif

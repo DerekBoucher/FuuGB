@@ -15,13 +15,13 @@ namespace FuuGB
             SDL_Init(SDL_INIT_EVERYTHING);
             SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
         }
-        
+
         static inline void closeSystems()
         {
             SDL_Quit();
         }
     };
-}
+} // namespace FuuGB
 
 #define FUUGB_INIT() FuuGB::System::initSystems()
 #define FUUGB_QUIT() FuuGB::System::closeSystems()

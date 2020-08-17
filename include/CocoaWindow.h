@@ -10,10 +10,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface CocoaWindow : NSObject
 {
-@public MacEventHandler* MacEvent;
+@public
+    MacEventHandler *MacEvent;
 }
 
-- (void)configureWindow:(SDL_SysWMinfo*)Handle;
+- (void)configureWindow:(SDL_SysWMinfo *)Handle;
 
 @end
 

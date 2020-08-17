@@ -10,7 +10,8 @@ namespace FuuGB
     class Gameboy
     {
     public:
-        Gameboy(SDL_Window*, Cartridge*);
+        Gameboy(SDL_Window *, Cartridge *);
+        Gameboy(Gameboy &) = delete;
         virtual ~Gameboy();
 
         void Pause();
@@ -18,15 +19,15 @@ namespace FuuGB
         void Run();
 
     private:
-        CPU*            cpuUnit;
-        Memory*         memoryUnit;
-        PPU*            ppuUnit;
-        std::thread*    thread;
-        bool            pause;
-        bool            running;
+        CPU *cpuUnit;
+        Memory *memoryUnit;
+        PPU *ppuUnit;
+        std::thread *thread;
+        bool pause;
+        bool running;
 
         void wait();
     };
-}
+} // namespace FuuGB
 
 #endif /* GAMEBOY_H_ */

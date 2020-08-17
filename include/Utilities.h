@@ -10,10 +10,11 @@
 
 #include "Cartridge.h"
 
-namespace FuuGB {
+namespace FuuGB
+{
 
     //Namespace variables/Defines
-    struct handles 
+    struct handles
     {
         static HMENU hHelp;
         static HMENU hEdit;
@@ -22,12 +23,12 @@ namespace FuuGB {
         static HMENU hMenuBar;
     };
 
-    HWND        getSDLWinHandle(SDL_Window* win);
-    HINSTANCE   getHinst(SDL_Window* win);
-    void        ActivateMenu(HWND windowRef);
-    char*       OpenFile(SDL_Window* win);
-    Cartridge*  GetRom(char* path);
-}
+    HWND getSDLWinHandle(SDL_Window *win);
+    HINSTANCE getHinst(SDL_Window *win);
+    void ActivateMenu(HWND windowRef);
+    char *OpenFile(SDL_Window *win);
+    Cartridge *GetRom(char *path);
+} // namespace FuuGB
 
 #endif
 #endif

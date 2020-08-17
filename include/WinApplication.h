@@ -22,11 +22,11 @@ namespace FuuGB
     class WinApplication : public Application
     {
     public:
-        void run(int, char**);
-    private:
-        Cartridge* ROM;
+        WinApplication();
+        ~WinApplication();
+        void Run(int, char **) override;
     };
-}
+} // namespace FuuGB
 
 #endif
 

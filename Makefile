@@ -51,7 +51,7 @@ endif
 # Set the dependency files that will be used to add header dependencies
 DEPS = $(OBJECTS:.o=.d)
 
-# flags #
+# flags
 COMPILE_FLAGS = -std=c++11 -Wall -Wextra -pthread
 ifeq ($(OSFLAG), LINUX)
 	COMPILE_FLAGS += -DFUUGB_SYSTEM_LINUX

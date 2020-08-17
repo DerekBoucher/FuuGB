@@ -7,12 +7,15 @@
 
 @interface MacEventHandler : NSObject
 {
-    @public NSURL* filePath;
-    @public FILE* inputBuffer;
-    @public FuuGB::Gameboy* gb_ref;
+@public
+    NSURL *filePath;
+@public
+    FILE *inputBuffer;
+@public
+    FuuGB::Gameboy *gb_ref;
 }
 
--(IBAction)OnClick_LOADROM:(id)sender;
+- (IBAction)OnClick_LOADROM:(id)sender;
 
 @end
 

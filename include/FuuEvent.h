@@ -11,7 +11,7 @@ namespace FuuGB
         static int poll_Event();
         static SDL_Event event;
     };
-}
+} // namespace FuuGB
 
 #define FUUGB_EVENT FuuGB::FuuEvent::event
 #define FUUGB_POLL_EVENT() FuuGB::FuuEvent::poll_Event()

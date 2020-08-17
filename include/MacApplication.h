@@ -19,10 +19,11 @@ namespace FuuGB
     public:
         MacApplication();
         virtual ~MacApplication();
-        void run(int, char**);
+        void Run(int, char **);
+
     private:
     };
-}
+} // namespace FuuGB
 
-#endif 
+#endif
 #endif

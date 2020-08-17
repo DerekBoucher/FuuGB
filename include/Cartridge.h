@@ -3,44 +3,58 @@
 
 #include "Core.h"
 
-
-
 namespace FuuGB
 {
     class Cartridge
     {
     public:
-        Cartridge(FILE* input);
+        explicit Cartridge(FILE *input);
+        Cartridge();
+        Cartridge(const Cartridge &);
         virtual ~Cartridge();
-    
-        uBYTE*  Rom;
 
-        bool    RamEnabled;
-        bool    Mode;
+        static const int c_NumAttributes = 13;
+        static const int c_RamEnabled = 0;
+        static const int c_Mode = 1;
+        static const int c_RomOnly = 2;
+        static const int c_Ram = 3;
+        static const int c_Mbc1 = 4;
+        static const int c_Mbc2 = 5;
+        static const int c_Mbc3 = 6;
+        static const int c_Mbc4 = 7;
+        static const int c_Mbc5 = 8;
+        static const int c_Huc1 = 9;
+        static const int c_Battery = 10;
+        static const int c_Timer = 11;
+        static const int c_Rumble = 12;
+        static const unsigned int c_RomBankSize = 0x4000;
 
-        bool    ROM         = false;
-        bool    RAM         = false;
-        bool    MBC1        = false;
-        bool    MBC2        = false;
-        bool    MBC3        = false;
-        bool    MBC4        = false;
-        bool    MBC5        = false;
-        bool    HuC1        = false;
-        bool    BATTERY     = false;
-        bool    TIMER       = false;
-        bool    RUMBLE      = false;
+        bool m_Attributes[c_NumAttributes];
 
-        uWORD   CurrentRamBank;
-        uWORD   CurrentRomBank;
-        uWORD   RomBankCount;
-        uWORD   RamBankCount;
-        uWORD   RamBankSize;
+        uWORD m_CurrentRamBank;
+        uWORD m_CurrentRomBank;
+        uWORD m_RomBankCount;
+        uWORD m_RamBankCount;
+        uWORD m_RamBankSize;
 
-        uint64_t RomSize;
-        uint64_t RamSize;
+        uint64_t m_RomSize;
+        uint64_t m_RamSize;
 
-        const unsigned int RomBankSize = 0x4000;
+        uBYTE *m_Rom;
 
+        Cartridge &operator=(const Cartridge &other)
+        {
+            memcpy(this->m_Attributes, other.m_Attributes, c_NumAttributes);
+            this->m_CurrentRamBank = other.m_CurrentRamBank;
+            this->m_CurrentRomBank = other.m_RomBankCount;
+            this->m_RomBankCount = other.m_RomBankCount;
+            this->m_RamBankCount = other.m_RamBankCount;
+            this->m_RamBankSize = other.m_RamBankSize;
+            this->m_RomSize = other.m_RomSize;
+            this->m_RamSize = other.m_RamSize;
+            memcpy(this->m_Rom, other.m_Rom, other.m_RomSize);
+            return *this;
+        }
     };
-}
+} // namespace FuuGB
 #endif /* Cartridge_h */

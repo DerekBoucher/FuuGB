@@ -3,14 +3,11 @@
 
 namespace FuuGB
 {
-    CPU::CPU(Memory* mem)
+    CPU::CPU(Memory *mem)
+        : AF(0x0000), BC(0x0000), DE(0x0000), HL(0x0000), temp(0x0000)
     {
         PC = 0x0000;
         SP = 0x0000;
-        AF = 0x0000;
-        BC = 0x0000;
-        DE = 0x0000;
-        HL = 0x0000;
 
         memoryUnit = mem;
 
@@ -18,16 +15,13 @@ namespace FuuGB
         dividerRegisterCounter = 0;
         byte = 0x00;
 
-        temp = 0x0000;
-        
-        Paused  = false;
-        Halted  = false;
-        IME     = false;
+        Paused = false;
+        Halted = false;
+        IME = false;
     }
 
     CPU::~CPU()
     {
-
     }
 
     void CPU::Pause()
@@ -399,7 +393,7 @@ namespace FuuGB
             memoryUnit->Write(HL.data, byte);
             cyclesExecuted = 12;
             break;
-            
+
         case DEC_valHL:
             //12 Clock Cycles
             byte = decrement8BitRegister(memoryUnit->Read(HL.data));
@@ -479,7 +473,7 @@ namespace FuuGB
                 CPU_FLAG_BIT_RESET(C_FLAG);
             else
                 CPU_FLAG_BIT_SET(C_FLAG);
-            
+
             CPU_FLAG_BIT_RESET(N_FLAG);
             CPU_FLAG_BIT_RESET(H_FLAG);
             cyclesExecuted = 4;
@@ -487,7 +481,6 @@ namespace FuuGB
 
         case LD_B_B:
             //4 Clock Cycles
-            BC.hi = BC.hi;
             cyclesExecuted = 4;
             break;
 
@@ -541,7 +534,6 @@ namespace FuuGB
 
         case LD_C_C:
             //4 Clock Cycles
-            BC.lo = BC.lo;
             cyclesExecuted = 4;
             break;
 
@@ -595,7 +587,6 @@ namespace FuuGB
 
         case LD_D_D:
             //4 Clock Cycles
-            DE.hi = DE.hi;
             cyclesExecuted = 4;
             break;
 
@@ -649,7 +640,6 @@ namespace FuuGB
 
         case LD_E_E:
             //4 Clock Cycles
-            DE.lo = DE.lo;
             cyclesExecuted = 4;
             break;
 
@@ -703,7 +693,6 @@ namespace FuuGB
 
         case LD_H_H:
             //4 Clock Cycles
-            HL.hi = HL.hi;
             cyclesExecuted = 4;
             break;
 
@@ -757,7 +746,6 @@ namespace FuuGB
 
         case LD_L_L:
             //4 Clock Cycles
-            HL.lo = HL.lo;
             cyclesExecuted = 4;
             break;
 
@@ -790,7 +778,7 @@ namespace FuuGB
             memoryUnit->Write(HL.data, DE.hi);
             cyclesExecuted = 8;
             break;
-            
+
         case LD_E_adrHL:
             //8 Clock Cycles
             memoryUnit->Write(HL.data, DE.lo);
@@ -812,7 +800,6 @@ namespace FuuGB
         case HALT:
             //4 Clock Cycles
             Halted = true;
-            Halt();
             cyclesExecuted = 4;
             break;
 
@@ -866,7 +853,6 @@ namespace FuuGB
 
         case LD_A_A:
             //4 Clock Cycles
-            AF.hi = AF.hi;
             cyclesExecuted = 4;
             break;
 
@@ -976,7 +962,7 @@ namespace FuuGB
             //4 Clock Cycles
             AF.hi = sub8BitRegister(AF.hi, BC.lo);
             cyclesExecuted = 4;
-            break; 
+            break;
 
         case SUB_D_A:
             //4 Clock Cycles
@@ -1261,7 +1247,7 @@ namespace FuuGB
                 temp.lo = memoryUnit->Read(SP++);
                 temp.hi = memoryUnit->Read(SP++);
                 PC = temp.data;
-                
+
                 cyclesExecuted = 20;
             }
             else
@@ -1280,7 +1266,7 @@ namespace FuuGB
             temp.lo = memoryUnit->Read(PC++);
             temp.hi = memoryUnit->Read(PC++);
             if (!CPU_FLAG_BIT_TEST(Z_FLAG))
-            {    
+            {
                 PC = temp.data;
                 cyclesExecuted = 16;
             }
@@ -1292,7 +1278,7 @@ namespace FuuGB
             //16 Clock Cycles
             temp.lo = memoryUnit->Read(PC++);
             temp.hi = memoryUnit->Read(PC++);
-            
+
             PC = temp.data;
             cyclesExecuted = 16;
             break;
@@ -1424,7 +1410,7 @@ namespace FuuGB
                 AF.hi = rotateRegExt(true, false, AF.hi);
                 cyclesExecuted += 4;
                 break;
-                
+
             case RRC_B:
                 //4 clock Cycles
                 BC.hi = rotateRegExt(false, false, BC.hi);
@@ -1995,7 +1981,7 @@ namespace FuuGB
                 testBit(4, HL.lo);
                 cyclesExecuted += 4;
                 break;
-            
+
             case BIT_5_adrHL:
                 //8 Clock Cycles
                 testBit(4, memoryUnit->Read(HL.data));
@@ -2049,7 +2035,7 @@ namespace FuuGB
                 testBit(5, memoryUnit->Read(HL.data));
                 cyclesExecuted += 8;
                 break;
-                
+
             case BIT_6_A:
                 //4 Clock Cycles
                 testBit(5, AF.hi);
@@ -2521,7 +2507,7 @@ namespace FuuGB
 
             case RES_8_H:
                 //4 Clock Cycles
-                HL.hi= resetBit(7, HL.hi);
+                HL.hi = resetBit(7, HL.hi);
                 cyclesExecuted += 4;
                 break;
 
@@ -2723,7 +2709,7 @@ namespace FuuGB
 
             case SET_4_L:
                 //4 Clock Cycles
-                HL.lo =setBit(3, HL.lo);
+                HL.lo = setBit(3, HL.lo);
                 cyclesExecuted += 4;
                 break;
 
@@ -2834,7 +2820,7 @@ namespace FuuGB
 
             case SET_6_A:
                 //4 Clock Cycles
-                 AF.hi = setBit(5, AF.hi);
+                AF.hi = setBit(5, AF.hi);
                 cyclesExecuted += 4;
                 break;
 
@@ -2898,7 +2884,7 @@ namespace FuuGB
                 BC.lo = setBit(7, BC.lo);
                 cyclesExecuted += 4;
                 break;
-                
+
             case SET_8_D:
                 //4 Clock Cycles
                 DE.hi = setBit(7, DE.hi);
@@ -3012,7 +2998,7 @@ namespace FuuGB
             temp.lo = memoryUnit->Read(PC++);
             temp.hi = memoryUnit->Read(PC++);
             if (!CPU_FLAG_BIT_TEST(C_FLAG))
-            {    
+            {
                 PC = temp.data;
                 cyclesExecuted = 16;
             }
@@ -3025,7 +3011,7 @@ namespace FuuGB
             temp.lo = memoryUnit->Read(PC++);
             temp.hi = memoryUnit->Read(PC++);
             if (!CPU_FLAG_BIT_TEST(C_FLAG))
-            {    
+            {
                 reg temp2;
                 temp2.data = PC;
                 memoryUnit->Write(--SP, temp2.hi);
@@ -3066,9 +3052,10 @@ namespace FuuGB
                 temp.lo = memoryUnit->Read(SP++);
                 temp.hi = memoryUnit->Read(SP++);
                 PC = temp.data;
-                
+
                 cyclesExecuted = 20;
-            }else
+            }
+            else
                 cyclesExecuted = 8;
             break;
 
@@ -3181,7 +3168,7 @@ namespace FuuGB
                     CPU_FLAG_BIT_SET(C_FLAG);
                 else
                     CPU_FLAG_BIT_RESET(C_FLAG);
-                
+
                 SP = SP - twoComp_Byte(byte);
             }
             else
@@ -3190,7 +3177,7 @@ namespace FuuGB
                     CPU_FLAG_BIT_SET(H_FLAG);
                 else
                     CPU_FLAG_BIT_RESET(H_FLAG);
-                
+
                 if (checkCarryFromBit_Word(8, SP, byte))
                     CPU_FLAG_BIT_SET(C_FLAG);
                 else
@@ -3223,14 +3210,14 @@ namespace FuuGB
             AF.hi = xor8BitRegister(AF.hi, memoryUnit->Read(PC++));
             cyclesExecuted = 8;
             break;
-            
+
         case RST_28:
             //16 Clock Cycles
             temp.data = PC;
             memoryUnit->Write(--SP, temp.hi);
             memoryUnit->Write(--SP, temp.lo);
             PC = 0x0028;
-            
+
             cyclesExecuted = 16;
             break;
 
@@ -3246,7 +3233,7 @@ namespace FuuGB
             AF.hi = memoryUnit->Read(SP++);
             cyclesExecuted = 12;
             break;
-        
+
         case LDH_C_A:
             //8 Clock Cycles
             AF.hi = memoryUnit->Read(0xFF00 + BC.lo);
@@ -3284,7 +3271,7 @@ namespace FuuGB
         case LDHL_S_8IMM_SP_HL:
             //12 Clock Cycles
             byte = memoryUnit->Read(PC++);
-            if (testBitInByte(byte,7))
+            if (testBitInByte(byte, 7))
             {
                 if (checkCarryFromBit_Word(4, SP, byte))
                     CPU_FLAG_BIT_SET(H_FLAG);
@@ -3356,13 +3343,13 @@ namespace FuuGB
             break;
         }
 
-#ifdef FUUGB_DEBUG
+        #ifdef FUUGB_DEBUG
         if (memoryUnit->DmaRead(0xFF02) == 0x81)
         {
             printf("%c", memoryUnit->DmaRead(0xFF01));
             memoryUnit->DmaWrite(0xFF02, 0x00);
         }
-#endif
+        #endif
         return cyclesExecuted;
     }
 
@@ -3378,7 +3365,7 @@ namespace FuuGB
             CPU_FLAG_BIT_SET(H_FLAG);
         else
             CPU_FLAG_BIT_RESET(H_FLAG);
-        
+
         ++reg;
 
         if (reg == 0x00)
@@ -3429,14 +3416,15 @@ namespace FuuGB
             CPU_FLAG_BIT_SET(C_FLAG);
         else
             CPU_FLAG_BIT_RESET(C_FLAG);
-        
+
         host += operand;
 
         return host;
     }
 
     bool CPU::testBitInByte(uBYTE byte, int pos)
-    {;
+    {
+        ;
         return (byte & (1 << pos));
     }
 
@@ -3448,22 +3436,36 @@ namespace FuuGB
     bool CPU::checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte)
     {
         uBYTE mask = 0x00;
-        
-        switch(pos)
+
+        switch (pos)
         {
-            case 1: mask = 0x01; break;
-            case 2: mask = 0x03; break;
-            case 3: mask = 0x07; break;
-            case 4: mask = 0x0F; break;
-            case 5: mask = 0x1F; break;
-            case 6: mask = 0x3F; break;
-            case 7: mask = 0x7F; break;
+        case 1:
+            mask = 0x01;
+            break;
+        case 2:
+            mask = 0x03;
+            break;
+        case 3:
+            mask = 0x07;
+            break;
+        case 4:
+            mask = 0x0F;
+            break;
+        case 5:
+            mask = 0x1F;
+            break;
+        case 6:
+            mask = 0x3F;
+            break;
+        case 7:
+            mask = 0x7F;
+            break;
         }
-        
+
         uBYTE a = (byte & mask);
         uWORD b = (addedByte & mask);
-        
-        if(a + b > mask)
+
+        if (a + b > mask)
             return true;
         else
             return false;
@@ -3472,55 +3474,99 @@ namespace FuuGB
     bool CPU::checkCarryFromBit_Byte(int pos, uBYTE byte, uBYTE addedByte, uBYTE carry)
     {
         uBYTE mask = 0x00;
-        
-        switch(pos)
+
+        switch (pos)
         {
-            case 1: mask = 0x01; break;
-            case 2: mask = 0x03; break;
-            case 3: mask = 0x07; break;
-            case 4: mask = 0x0F; break;
-            case 5: mask = 0x1F; break;
-            case 6: mask = 0x3F; break;
-            case 7: mask = 0x7F; break;
+        case 1:
+            mask = 0x01;
+            break;
+        case 2:
+            mask = 0x03;
+            break;
+        case 3:
+            mask = 0x07;
+            break;
+        case 4:
+            mask = 0x0F;
+            break;
+        case 5:
+            mask = 0x1F;
+            break;
+        case 6:
+            mask = 0x3F;
+            break;
+        case 7:
+            mask = 0x7F;
+            break;
         }
-        
+
         uBYTE a = (byte & mask);
         uBYTE b = (addedByte & mask);
         uBYTE c = (carry & mask);
-        
-        if(a + b + c > mask)
+
+        if (a + b + c > mask)
             return true;
         else
             return false;
     }
-    
+
     bool CPU::checkCarryFromBit_Word(int pos, uWORD word, uWORD addedWord)
     {
         uWORD mask = 0x00;
-        
-        switch(pos)
+
+        switch (pos)
         {
-            case 1: mask = 0x0001; break;
-            case 2: mask = 0x0003; break;
-            case 3: mask = 0x0007; break;
-            case 4: mask = 0x000F; break;
-            case 5: mask = 0x001F; break;
-            case 6: mask = 0x003F; break;
-            case 7: mask = 0x007F; break;
-            case 8: mask = 0x00FF; break;
-            case 9: mask = 0x01FF; break;
-            case 10: mask = 0x03FF; break;
-            case 11: mask = 0x07FF; break;
-            case 12: mask = 0x0FFF; break;
-            case 13: mask = 0x1FFF; break;
-            case 14: mask = 0x3FFF; break;
-            case 15: mask = 0x7FFF; break;
+        case 1:
+            mask = 0x0001;
+            break;
+        case 2:
+            mask = 0x0003;
+            break;
+        case 3:
+            mask = 0x0007;
+            break;
+        case 4:
+            mask = 0x000F;
+            break;
+        case 5:
+            mask = 0x001F;
+            break;
+        case 6:
+            mask = 0x003F;
+            break;
+        case 7:
+            mask = 0x007F;
+            break;
+        case 8:
+            mask = 0x00FF;
+            break;
+        case 9:
+            mask = 0x01FF;
+            break;
+        case 10:
+            mask = 0x03FF;
+            break;
+        case 11:
+            mask = 0x07FF;
+            break;
+        case 12:
+            mask = 0x0FFF;
+            break;
+        case 13:
+            mask = 0x1FFF;
+            break;
+        case 14:
+            mask = 0x3FFF;
+            break;
+        case 15:
+            mask = 0x7FFF;
+            break;
         }
-        
+
         uWORD a = (word & mask);
         uWORD b = (addedWord & mask);
-        
-        if(a + b > mask)
+
+        if (a + b > mask)
             return true;
         else
             return false;
@@ -3529,49 +3575,93 @@ namespace FuuGB
     bool CPU::checkCarryFromBit_Word(int pos, uWORD word, uWORD addedWord, uWORD carry)
     {
         uWORD mask = 0x00;
-        
-        switch(pos)
+
+        switch (pos)
         {
-            case 1: mask = 0x0001; break;
-            case 2: mask = 0x0003; break;
-            case 3: mask = 0x0007; break;
-            case 4: mask = 0x000F; break;
-            case 5: mask = 0x001F; break;
-            case 6: mask = 0x003F; break;
-            case 7: mask = 0x007F; break;
-            case 8: mask = 0x00FF; break;
-            case 9: mask = 0x01FF; break;
-            case 10: mask = 0x03FF; break;
-            case 11: mask = 0x07FF; break;
-            case 12: mask = 0x0FFF; break;
-            case 13: mask = 0x1FFF; break;
-            case 14: mask = 0x3FFF; break;
-            case 15: mask = 0x7FFF; break;
+        case 1:
+            mask = 0x0001;
+            break;
+        case 2:
+            mask = 0x0003;
+            break;
+        case 3:
+            mask = 0x0007;
+            break;
+        case 4:
+            mask = 0x000F;
+            break;
+        case 5:
+            mask = 0x001F;
+            break;
+        case 6:
+            mask = 0x003F;
+            break;
+        case 7:
+            mask = 0x007F;
+            break;
+        case 8:
+            mask = 0x00FF;
+            break;
+        case 9:
+            mask = 0x01FF;
+            break;
+        case 10:
+            mask = 0x03FF;
+            break;
+        case 11:
+            mask = 0x07FF;
+            break;
+        case 12:
+            mask = 0x0FFF;
+            break;
+        case 13:
+            mask = 0x1FFF;
+            break;
+        case 14:
+            mask = 0x3FFF;
+            break;
+        case 15:
+            mask = 0x7FFF;
+            break;
         }
-        
+
         uWORD a = (word & mask);
         uWORD b = (addedWord & mask);
         uWORD c = (carry & mask);
-        
-        if(a + b + c > mask)
+
+        if (a + b + c > mask)
             return true;
         else
             return false;
     }
-    
+
     bool CPU::checkBorrowFromBit_Byte(int pos, uBYTE byte, uBYTE subtractedByte)
     {
         uBYTE mask = 0x00;
 
         switch (pos)
         {
-        case 1: mask = 0x01; break;
-        case 2: mask = 0x03; break;
-        case 3: mask = 0x07; break;
-        case 4: mask = 0x0F; break;
-        case 5: mask = 0x1F; break;
-        case 6: mask = 0x3F; break;
-        case 7: mask = 0x7F; break;
+        case 1:
+            mask = 0x01;
+            break;
+        case 2:
+            mask = 0x03;
+            break;
+        case 3:
+            mask = 0x07;
+            break;
+        case 4:
+            mask = 0x0F;
+            break;
+        case 5:
+            mask = 0x1F;
+            break;
+        case 6:
+            mask = 0x3F;
+            break;
+        case 7:
+            mask = 0x7F;
+            break;
         }
 
         uBYTE a = (byte & mask);
@@ -3589,13 +3679,27 @@ namespace FuuGB
 
         switch (pos)
         {
-        case 1: mask = 0x01; break;
-        case 2: mask = 0x03; break;
-        case 3: mask = 0x07; break;
-        case 4: mask = 0x0F; break;
-        case 5: mask = 0x1F; break;
-        case 6: mask = 0x3F; break;
-        case 7: mask = 0x7F; break;
+        case 1:
+            mask = 0x01;
+            break;
+        case 2:
+            mask = 0x03;
+            break;
+        case 3:
+            mask = 0x07;
+            break;
+        case 4:
+            mask = 0x0F;
+            break;
+        case 5:
+            mask = 0x1F;
+            break;
+        case 6:
+            mask = 0x3F;
+            break;
+        case 7:
+            mask = 0x7F;
+            break;
         }
 
         uBYTE a = (byte & mask);
@@ -3607,28 +3711,58 @@ namespace FuuGB
         else
             return false;
     }
-    
+
     bool CPU::checkBorrowFromBit_Word(int pos, uWORD word, uWORD subtractedWord)
     {
         uWORD mask = 0x00;
 
         switch (pos)
         {
-        case 1: mask = 0x0001; break;
-        case 2: mask = 0x0003; break;
-        case 3: mask = 0x0007; break;
-        case 4: mask = 0x000F; break;
-        case 5: mask = 0x001F; break;
-        case 6: mask = 0x003F; break;
-        case 7: mask = 0x007F; break;
-        case 8: mask = 0x00FF; break;
-        case 9: mask = 0x01FF; break;
-        case 10: mask = 0x03FF; break;
-        case 11: mask = 0x07FF; break;
-        case 12: mask = 0x0FFF; break;
-        case 13: mask = 0x1FFF; break;
-        case 14: mask = 0x3FFF; break;
-        case 15: mask = 0x7FFF; break;
+        case 1:
+            mask = 0x0001;
+            break;
+        case 2:
+            mask = 0x0003;
+            break;
+        case 3:
+            mask = 0x0007;
+            break;
+        case 4:
+            mask = 0x000F;
+            break;
+        case 5:
+            mask = 0x001F;
+            break;
+        case 6:
+            mask = 0x003F;
+            break;
+        case 7:
+            mask = 0x007F;
+            break;
+        case 8:
+            mask = 0x00FF;
+            break;
+        case 9:
+            mask = 0x01FF;
+            break;
+        case 10:
+            mask = 0x03FF;
+            break;
+        case 11:
+            mask = 0x07FF;
+            break;
+        case 12:
+            mask = 0x0FFF;
+            break;
+        case 13:
+            mask = 0x1FFF;
+            break;
+        case 14:
+            mask = 0x3FFF;
+            break;
+        case 15:
+            mask = 0x7FFF;
+            break;
         }
 
         uWORD a = (word & mask);
@@ -3646,21 +3780,51 @@ namespace FuuGB
 
         switch (pos)
         {
-        case 1: mask = 0x0001; break;
-        case 2: mask = 0x0003; break;
-        case 3: mask = 0x0007; break;
-        case 4: mask = 0x000F; break;
-        case 5: mask = 0x001F; break;
-        case 6: mask = 0x003F; break;
-        case 7: mask = 0x007F; break;
-        case 8: mask = 0x00FF; break;
-        case 9: mask = 0x01FF; break;
-        case 10: mask = 0x03FF; break;
-        case 11: mask = 0x07FF; break;
-        case 12: mask = 0x0FFF; break;
-        case 13: mask = 0x1FFF; break;
-        case 14: mask = 0x3FFF; break;
-        case 15: mask = 0x7FFF; break;
+        case 1:
+            mask = 0x0001;
+            break;
+        case 2:
+            mask = 0x0003;
+            break;
+        case 3:
+            mask = 0x0007;
+            break;
+        case 4:
+            mask = 0x000F;
+            break;
+        case 5:
+            mask = 0x001F;
+            break;
+        case 6:
+            mask = 0x003F;
+            break;
+        case 7:
+            mask = 0x007F;
+            break;
+        case 8:
+            mask = 0x00FF;
+            break;
+        case 9:
+            mask = 0x01FF;
+            break;
+        case 10:
+            mask = 0x03FF;
+            break;
+        case 11:
+            mask = 0x07FF;
+            break;
+        case 12:
+            mask = 0x0FFF;
+            break;
+        case 13:
+            mask = 0x1FFF;
+            break;
+        case 14:
+            mask = 0x3FFF;
+            break;
+        case 15:
+            mask = 0x7FFF;
+            break;
         }
 
         uWORD a = (word & mask);
@@ -3694,7 +3858,7 @@ namespace FuuGB
             CPU_FLAG_BIT_SET(C_FLAG);
         else
             CPU_FLAG_BIT_RESET(C_FLAG);
-        
+
         host = host + operand;
 
         if (host == 0x00)
@@ -3711,9 +3875,9 @@ namespace FuuGB
     {
         uBYTE c = 0x00;
 
-        if(carry)
+        if (carry)
         {
-            if(CPU_FLAG_BIT_TEST(C_FLAG))
+            if (CPU_FLAG_BIT_TEST(C_FLAG))
                 c++;
         }
 
@@ -3726,7 +3890,7 @@ namespace FuuGB
             CPU_FLAG_BIT_SET(C_FLAG);
         else
             CPU_FLAG_BIT_RESET(C_FLAG);
-        
+
         host = host + operand + c;
 
         if (host == 0x00)
@@ -3735,7 +3899,7 @@ namespace FuuGB
             CPU_FLAG_BIT_RESET(Z_FLAG);
 
         CPU_FLAG_BIT_RESET(N_FLAG);
-        
+
         return host;
     }
 
@@ -3750,7 +3914,7 @@ namespace FuuGB
             CPU_FLAG_BIT_SET(C_FLAG);
         else
             CPU_FLAG_BIT_RESET(C_FLAG);
-        
+
         host = host - operand;
 
         if (host == 0x00)
@@ -3769,7 +3933,7 @@ namespace FuuGB
 
         if (carry)
         {
-            if(CPU_FLAG_BIT_TEST(C_FLAG))
+            if (CPU_FLAG_BIT_TEST(C_FLAG))
                 c++;
         }
         if (checkBorrowFromBit_Byte(4, host, operand, c))
@@ -3781,7 +3945,7 @@ namespace FuuGB
             CPU_FLAG_BIT_SET(C_FLAG);
         else
             CPU_FLAG_BIT_RESET(C_FLAG);
-        
+
         host = host - (operand + c);
 
         if (host == 0x00)
@@ -3850,7 +4014,7 @@ namespace FuuGB
             CPU_FLAG_BIT_RESET(Z_FLAG);
 
         CPU_FLAG_BIT_SET(N_FLAG);
-        
+
         if (checkBorrowFromBit_Byte(4, host, operand))
             CPU_FLAG_BIT_SET(H_FLAG);
         else
@@ -3910,7 +4074,6 @@ namespace FuuGB
         CPU_FLAG_BIT_RESET(N_FLAG);
         CPU_FLAG_BIT_RESET(H_FLAG);
 
-
         return reg;
     }
 
@@ -3958,14 +4121,13 @@ namespace FuuGB
             }
         }
 
-        if(reg == 0x00)
+        if (reg == 0x00)
             CPU_FLAG_BIT_SET(Z_FLAG);
         else
             CPU_FLAG_BIT_RESET(Z_FLAG);
 
         CPU_FLAG_BIT_RESET(N_FLAG);
         CPU_FLAG_BIT_RESET(H_FLAG);
-
 
         return reg;
     }
@@ -3990,7 +4152,7 @@ namespace FuuGB
                 CPU_FLAG_BIT_RESET(C_FLAG);
 
             reg = reg >> 1;
-            
+
             if (keepMSB)
             {
                 if (oldMSB)
@@ -4004,7 +4166,6 @@ namespace FuuGB
             CPU_FLAG_BIT_SET(Z_FLAG);
         else
             CPU_FLAG_BIT_RESET(Z_FLAG);
-
 
         CPU_FLAG_BIT_RESET(N_FLAG);
         CPU_FLAG_BIT_RESET(H_FLAG);
@@ -4020,7 +4181,6 @@ namespace FuuGB
             CPU_FLAG_BIT_SET(Z_FLAG);
         else
             CPU_FLAG_BIT_RESET(Z_FLAG);
-
 
         CPU_FLAG_BIT_RESET(N_FLAG);
         CPU_FLAG_BIT_RESET(H_FLAG);
@@ -4039,9 +4199,9 @@ namespace FuuGB
     void CPU::flagReset(int flag)
     {
         uBYTE mask = 0x00;
-        for (uBYTE i = 0; i < 8; i++) 
+        for (uBYTE i = 0; i < 8; i++)
         {
-            if (i == flag) 
+            if (i == flag)
             {
                 mask |= (0 << i);
             }
@@ -4072,9 +4232,9 @@ namespace FuuGB
     uBYTE CPU::resetBit(int pos, uBYTE reg)
     {
         uBYTE mask = 0x00;
-        for (uBYTE i = 0; i < 8; i++) 
+        for (uBYTE i = 0; i < 8; i++)
         {
-            if (i == pos) 
+            if (i == pos)
             {
                 mask |= (0 << i);
             }
@@ -4156,30 +4316,38 @@ namespace FuuGB
     void CPU::UpdateTimers(int cycles)
     {
         uBYTE TAC = memoryUnit->DmaRead(0xFF07);
-        
+
         updateDivider(cycles);
-        
-        if(TAC & (1 << 2)) // Check if clock is enabled
+
+        if (TAC & (1 << 2)) // Check if clock is enabled
         {
-            memoryUnit->TimerCounter -= cycles;
-            
-            while(memoryUnit->TimerCounter <= 0)
+            memoryUnit->m_TimerCounter -= cycles;
+
+            while (memoryUnit->m_TimerCounter <= 0)
             {
-                int remainder = memoryUnit->TimerCounter;
+                int remainder = memoryUnit->m_TimerCounter;
 
                 uBYTE frequency = (memoryUnit->DmaRead(0xFF07) & 0x03);
-                switch(frequency)
+                switch (frequency)
                 {
-                    case 0: memoryUnit->TimerCounter = 1024; break;
-                    case 1: memoryUnit->TimerCounter = 16; break;
-                    case 2: memoryUnit->TimerCounter = 64; break;
-                    case 3: memoryUnit->TimerCounter = 256; break;
+                case 0:
+                    memoryUnit->m_TimerCounter = 1024;
+                    break;
+                case 1:
+                    memoryUnit->m_TimerCounter = 16;
+                    break;
+                case 2:
+                    memoryUnit->m_TimerCounter = 64;
+                    break;
+                case 3:
+                    memoryUnit->m_TimerCounter = 256;
+                    break;
                 }
 
-                memoryUnit->TimerCounter += remainder;
-                
+                memoryUnit->m_TimerCounter += remainder;
+
                 // Timer Overflow
-                if(memoryUnit->Read(0xFF05) == 0xFF)
+                if (memoryUnit->Read(0xFF05) == 0xFF)
                 {
                     memoryUnit->DmaWrite(0xFF05, memoryUnit->DmaRead(0xFF06));
                     memoryUnit->RequestInterupt(2);
@@ -4195,7 +4363,7 @@ namespace FuuGB
     void CPU::updateDivider(int cycles)
     {
         dividerRegisterCounter += cycles;
-        if(dividerRegisterCounter >= 256)
+        if (dividerRegisterCounter >= 256)
         {
             memoryUnit->DmaWrite(0xFF04, (memoryUnit->DmaRead(0xFF04) + 1));
             dividerRegisterCounter -= 256;
@@ -4233,7 +4401,7 @@ namespace FuuGB
 
         return reg;
     }
-    
+
     void CPU::Halt()
     {
         uBYTE IE = memoryUnit->DmaRead(INTERUPT_EN_REGISTER_ADR);
@@ -4259,4 +4427,4 @@ namespace FuuGB
             Halted = false;
         }
     }
-}
+} // namespace FuuGB

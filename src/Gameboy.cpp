@@ -4,15 +4,15 @@ namespace FuuGB
 {
     std::condition_variable Shared::cv_GB;
     std::mutex Shared::mu_GB;
-    
-    Gameboy::Gameboy(SDL_Window* windowPtr, Cartridge* cart)
+
+    Gameboy::Gameboy(SDL_Window *windowPtr, Cartridge *cart)
     {
-        running     = true;
-        memoryUnit  = new Memory(cart);
-        ppuUnit     = new PPU(windowPtr, this->memoryUnit);
-        cpuUnit     = new CPU(this->memoryUnit);
-        pause       = false;
-        thread      = new std::thread(&Gameboy::Run, this);
+        running = true;
+        memoryUnit = new Memory(cart);
+        ppuUnit = new PPU(windowPtr, this->memoryUnit);
+        cpuUnit = new CPU(this->memoryUnit);
+        pause = false;
+        thread = new std::thread(&Gameboy::Run, this);
     }
 
     Gameboy::~Gameboy()
@@ -27,13 +27,13 @@ namespace FuuGB
 
     void Gameboy::Run()
     {
-        const int MAXCYCLES = 70221;
-        duration<double> screenRefreshCycle = std::chrono::nanoseconds(150 * MAXCYCLES);
+        const int MaxCycles = 69905;
+        duration<double> screenRefreshCycle = std::chrono::nanoseconds(150 * MaxCycles);
         while (running)
-        {   
+        {
             high_resolution_clock::time_point start = high_resolution_clock::now();
             int cyclesThisUpdate = 0;
-            while (cyclesThisUpdate <= MAXCYCLES)
+            while (cyclesThisUpdate <= MaxCycles)
             {
                 int cycles = 0;
 
@@ -47,7 +47,7 @@ namespace FuuGB
                     cpuUnit->Halt();
                     cycles = 4;
                 }
-                else 
+                else
                 {
                     cycles = cpuUnit->ExecuteNextOpCode();
                 }
@@ -58,14 +58,14 @@ namespace FuuGB
                 ppuUnit->UpdateGraphics(cycles);
                 memoryUnit->UpdateDmaCycles(cycles);
 
-                if(!cpuUnit->Halted) 
+                if (!cpuUnit->Halted)
                 {
                     cpuUnit->CheckInterupts();
                 }
             }
             high_resolution_clock::time_point end = high_resolution_clock::now();
-            duration<double> timeSpan = duration_cast<duration<double>>(end-start);
-            if(timeSpan < screenRefreshCycle)
+            duration<double> timeSpan = duration_cast<duration<double>>(end - start);
+            if (timeSpan < screenRefreshCycle)
             {
                 std::this_thread::sleep_for(screenRefreshCycle - timeSpan);
             }
@@ -90,4 +90,4 @@ namespace FuuGB
         pauseLock.unlock();
         pause = false;
     }
-}
+} // namespace FuuGB

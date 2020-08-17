@@ -6,8 +6,8 @@ namespace FuuGB
     class Application
     {
     public:
-        virtual void run(int, char**) = 0;
+        virtual void Run(int, char **) = 0;
     };
-}
+} // namespace FuuGB
 
 #endif
