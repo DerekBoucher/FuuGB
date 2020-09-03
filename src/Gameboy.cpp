@@ -44,8 +44,9 @@ namespace FuuGB
 
                 if (cpuUnit->Halted)
                 {
-                    cpuUnit->Halt();
                     cycles = 4;
+                    memoryUnit->UpdateTimers(cycles);
+                    cpuUnit->Halt();
                 }
                 else
                 {
@@ -53,8 +54,6 @@ namespace FuuGB
                 }
 
                 cyclesThisUpdate += cycles;
-
-                cpuUnit->UpdateTimers(cycles);
                 ppuUnit->UpdateGraphics(cycles);
                 memoryUnit->UpdateDmaCycles(cycles);
 

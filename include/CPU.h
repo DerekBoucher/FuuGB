@@ -36,7 +36,6 @@ namespace FuuGB
 
         void Pause();
         void CheckInterupts();
-        void UpdateTimers(int);
         void Halt();
         int ExecuteNextOpCode();
 
@@ -625,7 +624,6 @@ namespace FuuGB
         void flagSet(int);
         void testBit(int, uBYTE);
         void flagReset(int);
-        void updateDivider(int);
         bool flagTest(int);
         bool testBitInByte(uBYTE, int);
         bool testBitInWord(uWORD, int);

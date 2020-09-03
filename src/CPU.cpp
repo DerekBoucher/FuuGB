@@ -190,6 +190,7 @@ namespace FuuGB
                 PC = PC - twoComp_Byte(byte);
             else
                 PC = PC + byte;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 12;
             break;
 
@@ -244,6 +245,7 @@ namespace FuuGB
                     PC = PC - twoComp_Byte(byte);
                 else
                     PC = PC + byte;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 12;
             }
             else
@@ -302,6 +304,7 @@ namespace FuuGB
                     PC = PC - twoComp_Byte(byte);
                 else
                     PC = PC + byte;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 12;
             }
             else
@@ -361,6 +364,7 @@ namespace FuuGB
                     PC = PC - twoComp_Byte(byte);
                 else
                     PC = PC + byte;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 12;
             }
             else
@@ -425,6 +429,7 @@ namespace FuuGB
                     PC = PC - twoComp_Byte(byte);
                 else
                     PC = PC + byte;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 12;
             }
             else
@@ -1247,11 +1252,14 @@ namespace FuuGB
                 temp.lo = memoryUnit->Read(SP++);
                 temp.hi = memoryUnit->Read(SP++);
                 PC = temp.data;
-
+                memoryUnit->UpdateTimers(8);
                 cyclesExecuted = 20;
             }
             else
+            {
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 8;
+            }
             break;
 
         case POP_BC:
@@ -1268,6 +1276,7 @@ namespace FuuGB
             if (!CPU_FLAG_BIT_TEST(Z_FLAG))
             {
                 PC = temp.data;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 16;
             }
             else
@@ -1280,6 +1289,7 @@ namespace FuuGB
             temp.hi = memoryUnit->Read(PC++);
 
             PC = temp.data;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -1294,6 +1304,7 @@ namespace FuuGB
                 memoryUnit->Write(--SP, temp2.hi);
                 memoryUnit->Write(--SP, temp2.lo);
                 PC = temp.data;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 24;
             }
             else
@@ -1329,10 +1340,14 @@ namespace FuuGB
                 temp.lo = memoryUnit->Read(SP++);
                 temp.hi = memoryUnit->Read(SP++);
                 PC = temp.data;
+                memoryUnit->UpdateTimers(8);
                 cyclesExecuted = 20;
             }
             else
+            {
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 8;
+            }
             break;
 
         case RETURN:
@@ -1340,6 +1355,7 @@ namespace FuuGB
             temp.lo = memoryUnit->Read(SP++);
             temp.hi = memoryUnit->Read(SP++);
             PC = temp.data;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -1350,6 +1366,7 @@ namespace FuuGB
             if (CPU_FLAG_BIT_TEST(Z_FLAG))
             {
                 PC = temp.data;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 16;
             }
             else
@@ -2938,6 +2955,7 @@ namespace FuuGB
                 memoryUnit->Write(--SP, temp2.hi);
                 memoryUnit->Write(--SP, temp2.lo);
                 PC = temp.data;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 24;
             }
             else
@@ -2955,6 +2973,7 @@ namespace FuuGB
                 memoryUnit->Write(--SP, temp2.lo);
                 PC = temp.data;
             }
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 24;
             break;
 
@@ -2980,10 +2999,14 @@ namespace FuuGB
                 temp.lo = memoryUnit->Read(SP++);
                 temp.hi = memoryUnit->Read(SP++);
                 PC = temp.data;
+                memoryUnit->UpdateTimers(8);
                 cyclesExecuted = 20;
             }
             else
+            {
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 8;
+            }
             break;
 
         case POP_DE:
@@ -3000,6 +3023,7 @@ namespace FuuGB
             if (!CPU_FLAG_BIT_TEST(C_FLAG))
             {
                 PC = temp.data;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 16;
             }
             else
@@ -3017,6 +3041,7 @@ namespace FuuGB
                 memoryUnit->Write(--SP, temp2.hi);
                 memoryUnit->Write(--SP, temp2.lo);
                 PC = temp.data;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 24;
             }
             else
@@ -3052,11 +3077,14 @@ namespace FuuGB
                 temp.lo = memoryUnit->Read(SP++);
                 temp.hi = memoryUnit->Read(SP++);
                 PC = temp.data;
-
+                memoryUnit->UpdateTimers(8);
                 cyclesExecuted = 20;
             }
             else
+            {
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 8;
+            }
             break;
 
         case RET_INT:
@@ -3065,6 +3093,7 @@ namespace FuuGB
             temp.hi = memoryUnit->Read(SP++);
             PC = temp.data;
             IME = true;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3075,6 +3104,7 @@ namespace FuuGB
             if (CPU_FLAG_BIT_TEST(C_FLAG))
             {
                 PC = temp.data;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 16;
             }
             else
@@ -3092,6 +3122,7 @@ namespace FuuGB
                 memoryUnit->Write(--SP, temp2.hi);
                 memoryUnit->Write(--SP, temp2.lo);
                 PC = temp.data;
+                memoryUnit->UpdateTimers(4);
                 cyclesExecuted = 24;
             }
             else
@@ -3343,13 +3374,13 @@ namespace FuuGB
             break;
         }
 
-        #ifdef FUUGB_DEBUG
+#ifdef FUUGB_DEBUG
         if (memoryUnit->DmaRead(0xFF02) == 0x81)
         {
             printf("%c", memoryUnit->DmaRead(0xFF01));
             memoryUnit->DmaWrite(0xFF02, 0x00);
         }
-        #endif
+#endif
         return cyclesExecuted;
     }
 
@@ -4310,63 +4341,6 @@ namespace FuuGB
             memoryUnit->DmaWrite(--SP, Temp.hi);
             memoryUnit->DmaWrite(--SP, Temp.lo);
             PC = CONTROL_INT;
-        }
-    }
-
-    void CPU::UpdateTimers(int cycles)
-    {
-        uBYTE TAC = memoryUnit->DmaRead(0xFF07);
-
-        updateDivider(cycles);
-
-        if (TAC & (1 << 2)) // Check if clock is enabled
-        {
-            memoryUnit->m_TimerCounter -= cycles;
-
-            while (memoryUnit->m_TimerCounter <= 0)
-            {
-                int remainder = memoryUnit->m_TimerCounter;
-
-                uBYTE frequency = (memoryUnit->DmaRead(0xFF07) & 0x03);
-                switch (frequency)
-                {
-                case 0:
-                    memoryUnit->m_TimerCounter = 1024;
-                    break;
-                case 1:
-                    memoryUnit->m_TimerCounter = 16;
-                    break;
-                case 2:
-                    memoryUnit->m_TimerCounter = 64;
-                    break;
-                case 3:
-                    memoryUnit->m_TimerCounter = 256;
-                    break;
-                }
-
-                memoryUnit->m_TimerCounter += remainder;
-
-                // Timer Overflow
-                if (memoryUnit->Read(0xFF05) == 0xFF)
-                {
-                    memoryUnit->DmaWrite(0xFF05, memoryUnit->DmaRead(0xFF06));
-                    memoryUnit->RequestInterupt(2);
-                }
-                else
-                {
-                    memoryUnit->DmaWrite(0xFF05, (memoryUnit->DmaRead(0xFF05) + 1));
-                }
-            }
-        }
-    }
-
-    void CPU::updateDivider(int cycles)
-    {
-        dividerRegisterCounter += cycles;
-        if (dividerRegisterCounter >= 256)
-        {
-            memoryUnit->DmaWrite(0xFF04, (memoryUnit->DmaRead(0xFF04) + 1));
-            dividerRegisterCounter -= 256;
         }
     }
 

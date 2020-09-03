@@ -13,12 +13,13 @@ namespace FuuGB
         m_TimerCounter = 1024;
         m_DmaCyclesCompleted = 0;
         m_TranslatedAddr = 0x0000;
+        m_DividerRegisterCounter = 0;
     }
 
     Memory::Memory(const Memory &other)
         : m_TimerCounter(other.m_TimerCounter), m_DmaCyclesCompleted(other.m_DmaCyclesCompleted), m_BootRomClosed(other.m_BootRomClosed),
           m_DmaTransferInProgress(other.m_DmaTransferInProgress),
-          m_TranslatedAddr(other.m_TranslatedAddr), m_Cart(other.m_Cart)
+          m_TranslatedAddr(other.m_TranslatedAddr), m_Cart(other.m_Cart), m_DividerRegisterCounter(other.m_DividerRegisterCounter)
     {
         m_Mem = new uBYTE[0x10000];
         memcpy(m_Mem, other.m_Mem, 0x10000);
@@ -40,6 +41,9 @@ namespace FuuGB
 
     void Memory::Write(uWORD addr, uBYTE data)
     {
+        // Writing to memory takes 4 cycles
+        UpdateTimers(4);
+
         if ((addr < 0x8000) && !m_DmaTransferInProgress) // Cart ROM
         {
             if (addr < 0x2000)
@@ -352,6 +356,9 @@ namespace FuuGB
 
     uBYTE Memory::Read(uWORD addr)
     {
+        // Reading from memory takes 4 cycles
+        UpdateTimers(4);
+
         if ((addr < 0x4000) && !m_DmaTransferInProgress) // Cart ROM Bank 0
         {
             if (!m_BootRomClosed && (addr < 0x100))
@@ -480,6 +487,59 @@ namespace FuuGB
         m_Mem[addr] = data;
     }
 
+    void Memory::UpdateTimers(int cycles)
+    {
+        uBYTE TAC = m_Mem[0xFF07];
+
+        // Update the divider register
+        m_DividerRegisterCounter += cycles;
+        if (m_DividerRegisterCounter >= 256)
+        {
+            m_Mem[0xFF04]++;
+            m_DividerRegisterCounter -= 256;
+        }
+
+        if (TAC & (1 << 2)) // Check if clock is enabled
+        {
+            m_TimerCounter -= cycles;
+
+            while (m_TimerCounter <= 0)
+            {
+                int remainder = m_TimerCounter;
+
+                uBYTE frequency = (TAC & 0x03);
+                switch (frequency)
+                {
+                case 0:
+                    m_TimerCounter = 1024;
+                    break;
+                case 1:
+                    m_TimerCounter = 16;
+                    break;
+                case 2:
+                    m_TimerCounter = 64;
+                    break;
+                case 3:
+                    m_TimerCounter = 256;
+                    break;
+                }
+
+                m_TimerCounter += remainder;
+
+                // Timer Overflow
+                if (m_Mem[0xFF05] == 0xFF)
+                {
+                    m_Mem[0xFF05] = m_Mem[0xFF06];
+                    RequestInterupt(2);
+                }
+                else
+                {
+                    m_Mem[0xFF05]++;
+                }
+            }
+        }
+    }
+
     void Memory::changeRomBank(uWORD addr, uBYTE data)
     {
         if (m_Cart->m_Attributes[Cartridge::c_RomOnly])
@@ -491,9 +551,6 @@ namespace FuuGB
         if (m_Cart->m_Attributes[Cartridge::c_Mbc1])
         {
             m_Cart->m_CurrentRomBank = (data & 0x1F);
-
-            // if (m_Cart->m_Attributes[Cartridge::c_Mode])
-            //     m_Cart->m_CurrentRomBank |= ((m_Cart->m_CurrentRamBank << 5) & 0x60);
 
             if (m_Cart->m_CurrentRomBank > m_Cart->m_RomBankCount)
                 m_Cart->m_CurrentRomBank &= (m_Cart->m_RomBankCount - 1);
