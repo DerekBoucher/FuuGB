@@ -366,13 +366,13 @@ namespace FuuGB
         currentScanline = memoryRef->DmaRead(0xFF44);
 
         // Calculate which row in the tile to render
-        uWORD yPos = winY + currentScanline;
+        uBYTE yPos = winY + currentScanline;
         uWORD tileRow = (yPos / 8) * 32;
 
         // Start Rendering the scanline
         for (int pixel = 0; pixel < 160; pixel++)
         {
-            uWORD xPos = pixel + winX;
+            uBYTE xPos = pixel + winX;
 
             uWORD tileColumn = xPos / 8;
 

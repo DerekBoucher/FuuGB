@@ -17,6 +17,7 @@ namespace FuuGB
         void DmaWrite(uWORD, uBYTE);
         void RequestInterupt(int);
         void UpdateDmaCycles(int);
+        void UpdateTimers(int);
         uBYTE Read(uWORD);
         uBYTE DmaRead(uWORD);
 
@@ -30,6 +31,7 @@ namespace FuuGB
             this->m_TimerCounter = other.m_TimerCounter;
             this->m_Mem = other.m_Mem;
             this->m_Cart = other.m_Cart;
+            this->m_DividerRegisterCounter = other.m_DividerRegisterCounter;
             return *this;
         }
 
@@ -48,6 +50,7 @@ namespace FuuGB
         bool m_DmaTransferInProgress;
         uWORD m_TranslatedAddr;
         Cartridge *m_Cart;
+        int m_DividerRegisterCounter;
 
         uBYTE m_BootRom[0x100] =
             {
