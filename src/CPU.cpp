@@ -1287,7 +1287,6 @@ namespace FuuGB
             //16 Clock Cycles
             temp.lo = memoryUnit->Read(PC++);
             temp.hi = memoryUnit->Read(PC++);
-
             PC = temp.data;
             memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
@@ -1315,6 +1314,7 @@ namespace FuuGB
             //16 clock cycles
             memoryUnit->Write(--SP, BC.hi);
             memoryUnit->Write(--SP, BC.lo);
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -1330,6 +1330,7 @@ namespace FuuGB
             memoryUnit->Write(--SP, temp.hi);
             memoryUnit->Write(--SP, temp.lo);
             PC = 0x0000;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -2989,6 +2990,7 @@ namespace FuuGB
             memoryUnit->Write(--SP, temp.hi);
             memoryUnit->Write(--SP, temp.lo);
             PC = 0x0008;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3052,6 +3054,7 @@ namespace FuuGB
             //16 clock cycles
             memoryUnit->Write(--SP, DE.hi);
             memoryUnit->Write(--SP, DE.lo);
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3067,6 +3070,7 @@ namespace FuuGB
             memoryUnit->Write(--SP, temp.hi);
             memoryUnit->Write(--SP, temp.lo);
             PC = 0x0010;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3141,6 +3145,7 @@ namespace FuuGB
             memoryUnit->Write(--SP, temp.hi);
             memoryUnit->Write(--SP, temp.lo);
             PC = 0x0018;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3167,6 +3172,7 @@ namespace FuuGB
             //16 clock cycles
             memoryUnit->Write(--SP, HL.hi);
             memoryUnit->Write(--SP, HL.lo);
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3182,6 +3188,7 @@ namespace FuuGB
             memoryUnit->Write(--SP, temp.hi);
             memoryUnit->Write(--SP, temp.lo);
             PC = 0x0020;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3219,6 +3226,7 @@ namespace FuuGB
 
             CPU_FLAG_BIT_RESET(Z_FLAG);
             CPU_FLAG_BIT_RESET(N_FLAG);
+            memoryUnit->UpdateTimers(8);
             cyclesExecuted = 16;
             break;
 
@@ -3248,7 +3256,7 @@ namespace FuuGB
             memoryUnit->Write(--SP, temp.hi);
             memoryUnit->Write(--SP, temp.lo);
             PC = 0x0028;
-
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3281,6 +3289,7 @@ namespace FuuGB
             //16 clock cycles
             memoryUnit->Write(--SP, AF.hi);
             memoryUnit->Write(--SP, AF.lo);
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3296,6 +3305,7 @@ namespace FuuGB
             memoryUnit->Write(--SP, temp.hi);
             memoryUnit->Write(--SP, temp.lo);
             PC = 0x0030;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3332,12 +3342,14 @@ namespace FuuGB
             }
             CPU_FLAG_BIT_RESET(Z_FLAG);
             CPU_FLAG_BIT_RESET(N_FLAG);
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 12;
             break;
 
         case LD_HL_SP:
             //8 Clock Cycles
             SP = HL.data;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 8;
             break;
 
@@ -3367,6 +3379,7 @@ namespace FuuGB
             memoryUnit->Write(--SP, temp.hi);
             memoryUnit->Write(--SP, temp.lo);
             PC = 0x0038;
+            memoryUnit->UpdateTimers(4);
             cyclesExecuted = 16;
             break;
 
@@ -3387,6 +3400,7 @@ namespace FuuGB
     uWORD CPU::increment16BitRegister(uWORD reg)
     {
         reg++;
+        memoryUnit->UpdateTimers(4);
         return reg;
     }
 
@@ -3431,6 +3445,7 @@ namespace FuuGB
     uWORD CPU::decrement16BitRegister(uWORD reg)
     {
         reg--;
+        memoryUnit->UpdateTimers(4);
         return reg;
     }
 
@@ -3449,6 +3464,8 @@ namespace FuuGB
             CPU_FLAG_BIT_RESET(C_FLAG);
 
         host += operand;
+
+        memoryUnit->UpdateTimers(4);
 
         return host;
     }
