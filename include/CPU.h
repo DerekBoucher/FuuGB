@@ -39,7 +39,7 @@ namespace FuuGB
         void Halt();
         int ExecuteNextOpCode();
 
-    protected:
+    private:
         union reg
         {
             uWORD data;
