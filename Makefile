@@ -52,9 +52,9 @@ endif
 DEPS = $(OBJECTS:.o=.d)
 
 # flags
-COMPILE_FLAGS = -std=c++11 -Wall -Wextra -pthread
+COMPILE_FLAGS = -std=c++17 -Wall -Wextra -pthread
 ifeq ($(OSFLAG), LINUX)
-	COMPILE_FLAGS += -DFUUGB_SYSTEM_LINUX
+	COMPILE_FLAGS += -DFUUGB_SYSTEM_LINUX 
 endif
 ifeq ($(OSFLAG), OSX)
 	COMPILE_FLAGS += -DFUUGB_SYSTEM_MACOS -x objective-c++
@@ -75,7 +75,7 @@ LIBS += -lSDL2 -lpthread
 default_target: debug
 
 .PHONY: debug
-debug: export COMPILE_FLAGS := $(COMPILE_FLAGS) -DFUUGB_DEBUG -g3
+debug: export COMPILE_FLAGS := $(COMPILE_FLAGS) -DFUUGB_DEBUG -g
 debug: export CXXFLAGS := $(CXXFLAGS) $(COMPILE_FLAGS)
 debug: dirs
 	@$(MAKE) all
@@ -96,11 +96,23 @@ clean:
 
 # checks the executable and symlinks to the output
 .PHONY: all
+
+ifneq ($(OSFLAG), LINUX)
+
 all: $(BIN_PATH)/$(BIN_NAME)
 	@echo "Making symlink: $(BIN_NAME) -> $<"
 	@$(RM) $(BIN_NAME)
 	@ln -s $(BIN_PATH)/$(BIN_NAME) $(BIN_NAME)
 	@cp $(LIBTOCP) $(BIN_PATH)
+
+else
+
+all: $(BIN_PATH)/$(BIN_NAME)
+	@echo "Making symlink: $(BIN_NAME) -> $<"
+	@$(RM) $(BIN_NAME)
+	@ln -s $(BIN_PATH)/$(BIN_NAME) $(BIN_NAME)
+	
+endif
 
 # Creation of the executable
 $(BIN_PATH)/$(BIN_NAME): $(OBJECTS)
