@@ -67,7 +67,7 @@ ifeq ($(OSFLAG), WINDOWS)
 	LIBTOCP = lib/sdl2/windows/SDL2.dll
 endif
 
-INCLUDES = -I include/ -I /usr/local/include -I lib/sdl2/include
+INCLUDES = -I include/ -I /usr/include/SDL2 -I lib/sdl2/include
 # Space-separated pkg-config libraries used by this project
 LIBS += -lSDL2 -lpthread
 
@@ -111,7 +111,7 @@ all: $(BIN_PATH)/$(BIN_NAME)
 	@echo "Making symlink: $(BIN_NAME) -> $<"
 	@$(RM) $(BIN_NAME)
 	@ln -s $(BIN_PATH)/$(BIN_NAME) $(BIN_NAME)
-	
+
 endif
 
 # Creation of the executable
