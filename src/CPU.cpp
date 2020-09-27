@@ -4313,51 +4313,56 @@ namespace FuuGB
         {
             IME = false;
             IF &= 0xFE;
-            memoryUnit->DmaWrite(INTERUPT_FLAG_REG, IF);
+            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
-            memoryUnit->DmaWrite(--SP, Temp.hi);
-            memoryUnit->DmaWrite(--SP, Temp.lo);
+            memoryUnit->Write(--SP, Temp.hi);
+            memoryUnit->Write(--SP, Temp.lo);
             PC = VBLANK_INT;
+            memoryUnit->UpdateTimers(8);
         }
         else if ((IF & (1 << 1)) && (IE & (1 << 1))) // LCDC
         {
             IME = false;
             IF &= 0xFD;
-            memoryUnit->DmaWrite(INTERUPT_FLAG_REG, IF);
+            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
-            memoryUnit->DmaWrite(--SP, Temp.hi);
-            memoryUnit->DmaWrite(--SP, Temp.lo);
+            memoryUnit->Write(--SP, Temp.hi);
+            memoryUnit->Write(--SP, Temp.lo);
             PC = LCDC_INT;
+            memoryUnit->UpdateTimers(8);
         }
         else if ((IF & (1 << 2)) && (IE & (1 << 2))) // Timer Overflow
         {
             IME = false;
             IF &= 0xFB;
-            memoryUnit->DmaWrite(INTERUPT_FLAG_REG, IF);
+            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
-            memoryUnit->DmaWrite(--SP, Temp.hi);
-            memoryUnit->DmaWrite(--SP, Temp.lo);
+            memoryUnit->Write(--SP, Temp.hi);
+            memoryUnit->Write(--SP, Temp.lo);
             PC = TIMER_OVER_INT;
+            memoryUnit->UpdateTimers(8);
         }
         else if ((IF & (1 << 3)) && (IE & (1 << 3))) // Serial I/O Complete
         {
             IME = false;
             IF &= 0xF7;
-            memoryUnit->DmaWrite(INTERUPT_FLAG_REG, IF);
+            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
-            memoryUnit->DmaWrite(--SP, Temp.hi);
-            memoryUnit->DmaWrite(--SP, Temp.lo);
+            memoryUnit->Write(--SP, Temp.hi);
+            memoryUnit->Write(--SP, Temp.lo);
             PC = SER_TRF_INT;
+            memoryUnit->UpdateTimers(8);
         }
         else if ((IF & (1 << 4)) && (IE & (1 << 4))) //Pin 10 - 13 hi to lo (Control Input)
         {
             IME = false;
             IF &= 0xEF;
-            memoryUnit->DmaWrite(INTERUPT_FLAG_REG, IF);
+            memoryUnit->Write(INTERUPT_FLAG_REG, IF);
             Temp.data = PC;
-            memoryUnit->DmaWrite(--SP, Temp.hi);
-            memoryUnit->DmaWrite(--SP, Temp.lo);
+            memoryUnit->Write(--SP, Temp.hi);
+            memoryUnit->Write(--SP, Temp.lo);
             PC = CONTROL_INT;
+            memoryUnit->UpdateTimers(8);
         }
     }
 

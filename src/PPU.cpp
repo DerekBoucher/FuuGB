@@ -153,20 +153,20 @@ namespace FuuGB
         // Start Rendering the scanline
         for (int pixel = 0; pixel < 160; pixel++)
         {
-            if (currentScanline < 0 || currentScanline > 143 || pixel < 0 || pixel > 159)
+            if (currentScanline < 0 || currentScanline > 143)
             {
                 continue;
             }
 
             uBYTE xPos = pixel + scrollX;
 
-            uBYTE tileColumn = xPos / 8;
+            uWORD tileColumn = xPos / 8;
 
             // Determine the address for the tile ID
-            uWORD currentTileMapAdr = tileMapPtr + tileColumn + tileRow;
+            uWORD currentTileIDAdr = tileMapPtr + tileColumn + tileRow;
 
             // Fetch the tile ID
-            uBYTE tileID = memoryRef->DmaRead(currentTileMapAdr);
+            uBYTE tileID = memoryRef->DmaRead(currentTileIDAdr);
 
             // Determine the current pixel data from the tile data
             uWORD tileLineOffset = (yPos % 8) * 2; //Each line is 2 bytes

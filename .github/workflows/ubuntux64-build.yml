@@ -1,0 +1,15 @@
+name: Ubuntu 64-Bit Build
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: make
+      run: |
+        sudo apt-get install libsdl2-dev
+        make debug
