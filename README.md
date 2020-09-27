@@ -27,7 +27,16 @@ Early Alpha Development
         4.  make clean (if you wish to delete the build folder)
 
     LINUX
-        1.  Not Supported yet
+        1.  Make sure you have the SDL2 development libraries installed. You can get them via your distro's package manager.
+            For Ubuntu:
+                sudo apt-get install libsdl2-dev
+        2.  make debug
+        3.  There is no support for open file dialog box yet, therefore to launch a rom you need to run the built binary with the path of the gb rom as an argument:
+            Example:
+                ./FuuGBemu gb-test-roms/cpu_instrs/cpu_instrs.gb
+        4. You might need to make the binary executable:
+            Run:
+                chmod -x FuuGBemu
 
 ## Emulation Accuracy Testing
 
