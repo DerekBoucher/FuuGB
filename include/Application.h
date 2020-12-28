@@ -1,13 +1,22 @@
-#ifndef Application_h
-#define Application_h
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
-namespace FuuGB
-{
-    class Application
-    {
-    public:
-        virtual void Run(int, char **) = 0;
-    };
-} // namespace FuuGB
+#include "Defines.h"
+#include "GUI.h"
+
+#include <wx/app.h>
+
+class Application : public wxApp {
+
+public:
+    Application();
+    ~Application();
+
+    virtual bool OnInit();
+private:
+    GUI* gui;
+};
+
+wxIMPLEMENT_APP_NO_MAIN(Application);
 
 #endif

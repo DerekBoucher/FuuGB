@@ -1,7 +1,6 @@
 # FuuGBemu
-![Windows 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Windows%2064-Bit%20Build/badge.svg?event=push)    ![Mac OSX 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Mac%20OSX%2064-Bit%20Build/badge.svg)    ![Ubuntu 64-Bit Build](https://github.com/DerekBoucher/FuuGBemu/workflows/Ubuntu%2064-Bit%20Build/badge.svg)
 
-C/C++ DMG GameBoy emulator using SDL2 Libraries.
+C/C++ DMG GameBoy emulator using wxWidgets/SDL2.
 
 Algorithm for the PPU and Memory Management are taken from http://www.codeslinger.co.uk/pages/projects/gameboy.html
 
@@ -13,30 +12,23 @@ Early Alpha Development
 
 ## How To Build
     MAC OS X
-        1.  git clone --recursive https://github.com/DerekBoucher/FuuGBemu.git && cd FuuGBemu
-        2.  make debug
-        3.  make clean (if you wish to delete the build folder)
+        (coming soon)
     
     WINDOWS
-        1. Strongly recommend installing chocolatey package manager: https://chocolatey.org/install
-            1.1 once installed issue the following commands from the command line (make sure to run cmd as ADMINISTRATOR):
-                choco install make
-                choco install mingw
-        2.  git clone --recursive https://github.com/DerekBoucher/FuuGBemu.git && cd FuuGBemu
-        3.  make debug
-        4.  make clean (if you wish to delete the build folder)
+        (coming soon)
 
-    LINUX
+    LINUX/UBUNTU
         1.  Make sure you have the SDL2 development libraries installed. You can get them via your distro's package manager.
             For Ubuntu:
                 sudo apt-get install libsdl2-dev
-        2.  make debug
-        3.  There is no support for open file dialog box yet, therefore to launch a rom you need to run the built binary with the path of the gb rom as an argument:
-            Example:
-                ./FuuGBemu gb-test-roms/cpu_instrs/cpu_instrs.gb
-        4. You might need to make the binary executable:
-            Run:
-                chmod -x FuuGBemu
+        2.  Download source code for latest stable release of wxWidgets for Linux: https://www.wxwidgets.org/downloads/
+        3.  Follow instructions to build/install wxWidgets: https://docs.wxwidgets.org/trunk/plat_gtk_install.html
+        4.  Make sure to configure the library with the following options:
+                ./configure --with-gtk=3 --with-opengl --enable-debug
+        5.  Execute the following command from the root of this repo:
+                make debug
+        6.  You might need to make the binary executable:
+                sudo chmod -x FuuGBemu
 
 ## Emulation Accuracy Testing
 

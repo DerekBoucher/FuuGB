@@ -1,33 +1,36 @@
-#ifndef GAMEBOY_H_
-#define GAMEBOY_H_
+#ifndef GAMEBOY_H
+#define GAMEBOY_H
+
+#include "Defines.h"
 #include "CPU.h"
 #include "PPU.h"
-#include "Core.h"
-#include <chrono>
 
-namespace FuuGB
+#include <thread>
+#include <condition_variable>
+
+class Gameboy
 {
-    class Gameboy
-    {
-    public:
-        Gameboy(SDL_Window *, Cartridge *);
-        Gameboy(Gameboy &) = delete;
-        virtual ~Gameboy();
+public:
+    Gameboy(wxWindow*, Cartridge*);
+    Gameboy(Gameboy&) = delete;
+    virtual ~Gameboy();
 
-        void Pause();
-        void Resume();
-        void Run();
+    void Pause();
+    void Resume();
+    void Run();
+    void Stop();
 
-    private:
-        CPU *cpuUnit;
-        Memory *memoryUnit;
-        PPU *ppuUnit;
-        std::thread *thread;
-        bool pause;
-        bool running;
+private:
+    CPU* cpuUnit;
+    Memory* memoryUnit;
+    PPU* ppuUnit;
+    std::thread* thread;
+    std::mutex mtx;
+    std::condition_variable cv;
+    bool pause;
+    bool running;
 
-        void wait();
-    };
-} // namespace FuuGB
+    void wait();
+};
 
-#endif /* GAMEBOY_H_ */
+#endif
