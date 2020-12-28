@@ -18,11 +18,13 @@ Early Alpha Development
         (coming soon)
 
     LINUX/UBUNTU
-        1.  Make sure you have the SDL2 development libraries installed. You can get them via your distro's package manager.
-            For Ubuntu:
+        1.  Make sure you have the SDL2 development libraries installed. You can get them via your distro's
+            package manager. For Ubuntu:
                 sudo apt-get install libsdl2-dev
-        2.  Download source code for latest stable release of wxWidgets for Linux: https://www.wxwidgets.org/downloads/
-        3.  Follow instructions to build/install wxWidgets: https://docs.wxwidgets.org/trunk/plat_gtk_install.html
+        2.  Download source code for latest stable release of wxWidgets for Linux: 
+                https://www.wxwidgets.org/downloads/
+        3.  Follow instructions to build/install wxWidgets: 
+                https://docs.wxwidgets.org/trunk/plat_gtk_install.html
         4.  Make sure to configure the library with the following options:
                 ./configure --with-gtk=3 --with-opengl --enable-debug
         5.  Execute the following command from the root of this repo:
