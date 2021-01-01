@@ -32,10 +32,15 @@ endif
 OBJECTS = $(CPP_SOURCES:$(SRC_PATH)/%.$(CPP_SRC_EXT)=$(BUILD_PATH)/%.o)
 
 # Rules
-.PHONY: debug makeDirs clean
+.PHONY: debug release makeDirs clean
 
-debug: export COMPILE_FLAGS := $(COMPILE_FLAGS) -DFUUGB_DEBUG -g
 debug: makeDirs
+	@echo "Building debug x86_64..."
+	@$(eval export DEBUG_FLAGS = -g -DFUUGB_DEBUG)
+	@$(MAKE) $(BIN_PATH)/$(BIN_NAME)
+
+release: makeDirs
+	@echo "Building release x86_64..."
 	@$(MAKE) $(BIN_PATH)/$(BIN_NAME)
 
 makeDirs:
@@ -59,4 +64,4 @@ $(BIN_PATH)/$(BIN_NAME) : $(OBJECTS)
 
 $(BUILD_PATH)/%.o: $(SRC_PATH)/%.$(CPP_SRC_EXT)
 	@echo "Compiling: $< -> $@"
-	$(CXX) $(COMPILE_FLAGS) $(INCLUDES) -MP -MMD -c $< -o $@
+	$(CXX) $(COMPILE_FLAGS) $(DEBUG_FLAGS) -MP -MMD -c $< -o $@

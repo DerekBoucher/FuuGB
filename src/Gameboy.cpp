@@ -1,9 +1,10 @@
 #include "Gameboy.h"
 
-Gameboy::Gameboy(wxWindow* screen, Cartridge* cart)
+Gameboy::Gameboy(wxWindow* screen, Cartridge* c)
 {
     running = true;
-    memoryUnit = new Memory(cart);
+    cart = c;
+    memoryUnit = new Memory(c);
     ppuUnit = new PPU(screen, this->memoryUnit);
     cpuUnit = new CPU(this->memoryUnit);
     pause = false;
@@ -21,26 +22,21 @@ Gameboy::~Gameboy()
 void Gameboy::Run()
 {
     const int MaxCycles = 69905;
-    while (running)
-    {
+    while (running) {
         int cyclesThisUpdate = 0;
-        while (cyclesThisUpdate <= MaxCycles)
-        {
+        while (cyclesThisUpdate <= MaxCycles) {
             int cycles = 0;
 
-            if (pause)
-            {
+            if (pause) {
                 wait();
             }
 
-            if (cpuUnit->Halted)
-            {
+            if (cpuUnit->Halted) {
                 cycles = 4;
                 memoryUnit->UpdateTimers(cycles);
                 cpuUnit->Halt();
             }
-            else
-            {
+            else {
                 cycles = cpuUnit->ExecuteNextOpCode();
             }
 
@@ -48,8 +44,7 @@ void Gameboy::Run()
             ppuUnit->UpdateGraphics(cycles);
             memoryUnit->UpdateDmaCycles(cycles);
 
-            if (!cpuUnit->Halted)
-            {
+            if (!cpuUnit->Halted) {
                 cpuUnit->CheckInterupts();
             }
         }
@@ -72,10 +67,17 @@ void Gameboy::Stop() {
     thread->join();
 }
 
-void Gameboy::wait()
-{
+void Gameboy::wait() {
     std::unique_lock<std::mutex> pauseLock(mtx);
     cv.wait(pauseLock);
     pauseLock.unlock();
     pause = false;
+}
+
+Memory* Gameboy::GetMemory() {
+    return memoryUnit;
+}
+
+Cartridge* Gameboy::GetCartridge() {
+    return cart;
 }

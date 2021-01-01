@@ -3,6 +3,7 @@
 
 #include "Defines.h"
 #include "Gameboy.h"
+#include "Debugger.h"
 
 #include <wx/frame.h>
 
@@ -15,11 +16,13 @@ public:
     wxDECLARE_EVENT_TABLE();
 
 private:
+    Debugger* debugger = nullptr;
     wxWindow* gameboyScreen = nullptr;
     Gameboy* gameboy = nullptr;
     void OnClose(wxCloseEvent&);
     void OnClickOpen(wxCommandEvent&);
     void OnClickExit(wxCommandEvent&);
+    void OnClickDebugger(wxCommandEvent&);
 };
 
 #endif

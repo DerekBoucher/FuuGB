@@ -3,6 +3,7 @@
 wxBEGIN_EVENT_TABLE(GUI, wxFrame)
 EVT_MENU(wxID_OPEN, GUI::OnClickOpen)
 EVT_MENU(wxID_EXIT, GUI::OnClickExit)
+EVT_MENU(wxID_CUSTOM_DEBUGGER, GUI::OnClickDebugger)
 EVT_CLOSE(GUI::OnClose)
 wxEND_EVENT_TABLE();
 
@@ -13,10 +14,11 @@ GUI::GUI() : wxFrame(NULL, wxID_ANY, wxT("FuuGBemu"), wxDefaultPosition, wxSize(
 
     fileMenu->Append(wxID_OPEN, wxT("&Open"));
     fileMenu->Append(wxID_EXIT, wxT("&Exit"));
+    viewMenu->Append(wxID_CUSTOM_DEBUGGER, wxT("&Debugger"));
 
-    viewMenu->Append(ID_DEBUGGER, wxT("&Debugger"));
     menuBar->Append(fileMenu, wxT("&File"));
     menuBar->Append(viewMenu, wxT("&View"));
+
     SetMenuBar(menuBar);
 
     SetSize(wxSize(GetSize().GetX(), GetSize().GetY() + menuBar->GetSize().GetY() + 10));
@@ -65,5 +67,18 @@ void GUI::OnClose(wxCloseEvent& e) {
     }
     Destroy();
     SDL_Quit();
+    e.Skip();
+}
+
+void GUI::OnClickDebugger(wxCommandEvent& e) {
+    if (gameboy == nullptr) {
+        wxMessageBox(wxT("No ROM is currently loaded into the emulator. Please load a ROM and try again."), wxT("No ROM Selected"), 5L, this);
+        e.Skip();
+        return;
+    }
+    Disable();
+    debugger = new Debugger(this, gameboy, gameboy->GetMemory(), gameboy->GetCartridge());
+    gameboy->Pause();
+    debugger->Show();
     e.Skip();
 }

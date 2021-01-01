@@ -9,27 +9,27 @@ class Memory {
 public:
     explicit Memory(Cartridge*);
     Memory(const Memory&);
-    virtual ~Memory();
+    ~Memory();
 
     void Write(uWORD, uBYTE);
     void DmaWrite(uWORD, uBYTE);
     void RequestInterupt(int);
     void UpdateDmaCycles(int);
     void UpdateTimers(int);
-    uBYTE Read(uWORD);
+    uBYTE Read(uWORD, bool = false);
     uBYTE DmaRead(uWORD);
 
-    int m_TimerCounter;
+    int timerCounter;
 
     Memory& operator=(const Memory& other)
     {
-        this->m_TranslatedAddr = other.m_TranslatedAddr;
-        this->m_DmaCyclesCompleted = other.m_DmaCyclesCompleted;
-        this->m_DmaTransferInProgress = other.m_DmaTransferInProgress;
-        this->m_TimerCounter = other.m_TimerCounter;
-        this->m_Mem = other.m_Mem;
-        this->m_Cart = other.m_Cart;
-        this->m_DividerRegisterCounter = other.m_DividerRegisterCounter;
+        this->translatedAddr = other.translatedAddr;
+        this->dmaCyclesCompleted = other.dmaCyclesCompleted;
+        this->dmaTransferInProgress = other.dmaTransferInProgress;
+        this->timerCounter = other.timerCounter;
+        this->memory = other.memory;
+        this->cart = other.cart;
+        this->dividerRegisterCounter = other.dividerRegisterCounter;
         return *this;
     }
 
@@ -42,13 +42,13 @@ private:
     void closeBootRom();
     uBYTE getStatMode();
 
-    uBYTE* m_Mem;
-    int m_DmaCyclesCompleted;
-    bool m_BootRomClosed;
-    bool m_DmaTransferInProgress;
-    uWORD m_TranslatedAddr;
-    Cartridge* m_Cart;
-    int m_DividerRegisterCounter;
+    uBYTE* memory;
+    int dmaCyclesCompleted;
+    bool bootRomClosed;
+    bool dmaTransferInProgress;
+    uWORD translatedAddr;
+    Cartridge* cart;
+    int dividerRegisterCounter;
 
     uBYTE bootRom[0x100] = {
        0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32, 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E,

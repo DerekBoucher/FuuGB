@@ -2,38 +2,38 @@
 
 Memory::Memory(Cartridge* c)
 {
-    m_Cart = c;
-    m_Mem = new uBYTE[0x10000];
-    memset(m_Mem, 0x0, 0x10000);
+    cart = c;
+    memory = new uBYTE[0x10000];
+    memset(memory, 0x0, 0x10000);
 
-    m_DmaTransferInProgress = false;
-    m_BootRomClosed = false;
-    m_TimerCounter = 1024;
-    m_DmaCyclesCompleted = 0;
-    m_TranslatedAddr = 0x0000;
-    m_DividerRegisterCounter = 0;
+    dmaTransferInProgress = false;
+    bootRomClosed = false;
+    timerCounter = 1024;
+    dmaCyclesCompleted = 0;
+    translatedAddr = 0x0000;
+    dividerRegisterCounter = 0;
 }
 
 Memory::Memory(const Memory& other)
-    : m_TimerCounter(other.m_TimerCounter), m_DmaCyclesCompleted(other.m_DmaCyclesCompleted), m_BootRomClosed(other.m_BootRomClosed),
-    m_DmaTransferInProgress(other.m_DmaTransferInProgress),
-    m_TranslatedAddr(other.m_TranslatedAddr), m_Cart(other.m_Cart), m_DividerRegisterCounter(other.m_DividerRegisterCounter)
+    : timerCounter(other.timerCounter), dmaCyclesCompleted(other.dmaCyclesCompleted), bootRomClosed(other.bootRomClosed),
+    dmaTransferInProgress(other.dmaTransferInProgress),
+    translatedAddr(other.translatedAddr), cart(other.cart), dividerRegisterCounter(other.dividerRegisterCounter)
 {
-    m_Mem = new uBYTE[0x10000];
-    memcpy(m_Mem, other.m_Mem, 0x10000);
+    memory = new uBYTE[0x10000];
+    memcpy(memory, other.memory, 0x10000);
 }
 
 Memory::~Memory()
 {
-    delete[] m_Mem;
-    delete m_Cart;
+    delete[] memory;
+    delete cart;
 }
 
 void Memory::closeBootRom()
 {
-    if (!m_BootRomClosed)
+    if (!bootRomClosed)
     {
-        m_BootRomClosed = true;
+        bootRomClosed = true;
     }
 }
 
@@ -42,7 +42,7 @@ void Memory::Write(uWORD addr, uBYTE data)
     // Writing to memory takes 4 cycles
     UpdateTimers(4);
 
-    if ((addr < 0x8000) && !m_DmaTransferInProgress) // Cart ROM
+    if ((addr < 0x8000) && !dmaTransferInProgress) // Cart ROM
     {
         if (addr < 0x2000)
         {
@@ -61,203 +61,203 @@ void Memory::Write(uWORD addr, uBYTE data)
             changeMode(data);
         }
     }
-    else if ((addr >= 0x8000) && (addr < 0xA000) && !m_DmaTransferInProgress) // Video RAM
+    else if ((addr >= 0x8000) && (addr < 0xA000) && !dmaTransferInProgress) // Video RAM
     {
         uBYTE mode = getStatMode();
 
         if (mode == 0 || mode == 1 || mode == 2)
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
     }
-    else if ((addr >= 0xA000) && (addr < 0xC000) && !m_DmaTransferInProgress) // External RAM
+    else if ((addr >= 0xA000) && (addr < 0xC000) && !dmaTransferInProgress) // External RAM
     {
-        m_TranslatedAddr = addr - 0xA000;
-        if (m_Cart->m_Attributes[Cartridge::c_RamEnabled])
+        translatedAddr = addr - 0xA000;
+        if (cart->attributes[RAM_ENABLED])
         {
-            if (m_Cart->m_Attributes[Cartridge::c_RomOnly])
+            if (cart->attributes[ROM_ONLY])
             {
-                m_Cart->m_Rom[addr] = data;
+                cart->m_Rom[addr] = data;
             }
-            else if (m_Cart->m_Attributes[Cartridge::c_Mbc1])
+            else if (cart->attributes[MBC1])
             {
-                if (m_Cart->m_Attributes[Cartridge::c_Mode])
+                if (cart->attributes[ROM_RAM_MODE])
                 {
-                    m_Cart->m_Rom[m_TranslatedAddr + (0xA000 * m_Cart->m_CurrentRamBank)] = data;
+                    cart->m_Rom[translatedAddr + (0xA000 * cart->currentRamBank)] = data;
                 }
                 else
                 {
-                    m_Cart->m_Rom[addr] = data;
+                    cart->m_Rom[addr] = data;
                 }
             }
         }
     }
-    else if ((addr >= 0xC000) && (addr < 0xD000) && !m_DmaTransferInProgress) // Work RAM 0
+    else if ((addr >= 0xC000) && (addr < 0xD000) && !dmaTransferInProgress) // Work RAM 0
     {
-        m_Mem[addr] = data;
+        memory[addr] = data;
     }
-    else if ((addr >= 0xD000) && (addr < 0xE000) && !m_DmaTransferInProgress) // Work RAM 1
+    else if ((addr >= 0xD000) && (addr < 0xE000) && !dmaTransferInProgress) // Work RAM 1
     {
-        m_Mem[addr] = data;
+        memory[addr] = data;
     }
-    else if ((addr >= 0xE000) && (addr < 0xFE00) && !m_DmaTransferInProgress) //Echo of Work RAM, typically not used
+    else if ((addr >= 0xE000) && (addr < 0xFE00) && !dmaTransferInProgress) //Echo of Work RAM, typically not used
     {
-        m_Mem[addr] = data;
-        m_Mem[addr - 0x2000] = data;
+        memory[addr] = data;
+        memory[addr - 0x2000] = data;
     }
-    else if ((addr >= 0xFE00) && (addr < 0xFEA0) && !m_DmaTransferInProgress) //OAM RAM
+    else if ((addr >= 0xFE00) && (addr < 0xFEA0) && !dmaTransferInProgress) //OAM RAM
     {
         uBYTE mode = getStatMode();
 
         if (mode == 0 || mode == 1)
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
     }
-    else if ((addr >= 0xFEA0) && (addr < 0xFF00) && !m_DmaTransferInProgress) // Not Usable
+    else if ((addr >= 0xFEA0) && (addr < 0xFF00) && !dmaTransferInProgress) // Not Usable
     {
         return;
     }
-    else if ((addr >= 0xFF00) && (addr < 0xFF80) && !m_DmaTransferInProgress) // I/O Registers
+    else if ((addr >= 0xFF00) && (addr < 0xFF80) && !dmaTransferInProgress) // I/O Registers
     {
         if (addr == 0xFF00) // Joypad register
         {
-            data = (data & 0xF0) | (m_Mem[addr] & 0x0F);
-            m_Mem[addr] = data;
+            data = (data & 0xF0) | (memory[addr] & 0x0F);
+            memory[addr] = data;
         }
         else if (addr == 0xFF01) // Serial Transfer Data
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF02) // Serial Transfer Control Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF04) // Divider Register
         {
-            m_Mem[addr] = 0x00;
+            memory[addr] = 0x00;
         }
         else if (addr == 0xFF05) // Timer Counter Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF06) // Timer Modulo Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF07) // Timer Controller Register
         {
-            m_Mem[addr] = data;
-            switch (m_Mem[addr] & 0x03)
+            memory[addr] = data;
+            switch (memory[addr] & 0x03)
             {
             case 0:
-                this->m_TimerCounter = 1024;
+                this->timerCounter = 1024;
                 break;
             case 1:
-                this->m_TimerCounter = 16;
+                this->timerCounter = 16;
                 break;
             case 2:
-                this->m_TimerCounter = 64;
+                this->timerCounter = 64;
                 break;
             case 3:
-                this->m_TimerCounter = 256;
+                this->timerCounter = 256;
                 break;
             }
         }
         else if (addr == 0xFF0F) // Interrupt Flag Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF10) // Channel 1 Sweep Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF11) // Channel 1 Sound length/wave pattern duty Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF12) // Channel 1 Volume Envelope Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF13) // Channel 1 Frequency lo Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF14) // Channel 1 Freqency hi Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF16) // Channel 2 Sound length/wave pattern duty Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF17) // Channel 2 Volume Envelope Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF18) // Channel 2 Frequency lo Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF19) // Channel 2 Freqency hi Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF1A) // Channel 3 Sound On/Off Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF1B) // Channel 3 Sound Length Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF1C) // Channel 3 Select Output Level Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF1D) // Channel 3 Frequency lo Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF1E) // Channel 3 Frequency hi Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF20) // Channel 4 Sound length/wave pattern duty Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF21) // Channel 4 Volume Envelope Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF22) // Channel 4 Polynomial Counter Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF23) // Channel 4 Counter/Consecutive Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF24) // Channel Control Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF25) // Selection of Sound Output Terminal
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF26) // Sound On/Off
         {
-            data = (data & 0x80) | (m_Mem[addr] & 0x7F); // Only bit 7 is writable
-            m_Mem[addr] = data;
+            data = (data & 0x80) | (memory[addr] & 0x7F); // Only bit 7 is writable
+            memory[addr] = data;
         }
         else if ((addr >= 0xFF30) && (addr < 0xFF40)) // Wave Pattern RAM
         {
-            if (m_Mem[0xFF1A] & 0x80) // Only accessible if CH3 bit 7 is reset
+            if (memory[0xFF1A] & 0x80) // Only accessible if CH3 bit 7 is reset
             {
-                m_Mem[addr] = data;
+                memory[addr] = data;
             }
         }
         else if (addr == 0xFF40) // LCDC Register
@@ -270,31 +270,31 @@ void Memory::Write(uWORD addr, uBYTE data)
                     data |= 0x80;
                 }
             }
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF41) // STAT Register
         {
-            uBYTE temp = m_Mem[addr] & 0x07;
+            uBYTE temp = memory[addr] & 0x07;
             data |= 0x80;
             data = data & 0xF8;
             data |= temp;
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF42) // Scroll Y Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF43) // Scroll X Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF44) // LY Register
         {
-            m_Mem[addr] = 0;
+            memory[addr] = 0;
         }
         else if (addr == 0xFF45) // LY Compare Register
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF46) // Request for dma transfer
         {
@@ -302,19 +302,19 @@ void Memory::Write(uWORD addr, uBYTE data)
         }
         else if (addr == 0xFF47) // BG Palette Data
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF48) // Object Palette 0 Data
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF49) // Object Palette 1 Data
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
         }
         else if (addr == 0xFF50)
         {
-            m_Mem[addr] = data;
+            memory[addr] = data;
             closeBootRom();
         }
         else if (addr == 0xFF51) // New DMA source, high
@@ -344,88 +344,89 @@ void Memory::Write(uWORD addr, uBYTE data)
     }
     else if ((addr >= 0xFF80) && (addr < 0xFFFE)) // HRAM
     {
-        m_Mem[addr] = data;
+        memory[addr] = data;
     }
-    else if ((addr == 0xFFFF) && !m_DmaTransferInProgress) // Interrupt Enable Register
+    else if ((addr == 0xFFFF) && !dmaTransferInProgress) // Interrupt Enable Register
     {
-        m_Mem[addr] = data;
+        memory[addr] = data;
     }
 }
 
-uBYTE Memory::Read(uWORD addr)
+uBYTE Memory::Read(uWORD addr, bool debugRead)
 {
     // Reading from memory takes 4 cycles
-    UpdateTimers(4);
+    if (!debugRead)
+        UpdateTimers(4);
 
-    if ((addr < 0x4000) && !m_DmaTransferInProgress) // Cart ROM Bank 0
+    if ((addr < 0x4000) && !dmaTransferInProgress) // Cart ROM Bank 0
     {
-        if (!m_BootRomClosed && (addr < 0x100))
+        if (!bootRomClosed && (addr < 0x100))
         {
             return bootRom[addr];
         }
         else
         {
-            if (m_Cart->m_Attributes[Cartridge::c_Mode])
+            if (cart->attributes[ROM_RAM_MODE])
             {
-                if (m_Cart->m_RomSize > 0x100000)
+                if (cart->romSize > 0x100000)
                 {
-                    switch (m_Cart->m_CurrentRamBank)
+                    switch (cart->currentRamBank)
                     {
                     case 0x00:
-                        return m_Cart->m_Rom[addr];
+                        return cart->m_Rom[addr];
                         break;
                     case 0x01:
-                        return m_Cart->m_Rom[addr * 0x20];
+                        return cart->m_Rom[addr * 0x20];
                         break;
                     case 0x02:
-                        return m_Cart->m_Rom[addr * 0x40];
+                        return cart->m_Rom[addr * 0x40];
                         break;
                     case 0x03:
-                        return m_Cart->m_Rom[addr * 0x60];
+                        return cart->m_Rom[addr * 0x60];
                         break;
                     default:
-                        return m_Cart->m_Rom[addr];
+                        return cart->m_Rom[addr];
                         break;
                     }
                 }
                 else
                 {
-                    return m_Cart->m_Rom[addr];
+                    return cart->m_Rom[addr];
                 }
             }
             else
             {
-                return m_Cart->m_Rom[addr];
+                return cart->m_Rom[addr];
             }
         }
     }
-    else if ((addr >= 0x4000) && (addr < 0x8000) && !m_DmaTransferInProgress) // Cart ROM Bank n
+    else if ((addr >= 0x4000) && (addr < 0x8000) && !dmaTransferInProgress) // Cart ROM Bank n
     {
-        m_TranslatedAddr = addr - 0x4000;
-        return m_Cart->m_Rom[m_TranslatedAddr + (0x4000 * m_Cart->m_CurrentRomBank)];
+        translatedAddr = addr - 0x4000;
+        return cart->m_Rom[translatedAddr + (0x4000 * cart->currentRomBank)];
     }
-    else if ((addr >= 0x8000) && (addr < 0xA000) && !m_DmaTransferInProgress) // Video RAM
+    else if ((addr >= 0x8000) && (addr < 0xA000) && !dmaTransferInProgress) // Video RAM
     {
-        return m_Mem[addr];
+        return memory[addr];
     }
-    else if ((addr >= 0xA000) && (addr < 0xC000) && !m_DmaTransferInProgress) // External RAM
+    else if ((addr >= 0xA000) && (addr < 0xC000) && !dmaTransferInProgress) // External RAM
     {
-        m_TranslatedAddr = addr - 0xA000;
-        if (m_Cart->m_Attributes[Cartridge::c_RamEnabled])
+        translatedAddr = addr - 0xA000;
+        if (cart->attributes[RAM_ENABLED])
         {
-            if (m_Cart->m_Attributes[Cartridge::c_RomOnly])
+            if (cart->attributes[ROM_ONLY])
             {
-                return m_Cart->m_Rom[addr];
+                return cart->m_Rom[addr];
             }
-            if (m_Cart->m_Attributes[Cartridge::c_Mbc1])
+            if (cart->attributes[MBC1])
             {
-                if (m_Cart->m_Attributes[Cartridge::c_Mode])
+                if (cart->attributes[ROM_RAM_MODE])
                 {
-                    return m_Cart->m_Rom[m_TranslatedAddr + (0xA000 * m_Cart->m_CurrentRamBank)];
+                    return cart->m_Rom[translatedAddr + (0xA000 * cart->currentRamBank)];
                 }
                 else
                 {
-                    return m_Cart->m_Rom[addr];
+                    return cart->m_Rom[addr];
                 }
             }
         }
@@ -434,46 +435,46 @@ uBYTE Memory::Read(uWORD addr)
             return 0xFF;
         }
     }
-    else if ((addr >= 0xC000) && (addr < 0xD000) && !m_DmaTransferInProgress) // Work RAM 0
+    else if ((addr >= 0xC000) && (addr < 0xD000) && !dmaTransferInProgress) // Work RAM 0
     {
-        return m_Mem[addr];
+        return memory[addr];
     }
-    else if ((addr >= 0xD000) && (addr < 0xE000) && !m_DmaTransferInProgress) // Work RAM 1
+    else if ((addr >= 0xD000) && (addr < 0xE000) && !dmaTransferInProgress) // Work RAM 1
     {
-        return m_Mem[addr];
+        return memory[addr];
     }
-    else if ((addr >= 0xE000) && (addr < 0xFE00) && !m_DmaTransferInProgress) // Echo of Work RAM
+    else if ((addr >= 0xE000) && (addr < 0xFE00) && !dmaTransferInProgress) // Echo of Work RAM
     {
-        return m_Mem[addr];
+        return memory[addr];
     }
-    else if ((addr >= 0xFE00) && (addr < 0xFEA0) && !m_DmaTransferInProgress) //OAM RAM
+    else if ((addr >= 0xFE00) && (addr < 0xFEA0) && !dmaTransferInProgress) //OAM RAM
     {
         uBYTE mode = getStatMode();
 
         if (mode == 0 || mode == 1)
-            return m_Mem[addr];
+            return memory[addr];
         else
             return 0xFF;
     }
-    else if ((addr >= 0xFEA0) && (addr < 0xFF00) && !m_DmaTransferInProgress) // Not Usable
+    else if ((addr >= 0xFEA0) && (addr < 0xFF00) && !dmaTransferInProgress) // Not Usable
     {
         return 0xFF;
     }
-    else if ((addr >= 0xFF00) && (addr < 0xFF80) && !m_DmaTransferInProgress) // I/O Registers
+    else if ((addr >= 0xFF00) && (addr < 0xFF80) && !dmaTransferInProgress) // I/O Registers
     {
-        return m_Mem[addr];
+        return memory[addr];
     }
     else if ((addr >= 0xFF80) && (addr < 0xFFFE)) // HRAM
     {
-        return m_Mem[addr];
+        return memory[addr];
     }
     // Interrupt Enable Register 0xFFFF
-    return m_Mem[addr];
+    return memory[addr];
 }
 
 uBYTE Memory::DmaRead(uWORD addr)
 {
-    return m_Mem[addr];
+    return memory[addr];
 }
 
 void Memory::DmaWrite(uWORD addr, uBYTE data)
@@ -482,57 +483,57 @@ void Memory::DmaWrite(uWORD addr, uBYTE data)
     {
         data |= 0x80;
     }
-    m_Mem[addr] = data;
+    memory[addr] = data;
 }
 
 void Memory::UpdateTimers(int cycles)
 {
-    uBYTE TAC = m_Mem[0xFF07];
+    uBYTE TAC = memory[0xFF07];
 
     // Update the divider register
-    m_DividerRegisterCounter += cycles;
-    if (m_DividerRegisterCounter >= 256)
+    dividerRegisterCounter += cycles;
+    if (dividerRegisterCounter >= 256)
     {
-        m_Mem[0xFF04]++;
-        m_DividerRegisterCounter -= 256;
+        memory[0xFF04]++;
+        dividerRegisterCounter -= 256;
     }
 
     if (TAC & (1 << 2)) // Check if clock is enabled
     {
-        m_TimerCounter -= cycles;
+        timerCounter -= cycles;
 
-        while (m_TimerCounter <= 0)
+        while (timerCounter <= 0)
         {
-            int remainder = m_TimerCounter;
+            int remainder = timerCounter;
 
             uBYTE frequency = (TAC & 0x03);
             switch (frequency)
             {
             case 0:
-                m_TimerCounter = 1024;
+                timerCounter = 1024;
                 break;
             case 1:
-                m_TimerCounter = 16;
+                timerCounter = 16;
                 break;
             case 2:
-                m_TimerCounter = 64;
+                timerCounter = 64;
                 break;
             case 3:
-                m_TimerCounter = 256;
+                timerCounter = 256;
                 break;
             }
 
-            m_TimerCounter += remainder;
+            timerCounter += remainder;
 
             // Timer Overflow
-            if (m_Mem[0xFF05] == 0xFF)
+            if (memory[0xFF05] == 0xFF)
             {
-                m_Mem[0xFF05] = m_Mem[0xFF06];
+                memory[0xFF05] = memory[0xFF06];
                 RequestInterupt(2);
             }
             else
             {
-                m_Mem[0xFF05]++;
+                memory[0xFF05]++;
             }
         }
     }
@@ -540,155 +541,155 @@ void Memory::UpdateTimers(int cycles)
 
 void Memory::changeRomBank(uWORD addr, uBYTE data)
 {
-    if (m_Cart->m_Attributes[Cartridge::c_RomOnly])
+    if (cart->attributes[ROM_ONLY])
     {
-        m_Cart->m_CurrentRomBank = 0x01;
+        cart->currentRomBank = 0x01;
         return;
     }
 
-    if (m_Cart->m_Attributes[Cartridge::c_Mbc1])
+    if (cart->attributes[MBC1])
     {
-        m_Cart->m_CurrentRomBank = (data & 0x1F);
+        cart->currentRomBank = (data & 0x1F);
 
-        if (m_Cart->m_CurrentRomBank > m_Cart->m_RomBankCount)
-            m_Cart->m_CurrentRomBank &= (m_Cart->m_RomBankCount - 1);
+        if (cart->currentRomBank > cart->romBankCount)
+            cart->currentRomBank &= (cart->romBankCount - 1);
 
-        if (m_Cart->m_CurrentRomBank == 0x00 ||
-            m_Cart->m_CurrentRomBank == 0x20 ||
-            m_Cart->m_CurrentRomBank == 0x40 ||
-            m_Cart->m_CurrentRomBank == 0x60)
-            m_Cart->m_CurrentRomBank += 0x01;
+        if (cart->currentRomBank == 0x00 ||
+            cart->currentRomBank == 0x20 ||
+            cart->currentRomBank == 0x40 ||
+            cart->currentRomBank == 0x60)
+            cart->currentRomBank += 0x01;
     }
-    else if (m_Cart->m_Attributes[Cartridge::c_Mbc2])
+    else if (cart->attributes[MBC2])
     {
         if ((addr & 0x10) == 0x10)
         {
-            m_Cart->m_CurrentRomBank = data & 0x0F;
+            cart->currentRomBank = data & 0x0F;
 
-            if (m_Cart->m_CurrentRomBank == 0x00 ||
-                m_Cart->m_CurrentRomBank == 0x20 ||
-                m_Cart->m_CurrentRomBank == 0x40 ||
-                m_Cart->m_CurrentRomBank == 0x60)
-                m_Cart->m_CurrentRomBank += 0x01;
+            if (cart->currentRomBank == 0x00 ||
+                cart->currentRomBank == 0x20 ||
+                cart->currentRomBank == 0x40 ||
+                cart->currentRomBank == 0x60)
+                cart->currentRomBank += 0x01;
         }
     }
-    else if (m_Cart->m_Attributes[Cartridge::c_Mbc3] || m_Cart->m_Attributes[Cartridge::c_Mbc5])
+    else if (cart->attributes[MBC3] || cart->attributes[MBC5])
     {
-        m_Cart->m_CurrentRomBank = data & 0x7F;
+        cart->currentRomBank = data & 0x7F;
 
-        if (m_Cart->m_CurrentRomBank == 0x00 ||
-            m_Cart->m_CurrentRomBank == 0x20 ||
-            m_Cart->m_CurrentRomBank == 0x40 ||
-            m_Cart->m_CurrentRomBank == 0x60)
-            m_Cart->m_CurrentRomBank += 0x01;
+        if (cart->currentRomBank == 0x00 ||
+            cart->currentRomBank == 0x20 ||
+            cart->currentRomBank == 0x40 ||
+            cart->currentRomBank == 0x60)
+            cart->currentRomBank += 0x01;
     }
 }
 
 void Memory::toggleRam(uWORD addr, uBYTE data)
 {
-    if (m_Cart->m_Attributes[Cartridge::c_Mbc1] ||
-        m_Cart->m_Attributes[Cartridge::c_Mbc3] ||
-        m_Cart->m_Attributes[Cartridge::c_Mbc5] ||
-        m_Cart->m_Attributes[Cartridge::c_RomOnly])
+    if (cart->attributes[MBC1] ||
+        cart->attributes[MBC3] ||
+        cart->attributes[MBC5] ||
+        cart->attributes[ROM_ONLY])
     {
         if ((data & 0x0F) == 0x0A)
-            m_Cart->m_Attributes[Cartridge::c_RamEnabled] = true;
+            cart->attributes[RAM_ENABLED] = true;
         else
-            m_Cart->m_Attributes[Cartridge::c_RamEnabled] = false;
+            cart->attributes[RAM_ENABLED] = false;
     }
-    else if (m_Cart->m_Attributes[Cartridge::c_Mbc2])
+    else if (cart->attributes[MBC2])
     {
         if ((addr & 0x10) == 0x00)
         {
             if ((data & 0x0F) == 0x0A)
-                m_Cart->m_Attributes[Cartridge::c_RamEnabled] = true;
+                cart->attributes[RAM_ENABLED] = true;
             else
-                m_Cart->m_Attributes[Cartridge::c_RamEnabled] = false;
+                cart->attributes[RAM_ENABLED] = false;
         }
     }
 }
 
 void Memory::changeMode(uBYTE data)
 {
-    if (m_Cart->m_Attributes[Cartridge::c_Mbc1])
+    if (cart->attributes[MBC1])
     {
         if (data & 0x01)
         {
-            m_Cart->m_Attributes[Cartridge::c_Mode] = true;
+            cart->attributes[ROM_RAM_MODE] = true;
         }
         else
         {
-            m_Cart->m_Attributes[Cartridge::c_Mode] = false;
+            cart->attributes[ROM_RAM_MODE] = false;
         }
     }
 }
 
 void Memory::changeRamBank(uBYTE data)
 {
-    if (m_Cart->m_Attributes[Cartridge::c_Mbc1])
+    if (cart->attributes[MBC1])
     {
-        if (m_Cart->m_Attributes[Cartridge::c_Mode])
+        if (cart->attributes[ROM_RAM_MODE])
         {
-            m_Cart->m_CurrentRamBank = data & 0x03;
+            cart->currentRamBank = data & 0x03;
         }
         else
         {
-            m_Cart->m_CurrentRamBank = 0x01;
-            m_Cart->m_CurrentRomBank |= ((data & 0x03) << 5);
-            if (m_Cart->m_CurrentRomBank > m_Cart->m_RomBankCount)
-                m_Cart->m_CurrentRomBank &= (m_Cart->m_RomBankCount - 1);
+            cart->currentRamBank = 0x01;
+            cart->currentRomBank |= ((data & 0x03) << 5);
+            if (cart->currentRomBank > cart->romBankCount)
+                cart->currentRomBank &= (cart->romBankCount - 1);
         }
     }
 }
 
 void Memory::RequestInterupt(int code)
 {
-    uBYTE IF = m_Mem[0xFF0F];
+    uBYTE IF = memory[0xFF0F];
 
     switch (code)
     {
     case 0:
         IF |= 0x01;
-        m_Mem[0xFF0F] = IF;
+        memory[0xFF0F] = IF;
         break;
     case 1:
         IF |= 0x02;
-        m_Mem[0xFF0F] = IF;
+        memory[0xFF0F] = IF;
         break;
     case 2:
         IF |= 0x04;
-        m_Mem[0xFF0F] = IF;
+        memory[0xFF0F] = IF;
         break;
     case 3:
         IF |= 0x08;
-        m_Mem[0xFF0F] = IF;
+        memory[0xFF0F] = IF;
         break;
     case 4:
         IF |= 0x10;
-        m_Mem[0xFF0F] = IF;
+        memory[0xFF0F] = IF;
         break;
     }
 }
 
 void Memory::UpdateDmaCycles(int cyclesToAdd)
 {
-    if (m_DmaTransferInProgress)
+    if (dmaTransferInProgress)
     {
-        m_DmaCyclesCompleted += cyclesToAdd;
-        if (m_DmaCyclesCompleted >= 160)
+        dmaCyclesCompleted += cyclesToAdd;
+        if (dmaCyclesCompleted >= 160)
         {
-            m_DmaTransferInProgress = false;
+            dmaTransferInProgress = false;
         }
     }
     else
     {
-        m_DmaCyclesCompleted = 0;
+        dmaCyclesCompleted = 0;
     }
 }
 
 void Memory::dmaTransfer(uBYTE data)
 {
-    m_DmaTransferInProgress = true;
+    dmaTransferInProgress = true;
 
     // Check if source prefix is outside of allowed source addresses
     if (data > 0xF1)
@@ -699,11 +700,11 @@ void Memory::dmaTransfer(uBYTE data)
     // Begin Transfer
     for (uBYTE i = 0; i < 0xA0; i++)
     {
-        m_Mem[0xFE00 + i] = m_Mem[(data << 8) | i];
+        memory[0xFE00 + i] = memory[(data << 8) | i];
     }
 }
 
 uBYTE Memory::getStatMode()
 {
-    return m_Mem[0xFF41] & 0x03;
+    return memory[0xFF41] & 0x03;
 }

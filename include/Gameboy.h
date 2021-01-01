@@ -20,8 +20,12 @@ public:
     void Run();
     void Stop();
 
+    Memory* GetMemory();
+    Cartridge* GetCartridge();
+
 private:
     CPU* cpuUnit;
+    Cartridge* cart;
     Memory* memoryUnit;
     PPU* ppuUnit;
     std::thread* thread;

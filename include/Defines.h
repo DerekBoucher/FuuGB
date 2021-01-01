@@ -37,6 +37,22 @@ typedef short sWORD;
 #define H_FLAG 5
 #define C_FLAG 4
 
-#define ID_DEBUGGER 500
+#define NUM_ATTRIBUTES 13
+#define RAM_ENABLED 0
+#define ROM_RAM_MODE 1
+#define ROM_ONLY 2
+#define RAM  3
+#define MBC1 4
+#define MBC2 5
+#define MBC3 6
+#define MBC4 7
+#define MBC5 8
+#define HUC1 9
+#define BATTERY   10
+#define TIMER 11
+#define RUMBLE 12
+#define ROM_BANK_SIZE 0x4000
+
+#define wxID_CUSTOM_DEBUGGER 500
 
 #endif

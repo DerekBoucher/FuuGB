@@ -1,255 +1,248 @@
 #include "Cartridge.h"
 
-Cartridge::Cartridge(FILE* input)
-{
-    // Define default rom and ram bank
-    m_CurrentRomBank = 0x01;
-    m_CurrentRamBank = 0x01;
+Cartridge::Cartridge(FILE* input) {
+    currentRomBank = 0x01;
+    currentRamBank = 0x01;
 
-    // Set all attributes to false by default
-    for (int i = 0; i < c_NumAttributes; i++)
-    {
-        m_Attributes[i] = false;
+    for (int i = 0; i < NUM_ATTRIBUTES; i++) {
+        attributes[i] = false;
     }
 
     fseek(input, 0x147, SEEK_SET);
-    // Determine cart type
-    switch (fgetc(input))
-    {
+
+    switch (fgetc(input)) {
     case 0x00:
-        m_Attributes[c_RomOnly] = true;
+        attributes[ROM_ONLY] = true;
         break;
     case 0x01:
-        m_Attributes[c_Mbc1] = true;
+        attributes[MBC1] = true;
         break;
     case 0x02:
-        m_Attributes[c_Mbc1] = true;
-        m_Attributes[c_Ram] = true;
+        attributes[MBC1] = true;
+        attributes[RAM] = true;
         break;
     case 0x03:
-        m_Attributes[c_Mbc1] = true;
-        m_Attributes[c_Ram] = true;
-        m_Attributes[c_Battery] = true;
+        attributes[MBC1] = true;
+        attributes[RAM] = true;
+        attributes[BATTERY] = true;
         break;
     case 0x05:
-        m_Attributes[c_Mbc2] = true;
+        attributes[MBC2] = true;
         break;
     case 0x06:
-        m_Attributes[c_Mbc2] = true;
-        m_Attributes[c_Battery] = true;
+        attributes[MBC2] = true;
+        attributes[BATTERY] = true;
         break;
     case 0x08:
-        m_Attributes[c_RomOnly] = true;
-        m_Attributes[c_Ram] = true;
+        attributes[ROM_ONLY] = true;
+        attributes[RAM] = true;
         break;
     case 0x09:
-        m_Attributes[c_RomOnly] = true;
-        m_Attributes[c_Ram] = true;
-        m_Attributes[c_Battery] = true;
+        attributes[ROM_ONLY] = true;
+        attributes[RAM] = true;
+        attributes[BATTERY] = true;
         break;
     case 0x0B:
-        //Not Supported
-        exit(-7);
+        wxPrintf("Unsupported cart type: %x", fgetc(input));
+        wxExit();
         break;
     case 0x0C:
-        //Not Supported
-        exit(-7);
+        wxPrintf("Unsupported cart type: %x", fgetc(input));
+        wxExit();
         break;
     case 0x0D:
-        //Not Supported
-        exit(-7);
+        wxPrintf("Unsupported cart type: %x", fgetc(input));
+        wxExit();
         break;
     case 0x0F:
-        m_Attributes[c_Mbc3] = true;
-        m_Attributes[c_Timer] = true;
-        m_Attributes[c_Battery] = true;
+        attributes[MBC3] = true;
+        attributes[TIMER] = true;
+        attributes[BATTERY] = true;
         break;
     case 0x10:
-        m_Attributes[c_Mbc3] = true;
-        m_Attributes[c_Timer] = true;
-        m_Attributes[c_Battery] = true;
-        m_Attributes[c_Ram] = true;
+        attributes[MBC3] = true;
+        attributes[TIMER] = true;
+        attributes[BATTERY] = true;
+        attributes[RAM] = true;
         break;
     case 0x11:
-        m_Attributes[c_Mbc3] = true;
+        attributes[MBC3] = true;
         break;
     case 0x12:
-        m_Attributes[c_Mbc3] = true;
-        m_Attributes[c_Ram] = true;
+        attributes[MBC3] = true;
+        attributes[RAM] = true;
         break;
     case 0x13:
-        m_Attributes[c_Mbc3] = true;
-        m_Attributes[c_Ram] = true;
-        m_Attributes[c_Battery] = true;
+        attributes[MBC3] = true;
+        attributes[RAM] = true;
+        attributes[BATTERY] = true;
         break;
     case 0x15:
-        m_Attributes[c_Mbc4] = true;
+        attributes[MBC4] = true;
         break;
     case 0x16:
-        m_Attributes[c_Mbc4] = true;
-        m_Attributes[c_Ram] = true;
+        attributes[MBC4] = true;
+        attributes[RAM] = true;
         break;
     case 0x17:
-        m_Attributes[c_Mbc4] = true;
-        m_Attributes[c_Ram] = true;
-        m_Attributes[c_Battery] = true;
+        attributes[MBC4] = true;
+        attributes[RAM] = true;
+        attributes[BATTERY] = true;
         break;
     case 0x19:
-        m_Attributes[c_Mbc5] = true;
+        attributes[MBC5] = true;
         break;
     case 0x1A:
-        m_Attributes[c_Mbc5] = true;
-        m_Attributes[c_Ram] = true;
+        attributes[MBC5] = true;
+        attributes[RAM] = true;
         break;
     case 0x1B:
-        m_Attributes[c_Mbc5] = true;
-        m_Attributes[c_Ram] = true;
-        m_Attributes[c_Battery] = true;
+        attributes[MBC5] = true;
+        attributes[RAM] = true;
+        attributes[BATTERY] = true;
         break;
     case 0x1C:
-        m_Attributes[c_Mbc5] = true;
-        m_Attributes[c_Rumble] = true;
+        attributes[MBC5] = true;
+        attributes[RUMBLE] = true;
         break;
     case 0x1D:
-        m_Attributes[c_Mbc5] = true;
-        m_Attributes[c_Rumble] = true;
-        m_Attributes[c_Ram] = true;
+        attributes[MBC5] = true;
+        attributes[RUMBLE] = true;
+        attributes[RAM] = true;
         break;
     case 0x1E:
-        m_Attributes[c_Mbc5] = true;
-        m_Attributes[c_Rumble] = true;
-        m_Attributes[c_Ram] = true;
-        m_Attributes[c_Battery] = true;
+        attributes[MBC5] = true;
+        attributes[RUMBLE] = true;
+        attributes[RAM] = true;
+        attributes[BATTERY] = true;
         break;
     case 0xFC:
-        //Not Supported
-        exit(-7);
+        wxPrintf("Unsupported cart type: %x", fgetc(input));
+        wxExit();
         break;
     case 0xFD:
-        //Not Supported
-        exit(-7);
+        wxPrintf("Unsupported cart type: %x", fgetc(input));
+        wxExit();
         break;
     case 0xFE:
-        //Not Supported
-        exit(-7);
+        wxPrintf("Unsupported cart type: %x", fgetc(input));
+        wxExit();
         break;
     case 0xFF:
-        //Not Supported
-        exit(-7);
+        wxPrintf("Unsupported cart type: %x", fgetc(input));
+        wxExit();
         break;
     default:
         break;
     }
 
-    // Determine amount of rom banks
     fseek(input, 0x148, SEEK_SET);
     switch (fgetc(input))
     {
     case 0x00:
-        m_RomBankCount = 1;
-        m_RomSize = 0x8000;
+        romBankCount = 1;
+        romSize = 0x8000;
         break;
     case 0x01:
-        m_RomBankCount = 4;
-        m_RomSize = 0x10000;
+        romBankCount = 4;
+        romSize = 0x10000;
         break;
     case 0x02:
-        m_RomBankCount = 8;
-        m_RomSize = 0x20000;
+        romBankCount = 8;
+        romSize = 0x20000;
         break;
     case 0x03:
-        m_RomBankCount = 16;
-        m_RomSize = 0x40000;
+        romBankCount = 16;
+        romSize = 0x40000;
         break;
     case 0x04:
-        m_RomBankCount = 32;
-        m_RomSize = 0x80000;
+        romBankCount = 32;
+        romSize = 0x80000;
         break;
     case 0x05:
-        m_RomBankCount = 64;
-        m_RomSize = 0x100000;
+        romBankCount = 64;
+        romSize = 0x100000;
         break;
     case 0x06:
-        m_RomBankCount = 128;
-        m_RomSize = 0x200000;
+        romBankCount = 128;
+        romSize = 0x200000;
         break;
     case 0x07:
-        m_RomBankCount = 256;
-        m_RomSize = 0x400000;
+        romBankCount = 256;
+        romSize = 0x400000;
         break;
     case 0x08:
-        m_RomBankCount = 512;
-        m_RomSize = 0x800000;
+        romBankCount = 512;
+        romSize = 0x800000;
         break;
     case 0x52:
-        m_RomBankCount = 72;
-        m_RomSize = 0x120000;
+        romBankCount = 72;
+        romSize = 0x120000;
         break;
     case 0x53:
-        m_RomBankCount = 80;
-        m_RomSize = 0x133334;
+        romBankCount = 80;
+        romSize = 0x133334;
         break;
     case 0x54:
-        m_RomBankCount = 96;
-        m_RomSize = 0x180000;
+        romBankCount = 96;
+        romSize = 0x180000;
         break;
     default:
-        exit(-8);
+        wxExit();
         break;
     }
 
-    // Determine amount and size of the ram banks
     fseek(input, 0x149, SEEK_SET);
     switch (fgetc(input))
     {
     case 0x00:
-        m_RamBankSize = 0x800;
-        m_RamBankCount = 1;
+        ramBankSize = 0x800;
+        ramBankCount = 1;
         break;
     case 0x01:
-        m_RamBankSize = 0x800;
-        m_RamBankCount = 1;
+        ramBankSize = 0x800;
+        ramBankCount = 1;
         break;
     case 0x02:
-        m_RamBankSize = 0x2000;
-        m_RamBankCount = 1;
+        ramBankSize = 0x2000;
+        ramBankCount = 1;
         break;
     case 0x03:
-        m_RamBankSize = 0x2000;
-        m_RamBankCount = 4;
+        ramBankSize = 0x2000;
+        ramBankCount = 4;
         break;
     case 0x04:
-        m_RamBankSize = 0x2000;
-        m_RamBankCount = 16;
+        ramBankSize = 0x2000;
+        ramBankCount = 16;
         break;
     case 0x05:
-        m_RamBankSize = 0x2000;
-        m_RamBankCount = 8;
+        ramBankSize = 0x2000;
+        ramBankCount = 8;
         break;
     default:
-        exit(-9);
+        wxExit();
         break;
     }
 
-    m_RamSize = m_RamBankCount * m_RamBankSize;
+    ramSize = ramBankCount * ramBankSize;
 
-    m_Rom = new uBYTE[m_RomSize];
+    m_Rom = new uBYTE[romSize];
     fseek(input, 0x0, SEEK_SET);
-    fread(m_Rom, 0x1, m_RomSize, input);
+    fread(m_Rom, 0x1, romSize, input);
 }
 
 Cartridge::Cartridge(const Cartridge& other)
-    : m_CurrentRamBank(other.m_CurrentRamBank),
-    m_CurrentRomBank(other.m_CurrentRomBank),
-    m_RomBankCount(other.m_RomBankCount),
-    m_RamBankCount(other.m_RamBankCount),
-    m_RamBankSize(other.m_RamBankSize),
-    m_RomSize(other.m_RomSize),
-    m_RamSize(other.m_RamSize)
+    : currentRamBank(other.currentRamBank),
+    currentRomBank(other.currentRomBank),
+    romBankCount(other.romBankCount),
+    ramBankCount(other.ramBankCount),
+    ramBankSize(other.ramBankSize),
+    romSize(other.romSize),
+    ramSize(other.ramSize)
 {
-    m_Rom = new uBYTE[m_RomSize];
-    memcpy(m_Rom, other.m_Rom, m_RomSize);
-    memcpy(m_Attributes, other.m_Attributes, c_NumAttributes);
+    m_Rom = new uBYTE[romSize];
+    memcpy(m_Rom, other.m_Rom, romSize);
+    memcpy(attributes, other.attributes, NUM_ATTRIBUTES);
 }
 
 Cartridge::~Cartridge()
