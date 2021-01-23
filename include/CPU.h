@@ -21,42 +21,6 @@ public:
     void Halt();
     int ExecuteNextOpCode();
 
-private:
-    union reg {
-        uWORD data;
-        struct {
-            uBYTE lo;
-            uBYTE hi;
-        };
-
-        void operator=(uWORD data) {
-            this->data = data;
-        }
-
-        reg(int data) {
-            this->data = data;
-        }
-
-        reg() {
-            this->data = 0x0000;
-        }
-    };
-
-    reg AF;
-    reg BC;
-    reg DE;
-    reg HL;
-    uWORD SP;
-    uWORD PC;
-
-    reg temp;
-
-    bool IME;
-    int cyclesExecuted;
-    int dividerRegisterCounter;
-    Memory* memoryUnit;
-    uBYTE byte;
-
     enum opCode {
         NOP = 0x00,             //No instruction
         LD_16IMM_BC = 0x01,     //Load immediate 16-bit value nn into BC
@@ -575,6 +539,42 @@ private:
         SET_8_adrHL = 0xFE, //Set bit 8 in reg n
         SET_8_A = 0xFF      //Set bit 8 in reg n
     };
+
+private:
+    union reg {
+        uWORD data;
+        struct {
+            uBYTE lo;
+            uBYTE hi;
+        };
+
+        void operator=(uWORD data) {
+            this->data = data;
+        }
+
+        reg(int data) {
+            this->data = data;
+        }
+
+        reg() {
+            this->data = 0x0000;
+        }
+    };
+
+    reg AF;
+    reg BC;
+    reg DE;
+    reg HL;
+    uWORD SP;
+    uWORD PC;
+
+    reg temp;
+
+    bool IME;
+    int cyclesExecuted;
+    int dividerRegisterCounter;
+    Memory* memoryUnit;
+    uBYTE byte;
 
     uWORD increment16BitRegister(uWORD);
     uWORD decrement16BitRegister(uWORD);

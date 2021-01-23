@@ -7,7 +7,7 @@ EVT_MENU(wxID_CUSTOM_DEBUGGER, GUI::OnClickDebugger)
 EVT_CLOSE(GUI::OnClose)
 wxEND_EVENT_TABLE();
 
-GUI::GUI() : wxFrame(NULL, wxID_ANY, wxT("FuuGBemu"), wxDefaultPosition, wxSize(NATIVE_SIZE_X* SCALE_FACTOR, NATIVE_SIZE_Y* SCALE_FACTOR), wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER) {
+GUI::GUI() : wxFrame(NULL, wxID_ANY, wxT("FuuGBemu"), wxDefaultPosition, wxSize(NATIVE_SIZE_X* SCALE_FACTOR, NATIVE_SIZE_Y* SCALE_FACTOR), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER)) {
     wxMenuBar* menuBar = new wxMenuBar();
     wxMenu* fileMenu = new wxMenu();
     wxMenu* viewMenu = new wxMenu();
@@ -24,7 +24,8 @@ GUI::GUI() : wxFrame(NULL, wxID_ANY, wxT("FuuGBemu"), wxDefaultPosition, wxSize(
     SetSize(wxSize(GetSize().GetX(), GetSize().GetY() + menuBar->GetSize().GetY() + 10));
     Centre();
 
-    gameboyScreen = new wxWindow(this, wxID_ANY, wxPoint(0, 0), GetSize());
+    gameboyScreen = new wxWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+
 }
 
 GUI::~GUI() {

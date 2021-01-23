@@ -19,23 +19,13 @@ PPU::PPU(wxWindow* screen, Memory* mem)
 
     if (renderer == NULL) {
         if (!(renderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_SOFTWARE))) {
-            wxPrintf("Error occured during renderer creation: %s\n", SDL_GetError());
+            wxPrintf("Error occured during SDL renderer creation: %s\n", SDL_GetError());
             SDL_Quit();
             wxExit();
         }
     }
 
     memoryRef = mem;
-
-    for (int i = 0; i < NATIVE_SIZE_X; ++i) {
-        for (int j = 0; j < NATIVE_SIZE_Y; ++j) {
-            pixels[i][j].h = SCALE_FACTOR;
-            pixels[i][j].w = SCALE_FACTOR;
-            pixels[i][j].x = i * SCALE_FACTOR;
-            pixels[i][j].y = j * SCALE_FACTOR;
-            pixelData[i][j] = 0x00;
-        }
-    }
 
     LCDC = GetLCDC();
     STAT = GetStat();
@@ -262,9 +252,23 @@ void PPU::RenderTiles()
             continue;
         }
 
+        int w, h, dw, dh;
+
+        SDL_GetWindowSize(sdlWindow, &w, &h);
+
+        dw = w / NATIVE_SIZE_X;
+        dh = h / NATIVE_SIZE_Y;
+
+        SDL_Rect target;
+
+        target.x = pixel * dw;
+        target.y = currentScanline * dh;
+        target.w = dw;
+        target.h = dh;
+
         SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
-        SDL_RenderFillRect(renderer, &pixels[pixel][currentScanline]);
-        SDL_RenderDrawRect(renderer, &pixels[pixel][currentScanline]);
+        SDL_RenderFillRect(renderer, &target);
+        SDL_RenderDrawRect(renderer, &target);
 
         // Update pixel data
         pixelData[pixel][currentScanline] = ColorCode;
@@ -396,9 +400,24 @@ void PPU::RenderWindow()
             continue;
         }
 
+
+        int w, h, dw, dh;
+
+        SDL_GetWindowSize(sdlWindow, &w, &h);
+
+        dw = w / NATIVE_SIZE_X;
+        dh = h / NATIVE_SIZE_Y;
+
+        SDL_Rect target;
+
+        target.x = pixel * dw;
+        target.y = currentScanline * dh;
+        target.w = dw;
+        target.h = dh;
+
         SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
-        SDL_RenderFillRect(renderer, &pixels[pixel][currentScanline]);
-        SDL_RenderDrawRect(renderer, &pixels[pixel][currentScanline]);
+        SDL_RenderFillRect(renderer, &target);
+        SDL_RenderDrawRect(renderer, &target);
 
         // Update pixel data
         pixelData[pixel][currentScanline] = ColorCode;
@@ -623,9 +642,23 @@ void PPU::RenderSprites()
                     continue;
                 }
 
+                int w, h, dw, dh;
+
+                SDL_GetWindowSize(sdlWindow, &w, &h);
+
+                dw = w / NATIVE_SIZE_X;
+                dh = h / NATIVE_SIZE_Y;
+
+                SDL_Rect target;
+
+                target.x = pixel * dw;
+                target.y = currentScanline * dh;
+                target.w = dw;
+                target.h = dh;
+
                 SDL_SetRenderDrawColor(renderer, R, G, B, SDL_ALPHA_OPAQUE);
-                SDL_RenderFillRect(renderer, &pixels[pixel][currentScanline]);
-                SDL_RenderDrawRect(renderer, &pixels[pixel][currentScanline]);
+                SDL_RenderFillRect(renderer, &target);
+                SDL_RenderDrawRect(renderer, &target);
             }
         }
     }
@@ -753,4 +786,40 @@ PPU::sprite* PPU::ProcessSprites()
     // }
 
     return processedSprites;
+}
+
+void PPU::RenderPixel(int x, int y, uBYTE R, uBYTE G, uBYTE B) {
+    SDL_Surface* surface = SDL_GetWindowSurface(sdlWindow);
+    SDL_LockSurface(surface);
+
+    int h = surface->h;
+    int w = surface->w;
+
+    int dh = h / NATIVE_SIZE_Y;
+    int dw = w / NATIVE_SIZE_X;
+
+    SDL_Rect target;
+    target.x = x * dw;
+    target.y = y * dh;
+    target.w = dw;
+    target.h = dh;
+
+    std::vector<uint8_t> pixels(h * surface->pitch, 0);
+
+    for (int i = 0; i < dw; i++) {
+        for (int j = 0; j < dh; j++) {
+            pixels[(x * dw) + (y * dh)] = R;
+            pixels[(x * dw) + (y * dh)] = G;
+            pixels[(x * dw) + (y * dh)] = B;
+        }
+    }
+
+    memcpy(surface->pixels, pixels.data(), surface->pitch * surface->h);
+    SDL_UnlockSurface(surface);
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_RenderCopy(renderer, texture, &target, &target);
+    SDL_DestroyTexture(texture);
+
 }

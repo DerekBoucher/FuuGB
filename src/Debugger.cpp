@@ -4,10 +4,13 @@ wxBEGIN_EVENT_TABLE(Debugger, wxFrame)
 EVT_CLOSE(Debugger::OnClose)
 wxEND_EVENT_TABLE();
 
-Debugger::Debugger(wxFrame* parent, Gameboy* g, Memory* m, Cartridge* c) : wxFrame(parent, wxID_ANY, wxT("Debugger"), wxDefaultPosition, wxSize(NATIVE_SIZE_X* SCALE_FACTOR + 50, NATIVE_SIZE_Y* SCALE_FACTOR), wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER) {
+Debugger::Debugger(wxFrame* parent, Gameboy* g, Memory* m, Cartridge* c) : wxFrame(parent, wxID_ANY, wxT("Debugger"), wxDefaultPosition, wxSize(NATIVE_SIZE_X* SCALE_FACTOR + 60, NATIVE_SIZE_Y* SCALE_FACTOR)) {
     gameboyRef = g;
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    SetSizer(sizer);
 
     wxNotebook* tabbedWindow = new wxNotebook(this, wxID_ANY, wxPoint(0, 0), wxDefaultSize, wxNB_LEFT);
+    sizer->Add(tabbedWindow, 1, wxEXPAND);
 
     MemoryViewer* memoryPage = new MemoryViewer(tabbedWindow, m);
     CartridgeViewer* cartPage = new CartridgeViewer(tabbedWindow, c);

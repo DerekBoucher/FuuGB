@@ -8,6 +8,7 @@
 #include <wx/wx.h>
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
+#include <vector>
 
 class PPU {
 
@@ -26,10 +27,8 @@ private:
         uBYTE attributes;
     };
 
-    wxFrame* parent;
     SDL_Window* sdlWindow;
     SDL_Renderer* renderer;
-    SDL_Rect pixels[NATIVE_SIZE_X][NATIVE_SIZE_Y];
     uBYTE pixelData[NATIVE_SIZE_X][NATIVE_SIZE_Y];
     uBYTE LCDC;
     uBYTE STAT;
@@ -38,6 +37,7 @@ private:
     int scanlineCounter;
 
     void DrawScanline();
+    void RenderPixel(int, int, uBYTE, uBYTE, uBYTE);
     void RenderTiles();
     void RenderWindow();
     void RenderSprites();
